@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\student\StudentController as StudentDashboardController;
 
 // Authentication Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -56,18 +57,16 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:teacher'])->prefix('teacher')->group(function () {
         Route::get('/dashboard', function () {
             return view('teachers.dashboard');
-        })->name('teacher.dashboard');
+        })->name('teachers.dashboard');
     });
 
-    //     // Student Routes
-//     Route::middleware(['role:student'])->prefix('student')->group(function () {
-//         Route::get('/dashboard', function () {
-//             return view('student.dashboard');
-//         })->name('student.dashboard');
-//     });
+        // Student Routes
+    Route::middleware(['role:student'])->prefix('student')->group(function () {
+        Route::get('/dashboard', [StudentDashboardController::class, 'dashboard'])->name('student.dashboard');
+        Route::get('/gradebook', [StudentDashboardController::class, 'gradebook'])->name('student.gradebook');
+        Route::get('/events', [StudentDashboardController::class, 'events'])->name('student.events');
+        Route::get('/schedule', [StudentDashboardController::class, 'schedule'])->name('student.schedule');
+        Route::get('/assignments', [StudentDashboardController::class, 'assignments'])->name('student.assignments');
+    });
 
-    //     // Common Dashboard
-//     Route::get('/dashboard', function () {
-//         return view('dashboard');
-//     })->name('dashboard');
 });

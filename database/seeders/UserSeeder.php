@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Student;
+use App\Models\Teacher;
 
 class UserSeeder extends Seeder
 {
@@ -37,14 +38,32 @@ class UserSeeder extends Seeder
         ]);
         
         // Add more if you want
-        // User::create([
-        //     'id' => 3,
-        //     'name' => 'Nathaniel R. Kiskisan',
-        //     'email' => 'teacher@example.com',
-        //     'password' => Hash::make('teacher'),
-        //     'username' => 'STU00003',
-        //     'role' => 'teacher',
-        // ]);
+       $teacher1 = User::create([
+            'name' => 'Nathaniel R. Kiskisan',
+            'email' => 'teacher@example.com',
+            'password' => Hash::make('teacher'),
+            'username' => '',
+            'role' => 'teacher',
+        ]);
+
+        $teacher1->update([
+            'username' => 'TCH' . str_pad($teacher1->id, 5, '0', STR_PAD_LEFT)
+        ]);
+
+        Teacher::create([
+            'user_id' => $teacher1->id,
+            'employee_id' => $teacher1->username,
+            'department' => 'Math',
+            'position' => 'Teacher',
+            'address' => 'Leyte',
+            'phone' => '09123456745',
+            'birthdate' => '01/01/2003',
+            'gender' => 'male',
+            'date_joined' => '01/01/2025',
+            'qualification' => 'masunurin',
+            'specialization' => 'Math',
+            'status' => 'active',
+        ]);
 
         $studentUser1 = User::create([
             'name' => 'Leslie Lumapac',

@@ -1,5 +1,5 @@
 <!-- resources/views/dashboard.blade.php -->
-@extends('layouts.teacherApp')
+@extends('layouts.studentApp')
 
 @section('content')
     <div class="container-fluid py-3">
