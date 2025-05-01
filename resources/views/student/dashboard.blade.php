@@ -6,8 +6,8 @@
         <!-- Header Section -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-1 text-primary">{{ $dashboardTitle ?? 'Admin Dashboard' }}</h2>
-                <p class="text-muted mb-0 small">Welcome back, {{ Auth::user()->name }}</p>
+                <h2 class="fw-bold mb-1 text-primary">{{ $dashboardTitle ?? 'Student Dashboard' }}</h2>
+                <p class="text-muted mb-0 small">Welcome, {{ Auth::user()->name }}</p>
             </div>
         </div>
 
@@ -27,14 +27,12 @@
                         @endforeach
 
                         @if(empty($quickActions))
-                            <a href="{{ route('admin.students.create') }}" class="btn btn-primary shadow-sm">
-                                <i class="bi bi-person-plus me-2"></i>Add New Student
+                            
+                            <a href="{{ route('student.gradebook') }}" class="btn btn-outline-primary shadow-sm">
+                                <i class="bi bi-file-earmark-plus me-2"></i>See Grades
                             </a>
-                            <a href="#" class="btn btn-outline-primary shadow-sm">
-                                <i class="bi bi-file-earmark-plus me-2"></i>Create New Class
-                            </a>
-                            <a href="#" class="btn btn-outline-primary shadow-sm">
-                                <i class="bi bi-calendar-plus me-2"></i>Schedule Event
+                            <a href="{{ route('student.events') }}" class="btn btn-outline-primary shadow-sm">
+                                <i class="bi bi-calendar-plus me-2"></i>See Events
                             </a>
                         @endif
                     </div>

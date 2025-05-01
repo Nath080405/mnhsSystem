@@ -26,17 +26,9 @@
             </a>
         </li>
         
-        <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('student.schedule') }}">
-                <i class="bi bi-calendar-week me-2"></i> Schedule
-            </a>
-        </li>
         
-        <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('student.assignments') }}">
-                <i class="bi bi-journal-check me-2"></i> Assignments
-            </a>
-        </li>
+        
+        
     </ul>
 
     <!-- Bottom User Info and Logout -->
