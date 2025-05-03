@@ -9,32 +9,32 @@
     <ul class="nav flex-column mt-3 px-2">
         <!-- Dashboard -->
         <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('student.dashboard') }}">
+            <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.dashboard') }}">
                 <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
         </li>
 
         <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('student.gradebook') }}">
-                <i class="bi bi-journal-text me-2"></i> Gradebook
+            <a class="nav-link d-flex justify-content-between align-items-center rounded" data-bs-toggle="collapse"
+                href="#usersSubmenu" role="button">
+                <span><i class="bi bi-people-fill me-2"></i> Students</span>
+                <i class="bi bi-chevron-down small"></i>
             </a>
+            <div class="collapse ps-4" id="usersSubmenu">
+                <a href="{{ route('teachers.student') }}" class="nav-link py-2">My students</a>
+                <a href="{{ route('teachers.grade') }}" class="nav-link py-2">Grades of students</a>
+            </div>
         </li>
 
         <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('student.events') }}">
-                <i class="bi bi-calendar-event me-2"></i> Events
+            <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.subject') }}">
+                <i class="bi bi-calendar-event me-2"></i> Subjects
             </a>
         </li>
         
         <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('student.schedule') }}">
-                <i class="bi bi-calendar-week me-2"></i> Schedule
-            </a>
-        </li>
-        
-        <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('student.assignments') }}">
-                <i class="bi bi-journal-check me-2"></i> Assignments
+            <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.event') }}">
+                <i class="bi bi-calendar-week me-2"></i> Events
             </a>
         </li>
     </ul>
