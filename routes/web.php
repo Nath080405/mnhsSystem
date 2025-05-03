@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:student'])->prefix('student')->group(function () {
         Route::get('/dashboard', [StudentDashboardController::class, 'dashboard'])->name('student.dashboard');
         Route::get('/gradebook', [StudentDashboardController::class, 'gradebook'])->name('student.gradebook');
+        Route::get('/gradebook/pdf', [StudentDashboardController::class, 'downloadGradebookPDF'])->name('student.gradebook.pdf');
         Route::get('/events', [StudentDashboardController::class, 'events'])->name('student.events');
         Route::get('/schedule', [StudentDashboardController::class, 'schedule'])->name('student.schedule');
         Route::get('/assignments', [StudentDashboardController::class, 'assignments'])->name('student.assignments');

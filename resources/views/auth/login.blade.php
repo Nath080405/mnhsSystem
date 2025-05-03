@@ -9,7 +9,7 @@
                     <!-- Logo -->
                     <div class="text-center mb-3">
                         <img src="{{ asset('MedellinLogo.png') }}" alt="Logo" class="img-fluid mb-2" style="height: 60px;">
-                        <h2 class="fw-bold text-primary mb-1" style="font-size: 1.5rem;">Welcome Back</h2>
+                        <h2 class="fw-bold text-primary mb-1" style="font-size: 1.5rem;">Welcome!</h2>
                         <p class="text-muted small">Please sign in to your account</p>
                     </div>
 
@@ -24,7 +24,7 @@
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
                         <div class="mb-3">
-                            <label for="username" class="form-label text-muted small">Email Address</label>
+                            <label for="username" class="form-label text-muted small">School ID</label>
                             <div class="input-group shadow-sm">
                                 <span class="input-group-text bg-white border-end-0">
                                     <i class="bi bi-envelope text-muted"></i>
