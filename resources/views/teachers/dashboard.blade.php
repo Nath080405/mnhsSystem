@@ -6,13 +6,13 @@
         <!-- Header Section -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-1 text-primary">{{ $dashboardTitle ?? 'Admin Dashboard' }}</h2>
+                <h2 class="fw-bold mb-1 text-primary">{{ $dashboardTitle ?? 'Teacher Dashboard' }}</h2>
                 <p class="text-muted mb-0 small">Welcome back, {{ Auth::user()->name }}</p>
             </div>
         </div>
 
-        @if(View::exists('admin.dashboards.' . Auth::user()->role))
-            @include('admin.dashboards.' . Auth::user()->role)
+        @if(View::exists('teachers.dashboard.' . Auth::user()->role))
+            @include('teachers.dashboard.' . Auth::user()->role)
         @else
             <!-- Quick Actions -->
             <div class="card shadow-sm border-0 mb-4">
@@ -27,7 +27,7 @@
                         @endforeach
 
                         @if(empty($quickActions))
-                            <a href="{{ route('admin.students.create') }}" class="btn btn-primary shadow-sm">
+                            <a href="{{ route('teachers.student.index') }}" class="btn btn-primary shadow-sm">
                                 <i class="bi bi-person-plus me-2"></i>Add New Student
                             </a>
                             <a href="#" class="btn btn-outline-primary shadow-sm">

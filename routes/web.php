@@ -7,6 +7,9 @@ use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\student\StudentController as StudentDashboardController;
+use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController;
+
+
 
 // Authentication Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -53,14 +56,35 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/students/{id}', [StudentController::class, 'show'])->name('admin.students.show');
     });
 
-        // Teacher Routes
+    // Teacher Routes
     Route::middleware(['role:teacher'])->prefix('teacher')->group(function () {
         Route::get('/dashboard', function () {
             return view('teachers.dashboard');
         })->name('teachers.dashboard');
-    });
+    
+        Route::get('/student', [TeacherDashboardController::class, 'student'])->name('teachers.student');
+        Route::get('/student/add', [TeacherDashboardController::class, 'addStudent'])->name('teachers.students.addStudents');
+        Route::get('/student/index', [TeacherController::class, 'indexStudent'])->name('teachers.student.index');
+        Route::get('/student/create', [TeacherDashboardController::class, 'createStudent'])->name('teachers.student.create');
+    
+        Route::get('/subject', [TeacherDashboardController::class, 'subjectIndex'])->name('teachers.subject');
+        Route::post('/subject', [TeacherDashboardController::class, 'storeSubject'])->name('teachers.subject.index');
+    
+        Route::get('/grade', [TeacherDashboardController::class, 'gradeIndex'])->name('teachers.grade');
+    
+        // Remove these conflicting routes
+        // Route::get('/event', [TeacherDashboardController::class, 'eventIndex'])->name('teachers.event');
+        // Route::get('/event', [TeacherController::class, 'eventIndex'])->name('teachers.event');
+    
+        // Keep only these for events
+        Route::get('/teacher/event', [TeacherDashboardController::class, 'event'])->name('teachers.event.index');
+        Route::get('/event', [TeacherDashboardController::class, 'event'])->name('teachers.event');
+        Route::get('/event/create', [TeacherDashboardController::class, 'create'])->name('teachers.event.create');
+        Route::post('/event', [TeacherDashboardController::class, 'store'])->name('teachers.event.store');
+    }); //ayaw og lapas dre
 
-        // Student Routes
+
+    // Student Routes
     Route::middleware(['role:student'])->prefix('student')->group(function () {
         Route::get('/dashboard', [StudentDashboardController::class, 'dashboard'])->name('student.dashboard');
         Route::get('/gradebook', [StudentDashboardController::class, 'gradebook'])->name('student.gradebook');
