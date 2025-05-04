@@ -109,22 +109,22 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col" class="border-0 ps-3 py-3 text-uppercase small fw-semibold">ID</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Teacher Information</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Department</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Contact</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Status</th>
-                                <th scope="col" class="border-0 text-end pe-3 py-3 text-uppercase small fw-semibold">Actions</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">ID</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Teacher Information</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Department</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Contact</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Status</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($teachers as $teacher)
                                 <tr class="shadow-sm">
-                                    <td class="ps-3 py-3">
+                                    <td class="px-3 py-3">
                                         <span
                                             class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 fw-medium shadow-sm">{{ $teacher->teacher?->employee_id ?? 'N/A' }}</span>
                                     </td>
-                                    <td class="py-3">
+                                    <td class="px-3 py-3">
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-sm me-2 shadow">
                                                 <span class="avatar-title bg-primary bg-opacity-10 text-primary">
@@ -140,13 +140,13 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="py-3">
+                                    <td class="px-3 py-3">
                                         <span class="badge bg-info bg-opacity-10 text-info px-2 py-1 fw-medium shadow-sm">
                                             <i class="bi bi-building me-1"></i>
                                             {{ $teacher->teacher?->department ?? 'N/A' }}
                                         </span>
                                     </td>
-                                    <td class="py-3">
+                                    <td class="px-3 py-3">
                                         <div class="d-flex align-items-center">
                                             <i class="bi bi-envelope text-muted me-2"></i>
                                             <a href="mailto:{{ $teacher->email }}" class="text-decoration-none">
@@ -160,12 +160,12 @@
                                         </div>
                                         @endif
                                     </td>
-                                    <td class="py-3">
+                                    <td class="px-3 py-3">
                                         <span class="badge bg-{{ $teacher->teacher?->status === 'active' ? 'success' : 'danger' }} text-capitalize px-2 py-1 fw-medium shadow-sm">
                                             {{ ucfirst($teacher->teacher?->status ?? 'N/A') }}
                                         </span>
                                     </td>
-                                    <td class="text-end pe-3 py-3">
+                                    <td class="px-3 py-3 text-end">
                                         <div class="btn-group shadow" role="group">
                                             <a href="{{ route('admin.teachers.edit', ['id' => $teacher->id]) }}"
                                                 class="btn btn-sm btn-outline-primary px-2" data-bs-toggle="tooltip"

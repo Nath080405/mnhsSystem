@@ -117,13 +117,12 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col" class="border-0 ps-3 py-3 text-uppercase small fw-semibold">ID</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Student Information</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Class/Grade</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Contact</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Guardian</th>
-                                <th scope="col" class="border-0 py-3 text-uppercase small fw-semibold">Status</th>
-                                <th scope="col" class="border-0 text-end pe-3 py-3 text-uppercase small fw-semibold">Actions</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Student ID</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Name</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Grade/Class</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Email</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Status</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -161,18 +160,6 @@
                                             <a href="mailto:{{ $student->email }}" class="text-decoration-none">
                                                 {{ $student->email }}
                                             </a>
-                                        </div>
-                                    </td>
-                                    <td class="py-3">
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-person-fill text-muted me-2"></i>
-                                            <div>
-                                                <h6 class="mb-1 fw-medium">{{ $student->student?->guardian_name ?? 'N/A' }}</h6>
-                                                <small class="text-muted">
-                                                    <i class="bi bi-phone me-1"></i>
-                                                    {{ $student->student?->guardian_phone ?? 'N/A' }}
-                                                </small>
-                                            </div>
                                         </div>
                                     </td>
                                     <td class="py-3">
