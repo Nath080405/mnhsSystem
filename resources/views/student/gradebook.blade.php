@@ -6,15 +6,18 @@
         <!-- Main Content -->
         <div class="col-md-9 col-lg-12 ms-auto">
             <div class="p-4">
-                <!-- Header -->
+                <!-- Header with Download PDF Button -->
                 <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2" style="border-color: black !important;">
                     <div>
                         <p class="mb-1 text-black-50" style="font-size: 0.9rem;">Overview</p>
                         <h3 class="mb-0 fw-bold text-black">My Grades</h3>
                     </div>
+                    <a href="{{ route('student.gradebook.pdf') }}" class="btn btn-outline-dark">
+                        🖨️ Download PDF
+                    </a>
                 </div>
 
-                <!-- Gradebook Content with Background -->
+                <!-- Gradebook Content -->
                 <div class="gradebook-content" style="background-color: #ffffff; max-width: 1200px; margin: 0 auto;">
                     <!-- Semester Selection -->
                     <div class="mb-3">
@@ -43,6 +46,7 @@
                             <tr><td>Filipino</td><td class="first-sem"></td><td class="first-sem"></td><td class="second-sem" style="display: none;"></td><td class="second-sem" style="display: none;"></td></tr>
                             <tr><td>TLE</td><td class="first-sem"></td><td class="first-sem"></td><td class="second-sem" style="display: none;"></td><td class="second-sem" style="display: none;"></td></tr>
                         </tbody>
+                        
                         <tfoot>
                             <tr class="first-sem">
                                 <td colspan="2" class="text-end"><strong>General Average for 1st Semester</strong></td>
@@ -133,6 +137,9 @@
 </style>
 
 @push('scripts')
+<!-- Include html2pdf library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const semesterSelect = document.getElementById('semesterSelect');
@@ -154,6 +161,19 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTableDisplay();
     semesterSelect.addEventListener('change', updateTableDisplay);
 });
+
+function downloadPDF() {
+    const element = document.querySelector('.gradebook-content');
+    const opt = {
+        margin:       0.5,
+        filename:     'gradebook.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+}
 </script>
 @endpush
 @endsection
