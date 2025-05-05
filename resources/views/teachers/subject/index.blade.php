@@ -1,47 +1,46 @@
 @extends('layouts.teacherApp')
 
 @section('content')
-<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="card shadow-lg border-0" style="width: 500px;">
+<div class="container py-4">
+    <h3 class="fw-bold text-primary mb-4">Subjects</h3>
+    <a href="{{ route('teachers.subject.create') }}" class="btn btn-primary mb-3">Add New Subject</a>
 
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-        <div class="card-body">
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Oops!</strong> Please fix the following errors:<br><br>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <!-- Updated Form Action -->
-            <form action="{{ route('teachers.subject.index') }}" method="POST">
-                @csrf
-
-                <div class="mb-3">
-                    <label for="name" class="form-label">Subject Name</label>
-                    <input type="text" name="name" class="form-control" placeholder="e.g. Mathematics" value="{{ old('name') }}">
-                </div>
-
-                <div class="mb-3">
-                    <label for="code" class="form-label">Subject Code</label>
-                    <input type="text" name="code" class="form-control" placeholder="e.g. MATH101" value="{{ old('code') }}">
-                </div>
-
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea name="description" class="form-control" rows="3" placeholder="Optional">{{ old('description') }}</textarea>
-                </div>
-
-                <div class="d-flex gap-3 mt-4">
-                    <a href="{{ route('teachers.subject') }}" class="btn btn-secondary">Back</a>
-                    <button type="submit" class="btn btn-primary">Add Subject</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    @if($subjects->isEmpty())  <!-- Check if subjects are available -->
+        <div class="alert alert-warning">No subjects available. Please add a new subject.</div>
+    @else
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Subject Name</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($subjects as $subject)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td class="fw-semibold">{{ $subject->name }}</td>
+                        <td><span class="badge bg-primary">{{ $subject->code }}</span></td>
+                        <td>{{ Str::limit($subject->description, 60) }}</td>
+                        <td class="text-center">
+                            <a href="{{ route('teachers.subject.show', $subject->id) }}" class="btn btn-sm btn-info text-white me-1">
+                                <i class="bi bi-eye"></i> Show
+                            </a>
+                            <a href="{{ route('teachers.subject.edit', $subject->id) }}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
 </div>
 @endsection

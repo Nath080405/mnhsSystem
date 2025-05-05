@@ -40,7 +40,7 @@ class StudentController extends Controller
             'birthdate' => $request->birthdate,
         ]);
 
-        return redirect()->route('students.index')->with('success', 'Student added successfully!');
+        return redirect()->route('student.index')->with('success', 'Student added successfully!');
     }
 
     public function edit($id)
@@ -60,7 +60,7 @@ class StudentController extends Controller
 
         $student->update($validated);
 
-        return redirect()->route('students.index')->with('success', 'Student updated successfully!');
+        return redirect()->route('student.index')->with('success', 'Student updated successfully!');
     }
 
     public function destroy($id)
