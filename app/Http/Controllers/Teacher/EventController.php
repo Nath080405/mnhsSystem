@@ -1,36 +1,40 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Teacher;
 
-use App\Models\Event;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Event;
 
 class EventController extends Controller
 {
-    // Display all events
+    // Display the list of events
     public function index()
     {
-        $events = Event::all(); // Fetch all events
-        return view('teachers.event', compact('events'));
+        // Fetch events for the logged-in teacher
+        $events = Event::where('teacher_id', auth()->id())->get();
+    
+        // Pass the events to the view
+        return view('teachers.event.index', compact('events'));
     }
-
-    // Show the form to create an event
+    // Show the form to create a new event
     public function create()
     {
-        return view('teachers.index'); // Assuming the form is in index.blade.php
+        return view('teachers.event.create'); // Ensure this view exists
     }
 
-    // Store the event in the database
-    public function store(Request $request)
+    public function edit($id)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'event_date' => 'required|date',
-        ]);
-
-        Event::create($request->all()); // Save the event
-
-        return redirect()->route('teachers.event.index')->with('success', 'Event created successfully!');
+        $event = Event::findOrFail($id);
+        return view('teachers.event.edit', compact('event')); // Render an edit form
     }
+
+    public function update(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
+        $event->update($request->all());
+        return redirect()->route('teachers.event.index')->with('success', 'Event updated successfully');
+    }
+ 
+
 }
