@@ -27,15 +27,15 @@
         </li>
 
         <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.subject') }}">
-                <i class="bi bi-calendar-event me-2"></i> Subjects
-            </a>
+        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.subject') }}">
+         <i class="bi bi-calendar-event me-2"></i> Subjects
+        </a>
         </li>
         
         <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.event') }}">
+        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.event') }}">
                 <i class="bi bi-calendar-week me-2"></i> Events
-            </a>
+        </a>
         </li>
     </ul>
 
