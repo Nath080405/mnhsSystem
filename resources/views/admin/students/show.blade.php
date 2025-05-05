@@ -78,12 +78,8 @@
                                     <div class="card-body">
                                         <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Academic & Guardian Information</h6>
                                         <div class="mb-3">
-                                            <label class="form-label">Grade</label>
-                                            <p class="mb-0">{{ $student->student?->grade ?? 'Not Assigned' }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Section</label>
-                                            <p class="mb-0">{{ $student->student?->section ?? 'Not Assigned' }}</p>
+                                            <label class="form-label">Student ID</label>
+                                            <p class="mb-0">{{ $student->student?->student_id ?? 'Not Assigned' }}</p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Guardian Name</label>

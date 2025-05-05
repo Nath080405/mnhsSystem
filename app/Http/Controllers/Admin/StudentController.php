@@ -14,12 +14,6 @@ class StudentController extends Controller
             ->with('student');
 
         // Apply filters
-        if ($request->filled('grade')) {
-            $query->whereHas('student', function ($q) use ($request) {
-                $q->where('grade', $request->grade);
-            });
-        }
-
         if ($request->filled('status')) {
             $query->whereHas('student', function ($q) use ($request) {
                 $q->where('status', $request->status);
@@ -39,16 +33,7 @@ class StudentController extends Controller
 
         $students = $query->paginate(4)->withQueryString();
 
-        // Get unique grades for filter dropdown
-        $grades = User::where('role', 'student')
-            ->whereHas('student', function ($q) {
-                $q->whereNotNull('grade');
-            })
-            ->join('students', 'users.id', '=', 'students.user_id')
-            ->distinct()
-            ->pluck('students.grade');
-
-        return view('admin.students.index', compact('students', 'grades'));
+        return view('admin.students.index', compact('students'));
     }
 
     public function create()
@@ -62,8 +47,6 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'grade' => 'required|string',
-            'section' => 'required|string',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birthdate' => 'nullable|date',
@@ -90,8 +73,6 @@ class StudentController extends Controller
         // Create student record
         $student = new \App\Models\Student();
         $student->user_id = $user->id;
-        $student->grade = $validated['grade'];
-        $student->section = $validated['section'];
         $student->student_id = $user->username;
         $student->phone = $validated['phone'] ?? null;
         $student->address = $validated['address'] ?? null;
@@ -141,8 +122,6 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:6|confirmed',
-            'grade' => 'nullable|string',
-            'section' => 'nullable|string',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birthdate' => 'nullable|date',
@@ -169,8 +148,6 @@ class StudentController extends Controller
         // Update or create student record
         if ($user->student) {
             $user->student()->update([
-                'grade' => $validated['grade'],
-                'section' => $validated['section'],
                 'phone' => $validated['phone'],
                 'address' => $validated['address'],
                 'birthdate' => $validated['birthdate'],
@@ -183,8 +160,6 @@ class StudentController extends Controller
         } else {
             // Create student record if it doesn't exist
             $user->student()->create([
-                'grade' => $validated['grade'],
-                'section' => $validated['section'],
                 'student_id' => $user->username,
                 'phone' => $validated['phone'],
                 'address' => $validated['address'],
@@ -195,8 +170,6 @@ class StudentController extends Controller
                 'guardian_email' => $validated['guardian_email'],
                 'status' => $validated['status'] ?? 'active',
             ]);
-
-
         }
 
         return redirect()->route('admin.students.index')->with('success', 'Student updated successfully!');

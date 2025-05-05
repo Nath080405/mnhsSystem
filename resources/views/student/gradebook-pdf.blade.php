@@ -52,8 +52,6 @@
         <h3>Student Information</h3>
         <p><strong>Name:</strong> {{ Auth::user()->name }}</p>
         <p><strong>Student ID:</strong> {{ Auth::user()->student?->student_id ?? 'N/A' }}</p>
-        <p><strong>Grade Level:</strong> {{ Auth::user()->student?->grade ?? 'N/A' }}</p>
-        <p><strong>Section:</strong> {{ Auth::user()->student?->section ?? 'N/A' }}</p>
     </div>
 
     @foreach($grades as $semester => $semesterGrades)

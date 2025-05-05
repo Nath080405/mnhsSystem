@@ -58,30 +58,8 @@
                         <div class="col-md-6">
                             <h5 class="mb-3">Academic Information</h5>
                             <div class="mb-3">
-                                <label class="form-label">Grade Level</label>
-                                <select name="grade" id="grade" class="form-select" required>
-                                    <option value="">Select Grade Level</option>
-                                    <option value="Grade 7" {{ old('grade') == 'Grade 7' ? 'selected' : '' }}>Grade 7</option>
-                                    <option value="Grade 8" {{ old('grade') == 'Grade 8' ? 'selected' : '' }}>Grade 8</option>
-                                    <option value="Grade 9" {{ old('grade') == 'Grade 9' ? 'selected' : '' }}>Grade 9</option>
-                                    <option value="Grade 10" {{ old('grade') == 'Grade 10' ? 'selected' : '' }}>Grade 10
-                                    </option>
-                                    <option value="Grade 11" {{ old('grade') == 'Grade 11' ? 'selected' : '' }}>Grade 11
-                                    </option>
-                                    <option value="Grade 12" {{ old('grade') == 'Grade 12' ? 'selected' : '' }}>Grade 12
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Section</label>
-                                <select name="section" id="section" class="form-select" required>
-                                    <option value="">Select Section</option>
-                                    <!-- Grade 7 Sections -->
-                                    <option value="Grade 7 - Section A" class="grade-7" {{ old('section') == 'Grade 7 - Section A' ? 'selected' : '' }}>Section A</option>
-                                    <option value="Grade 7 - Section B" class="grade-7" {{ old('section') == 'Grade 7 - Section B' ? 'selected' : '' }}>Section B</option>
-                                    <option value="Grade 7 - Section C" class="grade-7" {{ old('section') == 'Grade 7 - Section C' ? 'selected' : '' }}>Section C</option>
-                                </select>
+                                <label class="form-label">Student ID</label>
+                                <input type="text" class="form-control" value="Auto-generated" disabled>
                             </div>
 
                             <h5 class="mb-3 mt-4">Guardian Information</h5>

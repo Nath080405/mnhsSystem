@@ -79,8 +79,6 @@ class UserSeeder extends Seeder
 
         Student::create([
         'user_id' => $studentUser1->id,
-        'grade' => '7',
-        'section' => 'Ruby',
         'student_id' => $studentUser1->username,
         'phone' => '09123456745',
         'address' => 'Leyte',

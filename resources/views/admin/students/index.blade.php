@@ -15,16 +15,11 @@
                             <span class="input-group-text bg-white border-end-0">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
-                            <input type="text" 
-                                   name="search" 
-                                   class="form-control border-start-0" 
-                                   placeholder="Search students..." 
-                                   value="{{ request('search') }}"
-                                   autocomplete="off">
+                            <input type="text" name="search" class="form-control border-start-0"
+                                placeholder="Search students..." value="{{ request('search') }}" autocomplete="off">
                             @if(request()->has('search'))
-                                <a href="{{ route('admin.students.index') }}" 
-                                   class="btn btn-link text-muted px-2" 
-                                   title="Clear search">
+                                <a href="{{ route('admin.students.index') }}" class="btn btn-link text-muted px-2"
+                                    title="Clear search">
                                     <i class="bi bi-x-lg"></i>
                                 </a>
                             @endif
@@ -119,10 +114,10 @@
                             <tr>
                                 <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Student ID</th>
                                 <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Name</th>
-                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Grade/Class</th>
                                 <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Email</th>
                                 <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold">Status</th>
-                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold text-end">Actions</th>
+                                <th scope="col" class="border-0 px-3 py-3 text-uppercase small fw-semibold text-end">Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,12 +144,6 @@
                                         </div>
                                     </td>
                                     <td class="py-3">
-                                        <span class="badge bg-info bg-opacity-10 text-info px-2 py-1 fw-medium shadow-sm">
-                                            <i class="bi bi-mortarboard me-1"></i>
-                                            {{ $student->student?->grade ?? 'N/A' }}
-                                        </span>
-                                    </td>
-                                    <td class="py-3">
                                         <div class="d-flex align-items-center">
                                             <i class="bi bi-envelope text-muted me-2"></i>
                                             <a href="mailto:{{ $student->email }}" class="text-decoration-none">
@@ -163,7 +152,8 @@
                                         </div>
                                     </td>
                                     <td class="py-3">
-                                        <span class="badge bg-{{ $student->student?->status === 'active' ? 'success' : 'danger' }} text-capitalize px-2 py-1 fw-medium shadow-sm">
+                                        <span
+                                            class="badge bg-{{ $student->student?->status === 'active' ? 'success' : 'danger' }} text-capitalize px-2 py-1 fw-medium shadow-sm">
                                             {{ ucfirst($student->student?->status ?? 'inactive') }}
                                         </span>
                                     </td>
@@ -175,8 +165,8 @@
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <a href="{{ route('admin.students.show', $student->id) }}"
-                                                class="btn btn-sm btn-outline-info px-2"
-                                                data-bs-toggle="tooltip" data-bs-placement="top" title="View Details">
+                                                class="btn btn-sm btn-outline-info px-2" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" title="View Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST"
