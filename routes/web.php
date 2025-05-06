@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\StudentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\student\StudentController as StudentDashboardController;
 use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController;
@@ -27,6 +28,14 @@ Route::middleware(['auth'])->group(function () {
         // Profile Routes
         Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
+
+        // Section Management Routes
+        Route::get('/sections', [SectionController::class, 'index'])->name('admin.sections.index');
+        Route::get('/sections/create', [SectionController::class, 'create'])->name('admin.sections.create');
+        Route::post('/sections', [SectionController::class, 'store'])->name('admin.sections.store');
+        Route::get('/sections/{section}/edit', [SectionController::class, 'edit'])->name('admin.sections.edit');
+        Route::put('/sections/{section}', [SectionController::class, 'update'])->name('admin.sections.update');
+        Route::delete('/sections/{section}', [SectionController::class, 'destroy'])->name('admin.sections.destroy');
 
         // Subject Management Routes
         Route::get('/subjects', [SubjectController::class, 'index'])->name('admin.subjects.index');
@@ -73,10 +82,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/subject', [TeacherDashboardController::class, 'storeSubject'])->name('teachers.subject.index');
 
         Route::get('/grade', [TeacherDashboardController::class, 'gradeIndex'])->name('teachers.grade');
-
-        // Remove these conflicting routes
-        // Route::get('/event', [TeacherDashboardController::class, 'eventIndex'])->name('teachers.event');
-        // Route::get('/event', [TeacherController::class, 'eventIndex'])->name('teachers.event');
 
         Route::get('/teacher/student/search', [TeacherDashboardController::class, 'searchStudent'])->name('teachers.student.search');
 
