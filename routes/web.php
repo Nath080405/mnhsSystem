@@ -67,57 +67,38 @@ Route::middleware(['auth'])->group(function () {
 
     // Teacher Routes
     Route::middleware(['role:teacher'])->prefix('teacher')->group(function () {
+        // Dashboard
         Route::get('/dashboard', function () {
             return view('teachers.dashboard');
         })->name('teachers.dashboard');
+    
+        // Student Management Routes
+        Route::get('/students', [TeacherDashboardController::class, 'indexStudent'])->name('teachers.student.index');
+        Route::get('/students/create', [TeacherDashboardController::class, 'createStudent'])->name('teachers.student.create');
+        Route::post('/students', [TeacherDashboardController::class, 'storeStudent'])->name('teachers.student.store');
+        Route::get('/students/search', [TeacherDashboardController::class, 'search'])->name('teachers.student.search');
+        Route::get('/students/grade', [TeacherDashboardController::class, 'indexStudentGrade'])->name('teachers.student.grade.index');
 
-        //students
-        Route::get('/student', [TeacherDashboardController::class, 'student'])->name('teachers.student');
-        Route::get('/student/add', [TeacherDashboardController::class, 'addStudent'])->name('teachers.student.addStudents');
-        Route::get('/student/index', [TeacherDashboardController::class, 'indexStudent'])->name('teachers.student.index');
-        Route::post('/student', [TeacherDashboardController::class, 'storeStudent'])->name('teachers.student.store');
-        Route::get('/student/create', [TeacherDashboardController::class, 'createStudent'])->name('teachers.student.create');
-
-        Route::get('/subject', [TeacherDashboardController::class, 'subjectIndex'])->name('teachers.subject');
-        Route::post('/subject', [TeacherDashboardController::class, 'storeSubject'])->name('teachers.subject.index');
-
-        Route::get('/grade', [TeacherDashboardController::class, 'gradeIndex'])->name('teachers.grade');
-
-        Route::get('/teacher/student/search', [TeacherDashboardController::class, 'searchStudent'])->name('teachers.student.search');
-
-        // Subject Management 
-        Route::get('/subjects', [TeacherDashboardController::class, 'index'])->name('teachers.subject');
-
-        Route::get('/subject', [TeacherDashboardController::class, 'index'])->name('teachers.subject.index');
-        Route::get('/subject/create', [TeacherDashboardController::class, 'create'])->name('teachers.subject.create');
-        Route::get('/subject/{subject}', [TeacherDashboardController::class, 'show'])->name('teachers.subject.show'); // ✅ fixed this line
-        Route::post('/subject', [TeacherDashboardController::class, 'store'])->name('teachers.subject.store');
-        Route::put('/teacher/subject/{id}', [TeacherDashboardController::class, 'update'])->name('teachers.subject.update');
-        Route::get('/teacher/subject/{id}/edit', [TeacherDashboardController::class, 'edit'])->name('teachers.subject.edit');
-        Route::delete('/subject/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.subject.destroy');
-
-
+    
+        // Subject Management Routes
+        Route::get('/subjects', [TeacherDashboardController::class, 'subjectIndex'])->name('teachers.subject.index');
+        Route::get('/subjects/create', [TeacherDashboardController::class, 'create'])->name('teachers.subject.create');
+        Route::post('/subjects', [TeacherDashboardController::class, 'store'])->name('teachers.subject.store');
+        Route::get('/subjects/{id}/edit', [TeacherDashboardController::class, 'edit'])->name('teachers.subject.edit');
+        Route::put('/subjects/{id}', [TeacherDashboardController::class, 'update'])->name('teachers.subject.update');
+        Route::delete('/subjects/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.subject.destroy');
+        Route::get('/subjects/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.subject.show');
+    
         // Grade Management Routes
-        Route::get('/grade', [TeacherDashboardController::class, 'gradeIndex'])->name('teachers.grade');
-        Route::get('index', [TeacherController::class, 'indexGrade'])->name('teacher.grade.index');//no code
-        Route::get('create', [TeacherController::class, 'createGrade'])->name('teacher.grade.create');//nocode
-        Route::post('store', [TeacherController::class, 'storeGrade'])->name('teacher.grade.store');//no code
-        Route::get('{id}/edit', [TeacherController::class, 'editGrade'])->name('teacher.grade.edit');//
-        Route::put('{id}/update', [TeacherController::class, 'updateGrade'])->name('teacher.grade.update');//
-
-        // Keep only these for events
-
-        // Events Routes
-        Route::get('/teacher/event', [TeacherDashboardController::class, 'index'])->name('teachers.event.index');
-        Route::get('/event', [TeacherDashboardController::class, 'event'])->name('teachers.event');
-        Route::get('/event/create', [TeacherDashboardController::class, 'create'])->name('teachers.event.create');
-        Route::post('/event', [TeacherDashboardController::class, 'store'])->name('teachers.event.store');
-        Route::post('/event/preview', [TeacherDashboardController::class, 'preview'])->name('teachers.event.preview');
-
-        // Add the edit route here:
-        Route::get('/event/{id}/edit', [TeacherDashboardController::class, 'edit'])->name('teachers.event.edit'); // This is your missing route
-        Route::put('/event/{id}', [TeacherDashboardController::class, 'update'])->name('teachers.event.update'); // To update event after editing
-        Route::delete('/event/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.event.destroy');
+    
+        // Event Management Routes
+        Route::get('/events', [TeacherDashboardController::class, 'event'])->name('teachers.event.index');
+        Route::get('/events/create', [TeacherDashboardController::class, 'create'])->name('teachers.event.create');
+        Route::post('/events', [TeacherDashboardController::class, 'store'])->name('teachers.event.store');
+        Route::post('/events/preview', [TeacherDashboardController::class, 'preview'])->name('teachers.event.preview');
+        Route::get('/events/{id}/edit', [TeacherDashboardController::class, 'edit'])->name('teachers.event.edit');
+        Route::put('/events/{id}', [TeacherDashboardController::class, 'update'])->name('teachers.event.update');        Route::delete('/events/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.event.destroy');
+        Route::get('/events/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.event.show');
 
 
     }); //ayaw og lapas dre

@@ -46,9 +46,7 @@ class SubjectController extends Controller
         return redirect()->route('teachers.subject.index')->with('success', 'Subject created successfully!');
     }
 
-    /**
-     * Show the form for editing the specified subject.
-     */
+
     public function edit($id)
     {
         // Ensure the teacher can only edit their own subjects
@@ -59,9 +57,7 @@ class SubjectController extends Controller
         return view('teachers.subject.create', compact('subject'));
     }
 
-    /**
-     * Update the specified subject in storage.
-     */
+
     public function update(Request $request, $id)
     {
         // Ensure the teacher can only update their own subjects
@@ -96,9 +92,6 @@ class SubjectController extends Controller
         return view('teachers.subject.show', compact('subject'));
     }
 
-    /**
-     * Remove the specified subject from storage.
-     */
     public function destroy($id)
     {
         // Ensure the teacher can only delete their own subjects

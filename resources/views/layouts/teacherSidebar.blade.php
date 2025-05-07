@@ -21,19 +21,19 @@
                 <i class="bi bi-chevron-down small"></i>
             </a>
             <div class="collapse ps-4" id="usersSubmenu">
-                <a href="{{ route('teachers.student') }}" class="nav-link py-2">My students</a>
-                <a href="{{ route('teachers.grade') }}" class="nav-link py-2">Grades of students</a>
+                <a href="{{ route('teachers.student.index') }}" class="nav-link py-2">My students</a>
+                <a href="{{ route('teachers.student.grade.index') }}" class="nav-link py-2">Grades of students</a>
             </div>
         </li>
 
         <li class="nav-item mb-2">
-        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.subject') }}">
+        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.subject.index') }}">
          <i class="bi bi-calendar-event me-2"></i> Subjects
         </a>
         </li>
         
         <li class="nav-item mb-2">
-        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.event') }}">
+        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.event.index') }}">
                 <i class="bi bi-calendar-week me-2"></i> Events
         </a>
         </li>

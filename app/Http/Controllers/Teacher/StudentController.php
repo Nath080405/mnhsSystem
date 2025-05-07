@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Student; // Assuming you have a separate Student model
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
@@ -43,6 +44,7 @@ class StudentController extends Controller
         return redirect()->route('student.index')->with('success', 'Student added successfully!');
     }
 
+   
     public function edit($id)
     {
         $student = User::findOrFail($id);
@@ -70,8 +72,6 @@ class StudentController extends Controller
 
         return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
     }
-
-    //addStudents
-
+    
 
 }

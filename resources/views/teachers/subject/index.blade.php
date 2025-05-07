@@ -1,10 +1,35 @@
 @extends('layouts.teacherApp')
 
 @section('content')
-<div class="container py-4">
-    <h3 class="fw-bold text-primary mb-4">Subjects</h3>
-    <a href="{{ route('teachers.subject.create') }}" class="btn btn-primary mb-3">Add New Subject</a>
+<div class="bg-light" style="min-height: 100vh;">
+  <div class="container py-4">
 
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+      <div>
+        <p class="mb-1 text-muted small">Overview</p>
+        <h3 class="mb-0 fw-bold text-primary">My Subjects</h3>
+      </div>
+      <!-- Search Bar -->
+      <form action="/search" method="GET" class="d-flex gap-2" style="height: 38px;">
+        <input type="text" name="search" class="form-control" placeholder="Search..." style="width: 220px;">
+        <button type="submit" class="btn btn-outline-dark">Search</button>
+      </form>
+    </div>
+
+    <!-- Teacher Greeting -->
+    <div class="p-4 rounded bg-white shadow-sm mb-4 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <img src="{{ asset('images/teacher.png') }}" alt="Teacher Avatar" class="img-fluid me-4" style="max-width: 120px;">
+        <div>
+          @auth
+            <h4 class="text-primary mb-1">Hi, {{ Auth::user()->name ?? 'Teacher' }}!</h4>
+            <p class="text-muted mb-0">Here are your assigned subjects.</p>
+          @endauth
+        </div>
+      </div>
+    </div>
+<div class="container py-4">
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
