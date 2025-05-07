@@ -33,7 +33,7 @@ class TeacherController extends Controller
      */
     public function student()
     {
-        return view('teachers.student');
+        return view('teachers.student.index');
     }
 
     /**
@@ -41,7 +41,7 @@ class TeacherController extends Controller
      */
     public function gradeIndex()
     {
-        return view('teachers.grade');
+        return view('teachers.grade.index');
     }
 
     /**
@@ -49,8 +49,8 @@ class TeacherController extends Controller
      */
     public function subjectIndex()
     {
-        // Load any required data for subjects
-        return view('teachers.subject');
+        $subjects = Subject::where('teacher_id', Auth::id())->get();
+        return view('teachers.subject.index', compact('subjects'));
     }
 
     /**
@@ -61,17 +61,21 @@ class TeacherController extends Controller
         $students = Student::all();
         return view('teachers.student.index', compact('students'));
     }
-
+    public function indexStudentGrade()
+    {
+        // Fetch grades for students
+        $grades = Grade::with('student', 'subject')->get();
+    
+        // Return the view with the grades
+        return view('teachers.student.grade.index', compact('grades'));
+    }
     /**
      * Show the event page with a list of events.
      */
     public function event()
     {
-        // Fetch the events from the database
         $events = Event::all();
-
-        // Return the view and pass the events variable to it
-        return view('teachers.event', compact('events'));
+        return view('teachers.event.index', compact('events'));
     }
 
     /**
@@ -107,9 +111,9 @@ class TeacherController extends Controller
     public function show($id)
     {
         $subject = Subject::with('teacher')
-                          ->where('id', $id)
-                          ->where('teacher_id', Auth::id())
-                          ->firstOrFail();
+            ->where('id', $id)
+            ->where('teacher_id', Auth::id())
+            ->firstOrFail();
 
         return view('teachers.subject.show', compact('subject'));
     }
@@ -120,8 +124,8 @@ class TeacherController extends Controller
     public function edit($id)
     {
         $subject = Subject::where('id', $id)
-                          ->where('teacher_id', Auth::id())
-                          ->firstOrFail();
+            ->where('teacher_id', Auth::id())
+            ->firstOrFail();
 
         $teachers = User::where('role', 'teacher')->get(); // Get a list of teachers
 
@@ -144,8 +148,8 @@ class TeacherController extends Controller
         ]);
 
         $subject = Subject::where('id', $id)
-                          ->where('teacher_id', Auth::id())
-                          ->firstOrFail();
+            ->where('teacher_id', Auth::id())
+            ->firstOrFail();
 
         // Update the subject
         $subject->update([
@@ -223,13 +227,58 @@ class TeacherController extends Controller
     /**
      * Delete a specific event.
      */
-    public function destroy($id)
-    {
-        // Find and delete the event
-        $event = Event::findOrFail($id);
-        $event->delete();
-    
-        // Redirect to the events page with a success message
-        return redirect()->route('teachers.event.index')->with('success', 'Event deleted successfully.');
-    }
+  
+    public function subjects()
+{
+    // Fetch subjects for the logged-in teacher (optional)
+    $subjects = Subject::where('teacher_id', auth()->id())->get();
+
+    // Return the view
+    return view('teachers.subject', compact('subjects'));
+}
+public function storeStudent(Request $request)
+{
+    // Validate the student data
+    $request->validate([
+        'first_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'student_id' => 'required|string|unique:students,student_id',
+        'age' => 'required|integer|min:1',
+        'sex' => 'required|string|in:Male,Female,Other',
+        'birth_month' => 'required|integer|min:1|max:12',
+        'birth_day' => 'required|integer|min:1|max:31',
+        'birth_year' => 'required|integer|min:1900|max:' . date('Y'),
+        'province' => 'required|string|max:255',
+    ]);
+
+    // Create a new student
+    Student::create([
+        'first_name' => $request->input('first_name'),
+        'middle_name' => $request->input('middle_name'),
+        'last_name' => $request->input('last_name'),
+        'student_id' => $request->input('student_id'),
+        'age' => $request->input('age'),
+        'sex' => $request->input('sex'),
+        'birthdate' => $request->input('birth_year') . '-' . $request->input('birth_month') . '-' . $request->input('birth_day'),
+        'province' => $request->input('province'),
+        'user_id' => Auth::id(), // Associate the student with the logged-in teacher
+    ]);
+
+    // Redirect back with a success message
+    return redirect()->route('teachers.student.index')->with('success', 'Student added successfully!');
+}
+public function destroy($id)
+{
+    \Log::info("Deleting event with ID: $id");
+
+    $event = Event::findOrFail($id);
+
+    \Log::info("Event found: " . $event);
+
+    $event->delete();
+
+    return redirect()->route('teachers.event.index')->with('success', 'Event deleted successfully.');
+}
+
 }

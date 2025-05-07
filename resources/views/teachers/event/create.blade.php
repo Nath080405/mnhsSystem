@@ -1,8 +1,8 @@
 @extends('layouts.teacherApp')
 
 @section('content')
-<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
-    <div class="container" style="max-width: 600px;">
+<div class="d-flex justify-content-center align-items-center min-vh-70 bg-light">
+    <div class="container" style="max-width: 300px;">
         <h3 class="fw-bold text-primary mb-4 text-center">Create Event</h3>
 
         <form action="{{ route('teachers.event.preview') }}" method="POST" enctype="multipart/form-data" class="bg-white p-4 rounded shadow">
