@@ -4,19 +4,30 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Section;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class SectionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sections = Section::orderBy('grade_level')->orderBy('name')->get();
-        return view('admin.sections.index', compact('sections'));
+        $selectedGrade = $request->get('grade_level');
+        $sections = Section::with('adviser')->orderBy('grade_level')->orderBy('name');
+        
+        if ($selectedGrade) {
+            $sections->where('grade_level', $selectedGrade);
+        }
+        
+        $sections = $sections->get();
+        $gradeLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+
+        return view('admin.sections.index', compact('sections', 'gradeLevels', 'selectedGrade'));
     }
 
     public function create()
     {
-        return view('admin.sections.create');
+        $teachers = User::where('role', 'teacher')->orderBy('name')->get();
+        return view('admin.sections.create', compact('teachers'));
     }
 
     public function store(Request $request)
@@ -25,6 +36,7 @@ class SectionController extends Controller
             'name' => 'required|string|max:255',
             'grade_level' => 'required|string|in:Grade 7,Grade 8,Grade 9,Grade 10,Grade 11,Grade 12',
             'description' => 'nullable|string',
+            'adviser_id' => 'nullable|exists:users,id',
         ]);
 
         Section::create($request->all());
@@ -35,7 +47,8 @@ class SectionController extends Controller
 
     public function edit(Section $section)
     {
-        return view('admin.sections.edit', compact('section'));
+        $teachers = User::where('role', 'teacher')->orderBy('name')->get();
+        return view('admin.sections.edit', compact('section', 'teachers'));
     }
 
     public function update(Request $request, Section $section)
@@ -44,6 +57,7 @@ class SectionController extends Controller
             'name' => 'required|string|max:255',
             'grade_level' => 'required|string|in:Grade 7,Grade 8,Grade 9,Grade 10,Grade 11,Grade 12',
             'description' => 'nullable|string',
+            'adviser_id' => 'nullable|exists:users,id',
         ]);
 
         $section->update($request->all());

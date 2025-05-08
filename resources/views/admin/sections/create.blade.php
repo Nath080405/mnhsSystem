@@ -49,13 +49,34 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control @error('description') is-invalid @enderror" 
-                        rows="3" placeholder="Optional description">{{ old('description') }}</textarea>
-                    @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Teacher Adviser</label>
+                            <select name="adviser_id" class="form-select @error('adviser_id') is-invalid @enderror">
+                                <option value="">Select Teacher Adviser</option>
+                                @foreach($teachers as $teacher)
+                                    <option value="{{ $teacher->id }}" {{ old('adviser_id') == $teacher->id ? 'selected' : '' }}>
+                                        {{ $teacher->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">Select a teacher to be the adviser of this section</div>
+                            @error('adviser_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control @error('description') is-invalid @enderror" 
+                                rows="3" placeholder="Optional description">{{ old('description') }}</textarea>
+                            @error('description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 <div class="text-end">

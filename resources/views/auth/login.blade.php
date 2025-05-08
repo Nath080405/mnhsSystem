@@ -21,17 +21,25 @@
                         </div>
                     @endif
 
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show py-2" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
                         <div class="mb-3">
                             <label for="username" class="form-label text-muted small">School ID</label>
                             <div class="input-group shadow-sm">
                                 <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-envelope text-muted"></i>
+                                    <i class="bi bi-person text-muted"></i>
                                 </span>
                                 <input type="text" class="form-control border-start-0 @error('username') is-invalid @enderror" 
                                        id="username" name="username" value="{{ old('username') }}" required autofocus
-                                       placeholder="Enter your email">
+                                       placeholder="Enter your School ID">
                             </div>
                             @error('username')
                                 <div class="invalid-feedback d-block">
@@ -59,7 +67,7 @@
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
                                 <label class="form-check-label text-muted small" for="remember">
                                     Remember me
                                 </label>

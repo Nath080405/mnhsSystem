@@ -21,8 +21,11 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'username' => ['required'],
-            'password' => ['required'],
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string'],
+        ], [
+            'username.required' => 'Please enter your School ID.',
+            'password.required' => 'Please enter your password.',
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
@@ -42,9 +45,12 @@ class LoginController extends Controller
             }
         }
 
-        throw ValidationException::withMessages([
-            'email' => [trans('auth.failed')],
-        ]);
+        // If authentication fails, return with specific error message
+        return back()
+            ->withInput($request->only('username', 'remember'))
+            ->withErrors([
+                'username' => 'These credentials do not match our records.',
+            ]);
     }
 
     public function logout(Request $request)

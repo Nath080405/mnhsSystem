@@ -44,16 +44,37 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[\pL\s\-]+$/u',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'birthdate' => 'nullable|date',
-            'gender' => 'nullable|string',
-            'guardian_name' => 'nullable|string|max:255',
-            'guardian_phone' => 'nullable|string|max:20',
-            'guardian_email' => 'nullable|email',
+            'password' => 'required|string|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
+            'phone' => 'nullable|string|regex:/^09\d{9}$/',
+            'address' => 'nullable|string|max:500',
+            'birthdate' => 'nullable|date|before:today',
+            'gender' => 'required|string|in:Male,Female,Other',
+            'guardian_name' => 'required|string|max:255|regex:/^[\pL\s\-]+$/u',
+            'guardian_phone' => 'required|string|regex:/^09\d{9}$/',
+            'guardian_email' => 'required|email',
+        ], [
+            'name.required' => 'Please enter the student\'s full name.',
+            'name.regex' => 'The name can only contain letters, spaces, and hyphens.',
+            'email.required' => 'Please enter the student\'s email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email address is already registered.',
+            'password.required' => 'Please enter a password.',
+            'password.min' => 'The password must be at least 8 characters long.',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, and one number.',
+            'phone.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789).',
+            'address.max' => 'The address cannot exceed 500 characters.',
+            'birthdate.before' => 'The birthdate must be a date before today.',
+            'gender.required' => 'Please select a gender.',
+            'gender.in' => 'Please select a valid gender.',
+            'guardian_name.required' => 'Please enter the guardian\'s name.',
+            'guardian_name.regex' => 'The guardian\'s name can only contain letters, spaces, and hyphens.',
+            'guardian_phone.required' => 'Please enter the guardian\'s phone number.',
+            'guardian_phone.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789).',
+            'guardian_email.required' => 'Please enter the guardian\'s email address.',
+            'guardian_email.email' => 'Please enter a valid email address for the guardian.',
         ]);
 
         // Create user record
@@ -77,10 +98,10 @@ class StudentController extends Controller
         $student->phone = $validated['phone'] ?? null;
         $student->address = $validated['address'] ?? null;
         $student->birthdate = $validated['birthdate'] ?? null;
-        $student->gender = $validated['gender'] ?? null;
-        $student->guardian_name = $validated['guardian_name'] ?? null;
-        $student->guardian_phone = $validated['guardian_phone'] ?? null;
-        $student->guardian_email = $validated['guardian_email'] ?? null;
+        $student->gender = $validated['gender'];
+        $student->guardian_name = $validated['guardian_name'];
+        $student->guardian_phone = $validated['guardian_phone'];
+        $student->guardian_email = $validated['guardian_email'];
         $student->status = 'active';
         $student->save();
 
@@ -119,17 +140,37 @@ class StudentController extends Controller
         $user = User::with('student')->findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[\pL\s\-]+$/u',
             'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'birthdate' => 'nullable|date',
-            'gender' => 'nullable|string',
-            'guardian_name' => 'nullable|string|max:255',
-            'guardian_phone' => 'nullable|string|max:20',
-            'guardian_email' => 'nullable|email',
+            'password' => 'nullable|string|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
+            'phone' => 'nullable|string|regex:/^09\d{9}$/',
+            'address' => 'nullable|string|max:500',
+            'birthdate' => 'nullable|date|before:today',
+            'gender' => 'required|string|in:Male,Female,Other',
+            'guardian_name' => 'required|string|max:255|regex:/^[\pL\s\-]+$/u',
+            'guardian_phone' => 'required|string|regex:/^09\d{9}$/',
+            'guardian_email' => 'required|email',
             'status' => 'nullable|string',
+        ], [
+            'name.required' => 'Please enter the student\'s full name.',
+            'name.regex' => 'The name can only contain letters, spaces, and hyphens.',
+            'email.required' => 'Please enter the student\'s email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email address is already registered.',
+            'password.min' => 'The password must be at least 8 characters long.',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, and one number.',
+            'phone.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789).',
+            'address.max' => 'The address cannot exceed 500 characters.',
+            'birthdate.before' => 'The birthdate must be a date before today.',
+            'gender.required' => 'Please select a gender.',
+            'gender.in' => 'Please select a valid gender.',
+            'guardian_name.required' => 'Please enter the guardian\'s name.',
+            'guardian_name.regex' => 'The guardian\'s name can only contain letters, spaces, and hyphens.',
+            'guardian_phone.required' => 'Please enter the guardian\'s phone number.',
+            'guardian_phone.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789).',
+            'guardian_email.required' => 'Please enter the guardian\'s email address.',
+            'guardian_email.email' => 'Please enter a valid email address for the guardian.',
         ]);
 
         // Update user record

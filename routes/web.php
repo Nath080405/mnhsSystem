@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\student\StudentController as StudentDashboardController;
 use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController;
 
@@ -21,9 +22,7 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     // Admin Routes
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('admin.dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
         // Profile Routes
         Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile');

@@ -21,8 +21,8 @@
                         <div class="card-body p-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Students</h6>
-                                    <h3 class="mb-0 fw-bold">{{ $stats['students'] ?? 0 }}</h3>
+                                    <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Users</h6>
+                                    <h3 class="mb-0 fw-bold">{{ $stats['users'] ?? 0 }}</h3>
                                 </div>
                                 <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle">
                                     <i class="bi bi-people-fill text-primary"></i>
@@ -36,11 +36,11 @@
                         <div class="card-body p-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Teachers</h6>
-                                    <h3 class="mb-0 fw-bold">{{ $stats['teachers'] ?? 0 }}</h3>
+                                    <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Subjects</h6>
+                                    <h3 class="mb-0 fw-bold">{{ $stats['subjects'] ?? 0 }}</h3>
                                 </div>
                                 <div class="avatar-sm bg-success bg-opacity-10 rounded-circle">
-                                    <i class="bi bi-person-workspace text-success"></i>
+                                    <i class="bi bi-book text-success"></i>
                                 </div>
                             </div>
                         </div>
