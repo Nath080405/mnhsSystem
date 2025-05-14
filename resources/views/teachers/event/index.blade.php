@@ -27,7 +27,6 @@
                     @endauth
                 </div>
             </div>
-            <!-- Button to trigger modal -->
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
                 <i class="bi bi-plus-lg me-1"></i> Add Event
             </button>
@@ -38,49 +37,42 @@
             <div class="alert alert-success mt-3">{{ session('success') }}</div>
         @endif
 
-        <!-- Events Table -->
-        <div class="table-responsive mt-4 shadow-sm rounded">
-            <table class="table table-hover text-center align-middle bg-white border rounded">
-                <thead class="bg-primary text-white">
-                    <tr>
-                        <th scope="col" class="py-3">#</th>
-                        <th scope="col" class="py-3">Title</th>
-                        <th scope="col" class="py-3">Description</th>
-                        <th scope="col" class="py-3">Date</th>
-                        <th scope="col" class="py-3">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($events as $event)
-                        <tr>
-                            <td class="fw-semibold text-secondary">{{ $loop->iteration }}</td>
-                            <td class="text-capitalize">{{ $event->title }}</td>
-                            <td class="text-muted small">{{ Str::limit($event->description, 80, '...') }}</td>
-                            <td>
-                                <span class="badge bg-light text-dark border">
-                                    {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{{ route('teachers.event.edit', $event->id) }}" class="text-decoration-none me-3" data-bs-toggle="tooltip" title="Edit">
-                                    <i class="bi bi-pencil-square text-warning" style="font-size: 1.2rem;"></i>
-                                </a>
-                                <form action="{{ route('teachers.event.destroy', $event->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this event?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-link p-0" data-bs-toggle="tooltip" title="Delete">
-                                        <i class="bi bi-trash text-danger" style="font-size: 1.2rem;"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-muted">No events found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <!-- Events Cards Section -->
+        <div class="d-flex flex-column gap-3 mt-2">
+            @forelse($events as $event)
+                <div class="card shadow-sm border-0 w-100" style="background: linear-gradient(145deg, #ffe5ec, #fcd0e4); border-left: 6px solid #ff66a3;">
+                    <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <div class="mb-2 mb-md-0">
+                            <h5 class="mb-1 text-capitalize fw-bold text-dark">{{ $event->title }}</h5>
+                            <p class="text-dark small mb-1">{{ Str::limit($event->description, 100, '...') }}</p>
+                            <small class="text-muted">
+                                @php
+                                    $eventDate = \Carbon\Carbon::parse($event->event_date);
+                                    $diff = $eventDate->diffInDays(now(), false);
+                                    echo $diff === 0 ? 'Today' : ($diff === 1 ? 'Yesterday' : $eventDate->format('M d, Y'));
+                                @endphp
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('teachers.event.edit', $event->id) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <form action="{{ route('teachers.event.destroy', $event->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                    <p class="mt-2 mb-0">No events found.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 </div>
@@ -96,20 +88,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-
                 <form action="{{ route('teachers.event.preview') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-
                     <div class="mb-3">
                         <label for="title" class="form-label">Event Title</label>
                         <input type="text" name="title" id="title" class="form-control" placeholder="Enter event title" required>
                     </div>
-
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
                         <textarea name="description" id="description" class="form-control" rows="3" placeholder="Enter event description"></textarea>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="event_date" class="form-label">Event Date</label>
@@ -120,17 +108,14 @@
                             <input type="time" name="event_time" id="event_time" class="form-control">
                         </div>
                     </div>
-
                     <div class="mb-3">
                         <label for="location" class="form-label">Location</label>
                         <input type="text" name="location" id="location" class="form-control" placeholder="Enter event location" required>
                     </div>
-
                     <div class="mb-4">
                         <label for="venue_image" class="form-label">Venue Image (Optional)</label>
                         <input type="file" name="venue_image" id="venue_image" class="form-control" accept="image/*">
                     </div>
-
                     <div class="d-flex gap-2">
                         <button type="reset" class="btn btn-secondary">Reset</button>
                         <button type="submit" class="btn btn-primary fw-bold">
@@ -138,7 +123,6 @@
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>

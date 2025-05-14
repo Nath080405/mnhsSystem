@@ -25,8 +25,7 @@ class EventController extends Controller
     public function edit($id)
     {
         // Find the event by ID
-        $event = Event::findOrFail($id);
-    
+        $event = Event::where('id', $id)->where('teacher_id', auth()->id())->firstOrFail();    
         // Return the edit view with the event data
         return view('teachers.event.edit', compact('event'));
     }
@@ -39,12 +38,11 @@ class EventController extends Controller
             'event_date' => 'required|date',
             'event_time' => 'nullable|date_format:H:i',
             'location' => 'required|string|max:255',
-            'venue_image' => 'nullable|image|max:2048',
         ]);
-    
-        $event = Event::findOrFail($id); // Fetch the event by ID
-        $event->update($validated); // Update the event with validated data
-    
+
+        $event = Event::findOrFail($id);
+        $event->update($validated);
+
         return redirect()->route('teachers.event.index')->with('success', 'Event updated successfully.');
     }
 

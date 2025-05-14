@@ -30,11 +30,8 @@
                             <a href="{{ route('teachers.student.index') }}" class="btn btn-primary shadow-sm">
                                 <i class="bi bi-person-plus me-2"></i>Add New Student
                             </a>
-                            <a href="#" class="btn btn-outline-primary shadow-sm">
-                                <i class="bi bi-file-earmark-plus me-2"></i>Create New Class
-                            </a>
-                            <a href="#" class="btn btn-outline-primary shadow-sm">
-                                <i class="bi bi-calendar-plus me-2"></i>Schedule Event
+                            <a href="{{ route('teachers.event.index') }}" class="btn btn-primary shadow-sm">
+                                <i class="bi bi-person-plus me-2"></i>Create new Event
                             </a>
                         @endif
                     </div>

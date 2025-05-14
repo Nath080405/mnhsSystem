@@ -1,7 +1,7 @@
 @extends('layouts.teacherApp')
 
 @section('content')
-<div class="d-flex justify-content-center align-items-center min-vh-70 bg-light">
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
     <div class="container" style="max-width: 300px;">
         <h3 class="fw-bold text-primary mb-4 text-center">Create Event</h3>
 

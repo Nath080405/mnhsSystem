@@ -1,5 +1,6 @@
-<div class="d-flex flex-column bg-white border-end position-fixed"
+<div class="d-flex flex-column border-end position-fixed sidebar-custom"
     style="width: 250px; height: 100vh; top: 0; left: 0; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.1);">
+
     <!-- Logo -->
     <div class="text-center p-3 border-bottom">
         <img src="{{ asset('MedellinLogo.png') }}" alt="Logo" class="img-fluid" style="height: 60px;">
@@ -39,24 +40,33 @@
         </li>
     </ul>
 
-    <!-- Bottom User Info and Logout -->
-    <div class="mt-auto p-3 border-top">
-        <div class="d-flex align-items-center justify-content-between">
-            <a class="d-flex align-items-center text-decoration-none text-dark">
-                <img class="rounded-circle me-2" style="height: 32px; width: 32px; object-fit: cover;" alt="User">
-                <div>
-                    <div class="fw-bold">{{ Auth::user()->name }}</div>
-                    <small class="text-muted">{{ ucfirst(Auth::user()->role) }}</small>
-                </div>
-            </a>
-            <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-link text-danger p-0">
-                    <i class="bi bi-box-arrow-right fs-5"></i>
-                </button>
-            </form>
+<!-- Bottom User Info and Logout -->
+<div class="mt-auto p-3 border-top">
+    <div class="d-flex align-items-center gap-2">
+        <!-- User Image -->
+        <img src="{{ Auth::user()->profile_picture ?? asset('images/mae.png') }}"
+             alt="User" class="rounded-circle border"
+             style="height: 40px; width: 40px; object-fit: cover;">
+
+        <!-- User Info -->
+        <div class="flex-grow-1">
+            <div class="fw-semibold text-dark" style="font-size: 0.95rem;">
+                {{ Auth::user()->name }}
+            </div>
+            <div class="text-muted" style="font-size: 0.8rem;">
+                {{ ucfirst(Auth::user()->role) }}
+            </div>
         </div>
+
+        <!-- Logout Button -->
+        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-light border text-danger" title="Logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </form>
     </div>
+</div>
 </div>
 
 <style>

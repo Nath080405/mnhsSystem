@@ -10,8 +10,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\student\StudentController as StudentDashboardController;
 use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController;
-
-
+use App\Http\Controllers\Teacher\EventController;
 
 // Authentication Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -95,8 +94,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/events/create', [TeacherDashboardController::class, 'create'])->name('teachers.event.create');
         Route::post('/events', [TeacherDashboardController::class, 'store'])->name('teachers.event.store');
         Route::post('/events/preview', [TeacherDashboardController::class, 'preview'])->name('teachers.event.preview');
-        Route::get('/events/{id}/edit', [TeacherDashboardController::class, 'edit'])->name('teachers.event.edit');
-        Route::put('/events/{id}', [TeacherDashboardController::class, 'update'])->name('teachers.event.update');        Route::delete('/events/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.event.destroy');
+        Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('teachers.event.edit');
+        Route::put('/events/{id}', [EventController::class, 'update'])->name('teachers.event.update');   
+             Route::delete('/events/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.event.destroy');
         Route::get('/events/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.event.show');
 
 
