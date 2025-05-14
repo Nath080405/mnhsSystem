@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
     public function index()
     {
-        $teachers = User::where('role', 'teacher')->with('teacher')->paginate(4);
+        $teachers = User::where('role', 'teacher')->with('teacher')->paginate(10);
         return view('admin.teachers.index', compact('teachers'));
     }
 
@@ -22,51 +23,37 @@ class TeacherController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'birthdate' => 'nullable|date',
-            'gender' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
-            'department' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'date_joined' => 'required|date',
-            'qualification' => 'required|string|max:255',
-            'specialization' => 'nullable|string',
-        ]);
-
         // Create user record
-        $user = new \App\Models\User();
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
+        $user = new User();
+        $user->last_name = $request->last_name;
+        $user->first_name = $request->first_name;
+        $user->middle_name = $request->middle_name;
+        $user->suffix = $request->suffix;
+        $user->email = $request->email;
         $user->username = '';
-        $user->password = bcrypt($validated['password']);
+        $user->password = bcrypt($request->password);
         $user->role = 'teacher';
         $user->save();
 
-        // Generate teacher ID
+        // Generate teacher ID and set as username
         $employeeId = 'TCH' . str_pad($user->id, 5, '0', STR_PAD_LEFT);
         $user->username = $employeeId;
         $user->save();
 
         // Create teacher record
-        Teacher::create([
-            'user_id' => $user->id,
-            'employee_id' => $user->username,
-            'department' => $validated['department'],
-            'position' => $validated['position'],
-            'address' => $validated['address'],
-            'phone' => $validated['phone'],
-            'birthdate' => $validated['birthdate'],
-            'gender' => $validated['gender'],
-            'date_joined' => $validated['date_joined'],
-            'qualification' => $validated['qualification'],
-            'specialization' => $validated['specialization'],
-            'status' => $validated['status'],
-        ]);
+        $teacher = new Teacher();
+        $teacher->user_id = $user->id;
+        $teacher->employee_id = $user->username;
+        $teacher->street_address = $request->street_address;
+        $teacher->barangay = $request->barangay;
+        $teacher->municipality = $request->municipality;
+        $teacher->province = $request->province;
+        $teacher->phone = $request->phone;
+        $teacher->birthdate = $request->birthdate;
+        $teacher->gender = $request->gender;
+        $teacher->date_joined = $request->date_joined;
+        $teacher->status = 'active';
+        $teacher->save();
 
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher added successfully! Employee ID: ' . $employeeId);
     }
@@ -83,71 +70,76 @@ class TeacherController extends Controller
         $user = User::with('teacher')->findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'suffix' => 'nullable|string|max:10',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:6|confirmed',
             'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
+            'street_address' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
             'birthdate' => 'nullable|date',
-            'gender' => 'nullable|string',
+            'gender' => 'required|string|in:Male,Female,Other',
             'status' => 'required|in:active,inactive',
-            'department' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
             'date_joined' => 'required|date',
-            'qualification' => 'required|string|max:255',
-            'specialization' => 'nullable|string',
         ]);
 
-        // Update user record
-        $userData = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ];
+        try {
+            DB::beginTransaction();
 
-        // Only update password if provided
-        if (!empty($validated['password'])) {
-            $userData['password'] = bcrypt($validated['password']);
-        }
+            // Update user record
+            $userData = [
+                'last_name' => $validated['last_name'],
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'suffix' => $validated['suffix'],
+                'email' => $validated['email'],
+            ];
 
-        $user->update($userData);
+            // Only update password if provided
+            if (!empty($validated['password'])) {
+                $userData['password'] = bcrypt($validated['password']);
+            }
 
-        // Update or create teacher record
-        if ($user->teacher) {
-            $user->teacher()->update([
-                'department' => $validated['department'],
-                'position' => $validated['position'],
-                'address' => $validated['address'],
+            $user->update($userData);
+
+            // Update or create teacher record
+            $teacherData = [
+                'street_address' => $validated['street_address'],
+                'barangay' => $validated['barangay'],
+                'municipality' => $validated['municipality'],
+                'province' => $validated['province'],
                 'phone' => $validated['phone'],
                 'birthdate' => $validated['birthdate'],
                 'gender' => $validated['gender'],
                 'date_joined' => $validated['date_joined'],
-                'qualification' => $validated['qualification'],
-                'specialization' => $validated['specialization'],
                 'status' => $validated['status'],
-            ]);
-        } else {
-            // Create teacher record if it doesn't exist
-            $user->teacher()->create([
-                'employee_id' => $user->username,
-                'department' => $validated['department'],
-                'position' => $validated['position'],
-                'address' => $validated['address'],
-                'phone' => $validated['phone'],
-                'birthdate' => $validated['birthdate'],
-                'gender' => $validated['gender'],
-                'date_joined' => $validated['date_joined'],
-                'qualification' => $validated['qualification'],
-                'specialization' => $validated['specialization'],
-                'status' => $validated['status'],
-            ]);
-        }
+            ];
 
-        return redirect()->route('admin.teachers.index')->with('success', 'Teacher updated successfully!');
+            if ($user->teacher) {
+                $user->teacher->update($teacherData);
+            } else {
+                $teacherData['user_id'] = $user->id;
+                $teacherData['employee_id'] = $user->username;
+                Teacher::create($teacherData);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.teachers.index')->with('success', 'Teacher updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to update teacher. Please try again.');
+        }
     }
 
     public function destroy($id)
     {
         try {
+            DB::beginTransaction();
+            
             $user = User::findOrFail($id);
 
             // Check if teacher has any assigned subjects
@@ -164,9 +156,11 @@ class TeacherController extends Controller
             // Then delete the user record
             $user->delete();
 
+            DB::commit();
             return redirect()->route('admin.teachers.index')
                 ->with('success', 'Teacher deleted successfully');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->route('admin.teachers.index')
                 ->with('error', 'Failed to delete teacher. Please try again.');
         }

@@ -135,7 +135,7 @@
                                                 </span>
                                             </div>
                                             <div>
-                                                <h6 class="mb-1 fw-medium">{{ $student->name }}</h6>
+                                                <h6 class="mb-1 fw-medium">{{ $student->formal_name ?? 'N/A' }}</h6>
                                                 <small class="text-muted">
                                                     <i class="bi bi-clock me-1"></i>
                                                     Updated {{ $student->updated_at->format('M d, Y') }}

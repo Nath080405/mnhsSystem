@@ -12,11 +12,12 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Example student user
+        // Create admin users
         $adminUser1 = User::create([
-            'name' => 'Mae Matanog',
+            'last_name' => 'Matanog',
+            'first_name' => 'Mae',
             'email' => 'admin@example.com',
-            'password' => Hash::make('admin'),
+            'password' => Hash::make('admin123'),
             'username' => '',
             'role' => 'admin',
         ]);
@@ -26,9 +27,10 @@ class UserSeeder extends Seeder
         ]);
 
         $adminUser2 = User::create([
-            'name' => 'Mae Matanog',
+            'last_name' => 'Dela Cruz',
+            'first_name' => 'John',
             'email' => 'admin2@example.com',
-            'password' => Hash::make('admin2'),
+            'password' => Hash::make('admin123'),
             'username' => '',
             'role' => 'admin',
         ]);
@@ -37,11 +39,13 @@ class UserSeeder extends Seeder
             'username' => 'ADM' . str_pad($adminUser2->id, 3, '0', STR_PAD_LEFT)
         ]);
         
-        // Add more if you want
-       $teacher1 = User::create([
-            'name' => 'Nathaniel R. Kiskisan',
+        // Create teacher
+        $teacher1 = User::create([
+            'last_name' => 'Kiskisan',
+            'first_name' => 'Nathaniel',
+            'middle_name' => 'R',
             'email' => 'teacher@example.com',
-            'password' => Hash::make('teacher'),
+            'password' => Hash::make('teacher123'),
             'username' => '',
             'role' => 'teacher',
         ]);
@@ -53,22 +57,23 @@ class UserSeeder extends Seeder
         Teacher::create([
             'user_id' => $teacher1->id,
             'employee_id' => $teacher1->username,
-            'department' => 'Math',
-            'position' => 'Teacher',
-            'address' => 'Leyte',
-            'phone' => '09123456745',
-            'birthdate' => '01/01/2003',
-            'gender' => 'male',
-            'date_joined' => '01/01/2025',
-            'qualification' => 'masunurin',
-            'specialization' => 'Math',
+            'street_address' => '123 Purok 1',
+            'barangay' => 'Barangay San Jose',
+            'municipality' => 'Medellin',
+            'province' => 'Cebu',
+            'phone' => '+639123456745',
+            'birthdate' => '1990-01-01',
+            'gender' => 'Male',
+            'date_joined' => '2020-01-01',
             'status' => 'active',
         ]);
 
+        // Create student users
         $studentUser1 = User::create([
-            'name' => 'Leslie Lumapac',
+            'last_name' => 'Lumapac',
+            'first_name' => 'Leslie',
             'email' => 'student@example.com',
-            'password' => Hash::make('student'),
+            'password' => Hash::make('student123'),
             'username' => '',
             'role' => 'student',
         ]);
@@ -78,16 +83,47 @@ class UserSeeder extends Seeder
         ]);
 
         Student::create([
-        'user_id' => $studentUser1->id,
-        'student_id' => $studentUser1->username,
-        'phone' => '09123456745',
-        'address' => 'Leyte',
-        'birthdate' => '01/01/2003',
-        'gender' => 'male',
-        'guardian_name' => 'juan',
-        'guardian_phone' => '12345678901',
-        'guardian_email' => 'juan@gmail.com',
-        'status' => 'active',
+            'user_id' => $studentUser1->id,
+            'student_id' => $studentUser1->username,
+            'street_address' => '456 Purok 2',
+            'barangay' => 'Barangay Poblacion',
+            'municipality' => 'Medellin',
+            'province' => 'Cebu',
+            'phone' => '+639123456789',
+            'birthdate' => '2007-06-15',
+            'gender' => 'Female',
+            'grade_level' => '10',
+            'section' => 'A',
+            'status' => 'active',
+        ]);
+
+        // Create another student for variety
+        $studentUser2 = User::create([
+            'last_name' => 'Dela Cruz',
+            'first_name' => 'Juan',
+            'email' => 'student2@example.com',
+            'password' => Hash::make('student123'),
+            'username' => '',
+            'role' => 'student',
+        ]);
+
+        $studentUser2->update([
+            'username' => 'STU' . str_pad($studentUser2->id, 5, '0', STR_PAD_LEFT)
+        ]);
+
+        Student::create([
+            'user_id' => $studentUser2->id,
+            'student_id' => $studentUser2->username,
+            'street_address' => '789 Purok 3',
+            'barangay' => 'Barangay Luy-a',
+            'municipality' => 'Medellin',
+            'province' => 'Cebu',
+            'phone' => '+639234567890',
+            'birthdate' => '2008-03-20',
+            'gender' => 'Male',
+            'grade_level' => '9',
+            'section' => 'B',
+            'status' => 'active',
         ]);
     }
 }

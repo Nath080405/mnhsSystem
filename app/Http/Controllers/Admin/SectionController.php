@@ -26,7 +26,7 @@ class SectionController extends Controller
 
     public function create()
     {
-        $teachers = User::where('role', 'teacher')->orderBy('name')->get();
+        $teachers = User::where('role', 'teacher')->orderBy('last_name')->orderBy('first_name')->get();
         return view('admin.sections.create', compact('teachers'));
     }
 
@@ -47,7 +47,7 @@ class SectionController extends Controller
 
     public function edit(Section $section)
     {
-        $teachers = User::where('role', 'teacher')->orderBy('name')->get();
+        $teachers = User::where('role', 'teacher')->orderBy('last_name')->orderBy('first_name')->get();
         return view('admin.sections.edit', compact('section', 'teachers'));
     }
 

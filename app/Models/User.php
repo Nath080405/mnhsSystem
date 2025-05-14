@@ -18,12 +18,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'last_name',
+        'first_name',
+        'middle_name',
+        'suffix',
         'email',
         'password',
         'role',
         'section',
-        // 'username'
+        'username'
     ];
 
     /**
@@ -61,5 +64,31 @@ class User extends Authenticatable
     public function subjects()
     {
         return $this->hasMany(Subject::class, 'teacher_id');
+    }
+
+    public function getFullNameAttribute()
+    {
+        $name = $this->first_name;
+        if ($this->middle_name) {
+            $name .= ' ' . $this->middle_name;
+        }
+        $name .= ' ' . $this->last_name;
+        if ($this->suffix) {
+            $name .= ' ' . $this->suffix;
+        }
+        return $name;
+    }
+
+    public function getFormalNameAttribute()
+    {
+        $name = $this->last_name;
+        if ($this->suffix) {
+            $name .= ' ' . $this->suffix;
+        }
+        $name .= ', ' . $this->first_name;
+        if ($this->middle_name) {
+            $name .= ' ' . $this->middle_name;
+        }
+        return $name;
     }
 }
