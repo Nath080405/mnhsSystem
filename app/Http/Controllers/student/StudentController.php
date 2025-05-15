@@ -5,6 +5,7 @@ namespace App\Http\Controllers\student;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
@@ -105,5 +106,14 @@ class StudentController extends Controller
         ]);
 
         return $pdf->download('gradebook.pdf');
+    }
+
+    /**
+     * Show the student's profile page.
+     */
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('student.profile', compact('user'));
     }
 }

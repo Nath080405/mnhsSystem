@@ -99,8 +99,8 @@ Route::middleware(['auth'])->group(function () {
              Route::delete('/events/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.event.destroy');
         Route::get('/events/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.event.show');
 
-
-    }); //ayaw og lapas dre
+        Route::get('/profile', [TeacherDashboardController::class, 'profile'])->name('teachers.profile');
+    });
 
 
     // Student Routes
@@ -111,6 +111,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/events', [StudentDashboardController::class, 'events'])->name('student.events');
         Route::get('/schedule', [StudentDashboardController::class, 'schedule'])->name('student.schedule');
         Route::get('/assignments', [StudentDashboardController::class, 'assignments'])->name('student.assignments');
+        Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
     });
 
 });

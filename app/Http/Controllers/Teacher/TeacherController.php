@@ -281,4 +281,13 @@ public function destroy($id)
     return redirect()->route('teachers.event.index')->with('success', 'Event deleted successfully.');
 }
 
+    /**
+     * Show the teacher's profile page.
+     */
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('teachers.profile', compact('user'));
+    }
+
 }

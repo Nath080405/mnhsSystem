@@ -1,108 +1,131 @@
-<div class="d-flex flex-column border-end position-fixed sidebar-custom"
-    style="width: 250px; height: 100vh; top: 0; left: 0; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.1);">
-
+<div class="materio-sidebar d-flex flex-column align-items-start pt-3 px-3">
     <!-- Logo -->
-    <div class="text-center p-3 border-bottom">
-        <img src="{{ asset('MedellinLogo.png') }}" alt="Logo" class="img-fluid" style="height: 60px;">
+    <div class="w-100 d-flex align-items-center mb-2 logo-section">
+        <img src="{{ asset('MedellinLogo.png') }}" alt="Logo" class="materio-logo me-3">
+        <span class="sidebar-appname">Medellin NHS</span>
     </div>
 
-    <!-- Navigation -->
-    <ul class="nav flex-column mt-3 px-2">
-        <!-- Dashboard -->
-        <li class="nav-item mb-2">
-            <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.dashboard') }}">
-                <i class="bi bi-house-door me-2"></i> Dashboard
-            </a>
-        </li>
-
-        <li class="nav-item mb-2">
-            <a class="nav-link d-flex justify-content-between align-items-center rounded" data-bs-toggle="collapse"
-                href="#usersSubmenu" role="button">
-                <span><i class="bi bi-people-fill me-2"></i> Students</span>
-                <i class="bi bi-chevron-down small"></i>
-            </a>
-            <div class="collapse ps-4" id="usersSubmenu">
-                <a href="{{ route('teachers.student.index') }}" class="nav-link py-2">My students</a>
-                <a href="{{ route('teachers.student.grade.index') }}" class="nav-link py-2">Grades of students</a>
-            </div>
-        </li>
-
-        <li class="nav-item mb-2">
-        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.subject.index') }}">
-         <i class="bi bi-calendar-event me-2"></i> Subjects
-        </a>
-        </li>
-        
-        <li class="nav-item mb-2">
-        <a class="nav-link d-flex align-items-center rounded" href="{{ route('teachers.event.index') }}">
-                <i class="bi bi-calendar-week me-2"></i> Events
-        </a>
-        </li>
-    </ul>
-
-<!-- Bottom User Info and Logout -->
-<div class="mt-auto p-3 border-top">
-    <div class="d-flex align-items-center gap-2">
-        <!-- User Image -->
-        <img src="{{ Auth::user()->profile_picture ?? asset('images/mae.png') }}"
-             alt="User" class="rounded-circle border"
-             style="height: 40px; width: 40px; object-fit: cover;">
-
-        <!-- User Info -->
-        <div class="flex-grow-1">
-            <div class="fw-semibold text-dark" style="font-size: 0.95rem;">
-                {{ Auth::user()->name }}
-            </div>
-            <div class="text-muted" style="font-size: 0.8rem;">
-                {{ ucfirst(Auth::user()->role) }}
-            </div>
-        </div>
-
-        <!-- Logout Button -->
-        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-light border text-danger" title="Logout">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
-        </form>
+    <!-- Main Navigation -->
+    <div class="w-100 mt-1">
+        <div class="sidebar-section-title">MAIN</div>
+        <ul class="nav flex-column materio-nav">
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('teachers.dashboard')) active @endif" href="{{ route('teachers.dashboard') }}">
+                    <i class="bi bi-house-door me-3"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('teachers.student.index') || request()->routeIs('teachers.student.grade.index')) active @endif" data-bs-toggle="collapse" href="#usersSubmenu" role="button">
+                    <i class="bi bi-people-fill me-3"></i> Students
+                    <i class="bi bi-chevron-down ms-auto small"></i>
+                </a>
+                <div class="collapse ps-4" id="usersSubmenu">
+                    <a href="{{ route('teachers.student.index') }}" class="nav-link materio-sublink">My Students</a>
+                    <a href="{{ route('teachers.student.grade.index') }}" class="nav-link materio-sublink">Grades of Students</a>
+                </div>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('teachers.subject.index')) active @endif" href="{{ route('teachers.subject.index') }}">
+                    <i class="bi bi-book-fill me-3"></i> Subjects
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('teachers.event.index')) active @endif" href="{{ route('teachers.event.index') }}">
+                    <i class="bi bi-calendar-week me-3"></i> Events
+                </a>
+            </li>
+        </ul>
     </div>
-</div>
 </div>
 
 <style>
-    .nav-link {
-        color: #495057;
-        padding: 0.5rem 1rem;
+.materio-sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: #fff;
+    border-radius: 0 2rem 2rem 0;
+    box-shadow: 2px 0 24px rgba(80, 80, 160, 0.10);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1040;
+    transition: box-shadow 0.2s;
+    color: #5A5A89;
+}
+.logo-section {
+    margin-bottom: 1.2rem;
+    padding: 0.5rem 0 0.5rem 0.5rem;
+    justify-content: flex-start;
+    background: none;
+    border-radius: 1.5rem 1.5rem 0 0;
+}
+.materio-logo {
+    height: 72px;
+    width: 72px;
+    object-fit: contain;
+    border-radius: 16px;
+    background: #f5f6fa;
+    box-shadow: 0 2px 8px rgba(80,80,160,0.06);
+    padding: 8px;
+}
+.sidebar-appname {
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4B4B8F;
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 8px rgba(80,80,160,0.06);
+}
+.sidebar-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #b0b3c6;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+    margin-top: 0.2rem;
+    padding-left: 0.5rem;
+}
+.materio-nav {
+    width: 100%;
+}
+.materio-link {
+    color: #5A5A89;
+    font-weight: 500;
+    border-radius: 2rem;
+    padding: 0.65rem 1.25rem;
+    transition: background 0.2s, color 0.2s;
+    font-size: 1.05rem;
+}
+.materio-link.active, .materio-link:hover {
+    background: linear-gradient(90deg, #e3e6ff 0%, #f5f6fa 100%);
+    color: #6f4ef2;
+    font-weight: 600;
+}
+.materio-sublink {
+    color: #a0a3b6;
+    font-size: 0.98rem;
+    margin-left: 1.5rem;
+    border-radius: 1rem;
+    transition: background 0.2s, color 0.2s;
+    padding: 0.45rem 1rem;
+}
+.materio-sublink:hover, .materio-sublink.active {
+    background: #f5f6fa;
+    color: #6f4ef2;
+}
+@media (max-width: 991px) {
+    .materio-sidebar {
+        width: 70px;
+        border-radius: 0 1rem 1rem 0;
+        padding: 0.5rem 0.25rem;
     }
-
-    .nav-link:hover,
-    .nav-link.active {
-        background-color: #e9ecef;
-        color: #0d6efd;
-        font-weight: 500;
+    .sidebar-appname, .sidebar-section-title {
+        display: none;
     }
-
-    .dropdown-menu {
-        min-width: 200px;
-        border: none;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    .logo-section img {
+        height: 40px !important;
+        width: 40px !important;
     }
-
-    .dropdown-item {
-        padding: 0.5rem 1rem;
-    }
-
-    .dropdown-item:hover {
-        background-color: #f8f9fa;
-        color: #0d6efd;
-    }
-
-    .dropdown-item i {
-        font-size: 1.1rem;
-    }
-
-    .badge {
-        font-size: 0.6rem;
-        padding: 0.25em 0.4em;
-    }
+}
 </style>
