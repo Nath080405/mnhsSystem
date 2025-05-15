@@ -29,24 +29,21 @@ class SubjectController extends Controller
     /**
      * Store a newly created subject in storage.
      */
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'code' => 'required|string|max:20|unique:subjects',
-        'description' => 'nullable|string',
-    ]);
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:20|unique:subjects',
+            'description' => 'nullable|string',
+        ]);
 
-    $validated['teacher_id'] = Auth::id(); // if needed
-    $validated['status'] = 'active'; // default
-    $validated['credits'] = 3; // default or from form
+        $validated['teacher_id'] = Auth::id(); // if needed
+        $validated['status'] = 'active'; // default
 
-    $subject = Subject::create($validated);
+        $subject = Subject::create($validated);
 
-    return response()->json($subject);
-}
-
-
+        return response()->json($subject);
+    }
 
     public function edit($id)
     {
@@ -57,7 +54,6 @@ public function store(Request $request)
 
         return view('teachers.subject.create', compact('subject'));
     }
-
 
     public function update(Request $request, $id)
     {
@@ -71,7 +67,6 @@ public function store(Request $request)
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:subjects,code,' . $id,
             'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:0',
         ]);
 
         $subject->update($validated);

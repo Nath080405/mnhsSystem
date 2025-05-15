@@ -39,20 +39,31 @@
                 <div class="card-body">
                     <div class="row g-4">
                         <div class="col-md-12">
-                            <h5 class="fw-bold mb-3">Description</h5>
-                            <p class="text-muted">
-                                {{ $subject->description ?: 'No description available.' }}
-                            </p>
-                        </div>
-
-                        <div class="col-md-12">
                             <h5 class="fw-bold mb-3">Subject Information</h5>
                             <div class="table-responsive">
                                 <table class="table table-borderless">
                                     <tbody>
                                         <tr>
-                                            <td style="width: 200px;" class="text-muted">Credits</td>
-                                            <td class="fw-semibold">{{ $subject->credits }}</td>
+                                            <td style="width: 200px;" class="text-muted">Subject Code</td>
+                                            <td class="fw-semibold">{{ $subject->code }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Description</td>
+                                            <td class="fw-semibold">
+                                                @if($subject->description)
+                                                    {{ $subject->description }}
+                                                @else
+                                                    <span class="text-muted">No description available</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Status</td>
+                                            <td>
+                                                <span class="badge {{ $subject->status == 'active' ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ ucfirst($subject->status) }}
+                                                </span>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted">Created At</td>
@@ -85,7 +96,7 @@
                                 <i class="bi bi-person-fill text-info fs-3"></i>
                             </div>
                             <div>
-                                <h6 class="mb-1">{{ $subject->teacher->name }}</h6>
+                                <h6 class="mb-1">{{ $subject->teacher->formal_name }}</h6>
                                 <p class="text-muted small mb-0">Teacher</p>
                             </div>
                         </div>

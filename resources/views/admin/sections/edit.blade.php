@@ -57,23 +57,19 @@
                             <select name="adviser_id" class="form-select @error('adviser_id') is-invalid @enderror">
                                 <option value="">Select Teacher Adviser</option>
                                 @foreach($teachers as $teacher)
-                                    <option value="{{ $teacher->id }}" {{ old('adviser_id', $section->adviser_id) == $teacher->id ? 'selected' : '' }}>
-                                        {{ $teacher->name }}
+                                    <option value="{{ $teacher->id }}" {{ (old('adviser_id', $section->adviser_id) == $teacher->id) ? 'selected' : '' }}>
+                                        {{ $teacher->last_name }}, {{ $teacher->first_name }} 
+                                        @if($teacher->email)
+                                            ({{ $teacher->email }})
+                                        @endif
                                     </option>
                                 @endforeach
                             </select>
-                            <div class="form-text">Select a teacher to be the adviser of this section</div>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Select a teacher to be the adviser of this section. The adviser will be responsible for managing the section.
+                            </div>
                             @error('adviser_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control @error('description') is-invalid @enderror" 
-                                rows="3" placeholder="Optional description">{{ old('description', $section->description) }}</textarea>
-                            @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

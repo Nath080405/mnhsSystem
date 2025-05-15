@@ -42,15 +42,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="credits" class="form-label">Credits <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control @error('credits') is-invalid @enderror" 
-                                id="credits" name="credits" value="{{ old('credits', 1) }}" min="1" required>
-                            @error('credits')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
                     
                     <div class="col-md-6">
@@ -62,7 +53,7 @@
                                 <option value="">Select a teacher</option>
                                 @foreach($teachers as $teacher)
                                     <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
-                                        {{ $teacher->name }}
+                                        {{ $teacher->formal_name }}
                                     </option>
                                 @endforeach
                             </select>

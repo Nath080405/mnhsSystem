@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('code', 20)->unique();
             $table->text('description')->nullable();
-            $table->integer('credits');
             $table->foreignId('teacher_id')->nullable()->constrained('users')->onDelete('set null');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();

@@ -9,6 +9,26 @@
                 <p class="text-muted mb-0 small">Manage and monitor student records and information</p>
             </div>
             <div class="d-flex gap-3 align-items-center">
+                <!-- Filter Form -->
+                <form action="{{ route('admin.students.index') }}" method="GET" class="d-flex gap-2">
+                    <select name="grade_level" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Grade Levels</option>
+                        @for($i = 7; $i <= 12; $i++)
+                            <option value="Grade {{ $i }}" {{ request('grade_level') == "Grade $i" ? 'selected' : '' }}>
+                                Grade {{ $i }}
+                            </option>
+                        @endfor
+                    </select>
+                    <select name="section" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Sections</option>
+                        @foreach($sections as $section)
+                            <option value="{{ $section->id }}" {{ request('section') == $section->id ? 'selected' : '' }}>
+                                {{ $section->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+                <!-- Search Form -->
                 <form action="{{ route('admin.students.index') }}" method="GET" class="search-form mb-0">
                     <div class="search-wrapper">
                         <div class="input-group">

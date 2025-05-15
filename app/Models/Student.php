@@ -12,6 +12,7 @@ class Student extends Model
     protected $fillable = [
         'user_id',
         'student_id',
+        'lrn',
         'street_address',
         'barangay',
         'municipality',
@@ -20,7 +21,7 @@ class Student extends Model
         'birthdate',
         'gender',
         'grade_level',
-        'section',
+        'section_id',
         'status'
     ];
 
@@ -31,6 +32,11 @@ class Student extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
     }
 
     public function getFullNameAttribute()

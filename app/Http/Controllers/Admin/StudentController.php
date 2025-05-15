@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Section;
 
 class StudentController extends Controller
 {
     public function index(Request $request)
     {
         $query = User::where('role', 'student')
-            ->with('student')
+            ->with(['student', 'student.section'])
             ->orderBy('last_name')
             ->orderBy('first_name');
 
@@ -19,6 +20,18 @@ class StudentController extends Controller
         if ($request->filled('status')) {
             $query->whereHas('student', function ($q) use ($request) {
                 $q->where('status', $request->status);
+            });
+        }
+
+        if ($request->filled('grade_level')) {
+            $query->whereHas('student', function ($q) use ($request) {
+                $q->where('grade_level', $request->grade_level);
+            });
+        }
+
+        if ($request->filled('section')) {
+            $query->whereHas('student', function ($q) use ($request) {
+                $q->where('section_id', $request->section);
             });
         }
 
@@ -35,18 +48,30 @@ class StudentController extends Controller
             });
         }
 
-        $students = $query->paginate(4)->withQueryString();
+        $students = $query->paginate(10)->withQueryString();
+        $sections = Section::orderBy('grade_level')->orderBy('name')->get();
 
-        return view('admin.students.index', compact('students'));
+        return view('admin.students.index', compact('students', 'sections'));
     }
 
     public function create()
     {
-        return view('admin.students.create');
+        $sections = Section::orderBy('grade_level')->orderBy('name')->get();
+        return view('admin.students.create', compact('sections'));
     }
 
     public function store(Request $request)
     {
+        $request->validate([
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'grade_level' => 'required|string',
+            'section_id' => 'required|exists:sections,id',
+            'lrn' => 'required|string|unique:students,lrn',
+        ]);
+
         // Create user record
         $user = new \App\Models\User();
         $user->last_name = $request->last_name;
@@ -64,10 +89,14 @@ class StudentController extends Controller
         $user->username = $studentId;
         $user->save();
 
+        // Get section details
+        $section = Section::findOrFail($request->section_id);
+
         // Create student record
         $student = new \App\Models\Student();
         $student->user_id = $user->id;
         $student->student_id = $user->username;
+        $student->lrn = $request->lrn;
         $student->street_address = $request->street_address;
         $student->barangay = $request->barangay;
         $student->municipality = $request->municipality;
@@ -75,8 +104,8 @@ class StudentController extends Controller
         $student->phone = $request->phone;
         $student->birthdate = $request->birthdate;
         $student->gender = $request->gender;
-        $student->grade_level = $request->grade_level;
-        $student->section = $request->section;
+        $student->grade_level = $section->grade_level;
+        $student->section_id = $request->section_id;
         $student->status = 'active';
         $student->save();
 
@@ -141,7 +170,7 @@ class StudentController extends Controller
                 'birthdate' => $request->birthdate,
                 'gender' => $request->gender,
                 'grade_level' => $request->grade_level,
-                'section' => $request->section,
+                'section_id' => $request->section_id,
                 'status' => $request->status ?? 'active',
             ]);
         } else {
@@ -156,7 +185,7 @@ class StudentController extends Controller
                 'birthdate' => $request->birthdate,
                 'gender' => $request->gender,
                 'grade_level' => $request->grade_level,
-                'section' => $request->section,
+                'section_id' => $request->section_id,
                 'status' => $request->status ?? 'active',
             ]);
         }

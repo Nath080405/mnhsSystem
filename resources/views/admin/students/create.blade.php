@@ -121,26 +121,33 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                    <label class="form-label fw-medium">LRN <span class="text-danger">*</span></label>
+                                    <input type="text" name="lrn" class="form-control" value="{{ old('lrn') }}" placeholder="Enter LRN" required>
+                                </div>
+
+                                <div class="col-md-6">
                                     <label class="form-label fw-medium">Grade Level <span class="text-danger">*</span></label>
-                                    <select name="grade_level" class="form-select">
+                                    <select name="grade_level" id="grade_level" class="form-select" required>
                                         <option value="">Select Grade Level</option>
-                                        <option value="7">Grade 7</option>
-                                        <option value="8">Grade 8</option>
-                                        <option value="9">Grade 9</option>
-                                        <option value="10">Grade 10</option>
-                                        <option value="11">Grade 11</option>
-                                        <option value="12">Grade 12</option>
+                                        @for($i = 7; $i <= 12; $i++)
+                                            <option value="Grade {{ $i }}" {{ old('grade_level') == "Grade $i" ? 'selected' : '' }}>
+                                                Grade {{ $i }}
+                                            </option>
+                                        @endfor
                                     </select>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium">Section <span class="text-danger">*</span></label>
-                                    <select name="section" class="form-select">
+                                    <select name="section_id" id="section" class="form-select" required>
                                         <option value="">Select Section</option>
-                                        <option value="A">Section A</option>
-                                        <option value="B">Section B</option>
-                                        <option value="C">Section C</option>
-                                        <option value="D">Section D</option>
+                                        @foreach($sections as $section)
+                                            <option value="{{ $section->id }}" 
+                                                data-grade="{{ $section->grade_level }}"
+                                                {{ old('section_id') == $section->id ? 'selected' : '' }}>
+                                                {{ $section->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -184,28 +191,26 @@
 
     @section('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const gradeSelect = document.getElementById('grade');
+            document.addEventListener('DOMContentLoaded', function() {
+                const gradeSelect = document.getElementById('grade_level');
                 const sectionSelect = document.getElementById('section');
+                const sectionOptions = sectionSelect.getElementsByTagName('option');
 
                 function filterSections() {
                     const selectedGrade = gradeSelect.value;
-                    const options = sectionSelect.getElementsByTagName('option');
-
+                    
                     // Hide all sections first
-                    for (let option of options) {
+                    for (let option of sectionOptions) {
                         if (option.value === '') continue; // Skip the default option
                         option.style.display = 'none';
                     }
 
                     // Show only sections for the selected grade
                     if (selectedGrade) {
-                        const gradeNumber = selectedGrade.split(' ')[1];
-                        const gradeClass = `grade-${gradeNumber}`;
-                        const gradeOptions = sectionSelect.getElementsByClassName(gradeClass);
-
-                        for (let option of gradeOptions) {
-                            option.style.display = '';
+                        for (let option of sectionOptions) {
+                            if (option.dataset.grade === selectedGrade) {
+                                option.style.display = '';
+                            }
                         }
                     }
 

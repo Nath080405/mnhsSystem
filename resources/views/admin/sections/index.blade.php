@@ -42,7 +42,7 @@
                                 <th>Grade Level</th>
                                 <th>Section Name</th>
                                 <th>Teacher Adviser</th>
-                                <th>Description</th>
+                                <th>Enrollment Count</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -54,12 +54,37 @@
                                     <td>{{ $section->name }}</td>
                                     <td>
                                         @if($section->adviser)
-                                            {{ $section->adviser->name }}
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
+                                                    <i class="bi bi-person-fill text-info"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">{{ $section->adviser->last_name }}, {{ $section->adviser->first_name }}</div>
+                                                    @if($section->adviser->email)
+                                                        <div class="small text-muted">{{ $section->adviser->email }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         @else
-                                            <span class="text-muted">No adviser assigned</span>
+                                            <div class="d-flex align-items-center text-muted">
+                                                <div class="avatar-sm bg-light rounded-circle me-2">
+                                                    <i class="bi bi-person-x-fill"></i>
+                                                </div>
+                                                <span>No adviser assigned</span>
+                                            </div>
                                         @endif
                                     </td>
-                                    <td>{{ $section->description ?? 'No description' }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-people-fill text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">{{ $section->students_count ?? 0 }} Students</div>
+                                                <div class="small text-muted">Enrolled</div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td>
                                         <span class="badge bg-{{ $section->status === 'active' ? 'success' : 'danger' }}">
                                             {{ ucfirst($section->status) }}

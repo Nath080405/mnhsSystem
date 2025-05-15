@@ -12,12 +12,14 @@ class SubjectController extends Controller
     public function index()
     {
         $subjects = Subject::with('teacher')->paginate(10);
+        \Log::info('Subjects with teachers:', ['subjects' => $subjects->toArray()]);
         return view('admin.subjects.index', compact('subjects'));
     }
 
     public function create()
     {
         $teachers = User::where('role', 'teacher')->get();
+        \Log::info('Teachers found:', ['count' => $teachers->count(), 'teachers' => $teachers->toArray()]);
         return view('admin.subjects.create', compact('teachers'));
     }
 
@@ -27,7 +29,6 @@ class SubjectController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:20|unique:subjects,code',
             'description' => 'nullable|string',
-            'credits' => 'required|integer|min:1',
             'teacher_id' => 'nullable|exists:users,id',
             'status' => 'required|in:active,inactive',
         ]);
@@ -52,7 +53,6 @@ class SubjectController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:20|unique:subjects,code,' . $id,
             'description' => 'nullable|string',
-            'credits' => 'required|integer|min:1',
             'teacher_id' => 'nullable|exists:users,id',
             'status' => 'required|in:active,inactive',
         ]);
@@ -79,6 +79,7 @@ class SubjectController extends Controller
     public function show($id)
     {
         $subject = Subject::with('teacher')->findOrFail($id);
+        \Log::info('Subject with teacher:', ['subject' => $subject->toArray()]);
         return view('admin.subjects.show', compact('subject'));
     }
 } 
