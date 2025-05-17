@@ -36,11 +36,6 @@
                     <i class="bi bi-building me-3"></i> Sections
                 </a>
             </li>
-            <li class="nav-item mb-1">
-                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.profile')) active @endif" href="{{ route('admin.profile') }}">
-                    <i class="bi bi-person me-3"></i> My Profile
-                </a>
-            </li>
         </ul>
     </div>
 </div>

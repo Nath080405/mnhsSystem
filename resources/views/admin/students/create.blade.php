@@ -130,7 +130,7 @@
                                     <select name="grade_level" id="grade_level" class="form-select" required>
                                         <option value="">Select Grade Level</option>
                                         @for($i = 7; $i <= 12; $i++)
-                                            <option value="Grade {{ $i }}" {{ old('grade_level') == "Grade $i" ? 'selected' : '' }}>
+                                            <option value="{{ $i }}" {{ old('grade_level') == $i ? 'selected' : '' }}>
                                                 Grade {{ $i }}
                                             </option>
                                         @endfor
@@ -139,12 +139,12 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium">Section <span class="text-danger">*</span></label>
-                                    <select name="section_id" id="section" class="form-select" required>
+                                    <select name="section" id="section" class="form-select" required>
                                         <option value="">Select Section</option>
                                         @foreach($sections as $section)
-                                            <option value="{{ $section->id }}" 
+                                            <option value="{{ $section->name }}" 
                                                 data-grade="{{ $section->grade_level }}"
-                                                {{ old('section_id') == $section->id ? 'selected' : '' }}>
+                                                {{ old('section') == $section->name ? 'selected' : '' }}>
                                                 {{ $section->name }}
                                             </option>
                                         @endforeach

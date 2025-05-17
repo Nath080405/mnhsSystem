@@ -68,7 +68,7 @@ class StudentController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'grade_level' => 'required|string',
-            'section_id' => 'required|exists:sections,id',
+            'section' => 'required|string',
             'lrn' => 'required|string|unique:students,lrn',
         ]);
 
@@ -89,9 +89,6 @@ class StudentController extends Controller
         $user->username = $studentId;
         $user->save();
 
-        // Get section details
-        $section = Section::findOrFail($request->section_id);
-
         // Create student record
         $student = new \App\Models\Student();
         $student->user_id = $user->id;
@@ -104,8 +101,8 @@ class StudentController extends Controller
         $student->phone = $request->phone;
         $student->birthdate = $request->birthdate;
         $student->gender = $request->gender;
-        $student->grade_level = $section->grade_level;
-        $student->section_id = $request->section_id;
+        $student->grade_level = $request->grade_level;
+        $student->section = $request->section;
         $student->status = 'active';
         $student->save();
 
@@ -136,12 +133,23 @@ class StudentController extends Controller
     public function edit($id)
     {
         $student = User::with('student')->findOrFail($id);
-        return view('admin.students.edit', compact('student'));
+        $sections = Section::orderBy('grade_level')->orderBy('name')->get();
+        return view('admin.students.edit', compact('student', 'sections'));
     }
 
     public function update(Request $request, $id)
     {
         $user = User::with('student')->findOrFail($id);
+
+        $request->validate([
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|min:8|confirmed',
+            'grade_level' => 'required|string',
+            'section_id' => 'required|exists:sections,id',
+            'lrn' => 'required|string|unique:students,lrn,' . $user->student->user_id . ',user_id',
+        ]);
 
         // Update user record
         $userData = [
@@ -159,9 +167,13 @@ class StudentController extends Controller
 
         $user->update($userData);
 
+        // Get section details
+        $section = Section::findOrFail($request->section_id);
+
         // Update or create student record
         if ($user->student) {
             $user->student()->update([
+                'lrn' => $request->lrn,
                 'street_address' => $request->street_address,
                 'barangay' => $request->barangay,
                 'municipality' => $request->municipality,
@@ -169,14 +181,15 @@ class StudentController extends Controller
                 'phone' => $request->phone,
                 'birthdate' => $request->birthdate,
                 'gender' => $request->gender,
-                'grade_level' => $request->grade_level,
-                'section_id' => $request->section_id,
+                'grade_level' => $section->grade_level,
+                'section' => $section->name,
                 'status' => $request->status ?? 'active',
             ]);
         } else {
             // Create student record if it doesn't exist
             $user->student()->create([
                 'student_id' => $user->username,
+                'lrn' => $request->lrn,
                 'street_address' => $request->street_address,
                 'barangay' => $request->barangay,
                 'municipality' => $request->municipality,
@@ -184,8 +197,8 @@ class StudentController extends Controller
                 'phone' => $request->phone,
                 'birthdate' => $request->birthdate,
                 'gender' => $request->gender,
-                'grade_level' => $request->grade_level,
-                'section_id' => $request->section_id,
+                'grade_level' => $section->grade_level,
+                'section' => $section->name,
                 'status' => $request->status ?? 'active',
             ]);
         }

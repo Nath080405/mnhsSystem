@@ -60,6 +60,10 @@
         }
         .topbar-profile .fw-bold {
             font-size: 1rem;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .topbar-profile small {
             color: #888;
@@ -96,9 +100,9 @@
         <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-decoration-none text-dark topbar-profile dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="{{ Auth::user()->profile_image ? asset('storage/' . Auth::user()->profile_image) : asset('images/mae.png') }}" alt="User">
-                <div class="ms-2">
-                    <div class="fw-bold">{{ Auth::user()->name }}</div>
-                    <small>{{ ucfirst(Auth::user()->role) }}</small>
+                <div class="ms-2 d-none d-md-block">
+                    <span class="fw-bold" title="{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
+                    <small class="d-block text-muted">{{ ucfirst(Auth::user()->role) }}</small>
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">

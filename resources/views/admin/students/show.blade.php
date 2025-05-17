@@ -88,6 +88,10 @@
                                             <p class="mb-0">{{ $student->student?->student_id ?? 'Not Assigned' }}</p>
                                         </div>
                                         <div class="mb-3">
+                                            <label class="form-label">LRN</label>
+                                            <p class="mb-0">{{ $student->student?->lrn ?? 'Not Assigned' }}</p>
+                                        </div>
+                                        <div class="mb-3">
                                             <label class="form-label">Grade Level</label>
                                             <p class="mb-0">{{ $student->student?->grade_level ? 'Grade ' . $student->student->grade_level : 'Not Assigned' }}</p>
                                         </div>
