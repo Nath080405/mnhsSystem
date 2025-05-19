@@ -66,6 +66,32 @@
                                             </td>
                                         </tr>
                                         <tr>
+                                            <td class="text-muted">Schedules</td>
+                                            <td>
+                                                @if($subject->schedules->count() > 0)
+                                                    <div class="d-flex flex-column gap-2">
+                                                        @foreach($subject->schedules as $schedule)
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
+                                                                    <i class="bi bi-clock text-primary"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <span class="fw-semibold">{{ $schedule->day }}</span>
+                                                                    <br>
+                                                                    <small class="text-muted">
+                                                                        {{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }} - 
+                                                                        {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
+                                                                    </small>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted">No schedules set</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td class="text-muted">Created At</td>
                                             <td class="fw-semibold">{{ $subject->created_at->format('F d, Y h:i A') }}</td>
                                         </tr>

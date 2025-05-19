@@ -30,55 +30,6 @@
             </div>
         @endif
 
-        <!-- Stats Cards -->
-        <div class="row mb-4 g-3">
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Subjects</h6>
-                                <h3 class="mb-0 fw-bold">{{ $subjects->count() }}</h3>
-                            </div>
-                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle shadow">
-                                <i class="bi bi-book-fill text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Active Subjects</h6>
-                                <h3 class="mb-0 fw-bold">{{ $subjects->where('status', 'active')->count() }}</h3>
-                            </div>
-                            <div class="avatar-sm bg-success bg-opacity-10 rounded-circle shadow">
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Assigned Teachers</h6>
-                                <h3 class="mb-0 fw-bold">{{ $subjects->whereNotNull('teacher_id')->count() }}</h3>
-                            </div>
-                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle shadow">
-                                <i class="bi bi-person-check-fill text-info"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Main Content -->
         <div class="card shadow-lg border-0">
             <div class="card-header bg-white py-3">
@@ -102,6 +53,7 @@
                                 <th class="border-0 px-3">Code</th>
                                 <th class="border-0 px-3">Name</th>
                                 <th class="border-0 px-3">Teacher</th>
+                                <th class="border-0 px-3">Schedule</th>
                                 <th class="border-0 px-3">Status</th>
                                 <th class="border-0 px-3 text-end">Actions</th>
                             </tr>
@@ -121,6 +73,20 @@
                                             </div>
                                         @else
                                             <span class="text-muted">Not assigned</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-3">
+                                        @if($subject->schedules->count() > 0)
+                                            <div class="d-flex flex-column gap-1">
+                                                @foreach($subject->schedules as $schedule)
+                                                    <div class="small">
+                                                        <span class="badge bg-light text-dark">{{ $schedule->day }}</span>
+                                                        <span class="text-muted">{{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-muted">No schedule set</span>
                                         @endif
                                     </td>
                                     <td class="px-3">
