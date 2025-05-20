@@ -147,7 +147,7 @@ class StudentController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8|confirmed',
             'grade_level' => 'required|string',
-            'section_id' => 'required|exists:sections,id',
+            'section' => 'required|string',
             'lrn' => 'required|string|unique:students,lrn,' . $user->student->user_id . ',user_id',
         ]);
 
@@ -167,43 +167,25 @@ class StudentController extends Controller
 
         $user->update($userData);
 
-        // Get section details
-        $section = Section::findOrFail($request->section_id);
+        // Update student record
+        $studentData = [
+            'lrn' => $request->lrn,
+            'street_address' => $request->street_address,
+            'barangay' => $request->barangay,
+            'municipality' => $request->municipality,
+            'province' => $request->province,
+            'phone' => $request->phone,
+            'birthdate' => $request->birthdate,
+            'gender' => $request->gender,
+            'grade_level' => $request->grade_level,
+            'section' => $request->section,
+            'status' => $request->status ?? 'active',
+        ];
 
-        // Update or create student record
-        if ($user->student) {
-            $user->student()->update([
-                'lrn' => $request->lrn,
-                'street_address' => $request->street_address,
-                'barangay' => $request->barangay,
-                'municipality' => $request->municipality,
-                'province' => $request->province,
-                'phone' => $request->phone,
-                'birthdate' => $request->birthdate,
-                'gender' => $request->gender,
-                'grade_level' => $section->grade_level,
-                'section' => $section->name,
-                'status' => $request->status ?? 'active',
-            ]);
-        } else {
-            // Create student record if it doesn't exist
-            $user->student()->create([
-                'student_id' => $user->username,
-                'lrn' => $request->lrn,
-                'street_address' => $request->street_address,
-                'barangay' => $request->barangay,
-                'municipality' => $request->municipality,
-                'province' => $request->province,
-                'phone' => $request->phone,
-                'birthdate' => $request->birthdate,
-                'gender' => $request->gender,
-                'grade_level' => $section->grade_level,
-                'section' => $section->name,
-                'status' => $request->status ?? 'active',
-            ]);
-        }
+        \App\Models\Student::where('user_id', $user->id)->update($studentData);
 
-        return redirect()->route('admin.students.index')->with('success', 'Student updated successfully!');
+        return redirect()->route('admin.students.index')
+            ->with('success', 'Student updated successfully!');
     }
 
     public function show($id)
