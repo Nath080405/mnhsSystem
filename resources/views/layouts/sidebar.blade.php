@@ -36,6 +36,11 @@
                     <i class="bi bi-building me-3"></i> Sections
                 </a>
             </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.events.index')) active @endif" href="{{ route('admin.events.index') }}">
+                    <i class="bi bi-calendar-event me-3"></i> Events
+                </a>
+            </li>
         </ul>
     </div>
 </div>
