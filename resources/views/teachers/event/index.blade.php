@@ -27,9 +27,6 @@
                     @endauth
                 </div>
             </div>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
-                <i class="bi bi-plus-lg me-1"></i> Add Event
-            </button>
         </div>
 
         <!-- Success Message -->
@@ -53,18 +50,7 @@
                                 @endphp
                             </small>
                         </div>
-                        <div class="d-flex gap-2">
-                            <a href="{{ route('teachers.event.edit', $event->id) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit">
-                                <i class="bi bi-pencil-fill"></i>
-                            </a>
-                            <form action="{{ route('teachers.event.destroy', $event->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-                            </form>
-                        </div>
+                   
                     </div>
                 </div>
             @empty

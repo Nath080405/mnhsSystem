@@ -32,4 +32,5 @@ class Section extends Model
     {
         return $this->belongsTo(User::class, 'adviser_id');
     }
+    
 } 

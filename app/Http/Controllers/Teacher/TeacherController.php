@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\User;
 use App\Models\Subject;
 use App\Models\Event;
+use App\Models\Grade;
 
 class TeacherController extends Controller
 {
@@ -289,5 +290,21 @@ public function destroy($id)
         $user = Auth::user();
         return view('teachers.profile', compact('user'));
     }
+public function myClass()
+{
+    $teacher = auth()->user(); // assuming the teacher is logged in
+    $section = $teacher->section;
+
+    if (!$section) {
+        return view('teachers.index', [
+            'students' => [],
+            'error' => 'No section assigned.'
+        ]);
+    }
+
+    $students = $section->students;
+
+    return view('teachers.index', compact('students'));
+}
 
 }

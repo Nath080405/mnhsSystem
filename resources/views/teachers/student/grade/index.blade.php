@@ -12,10 +12,10 @@
       </div>
 
       <!-- Search Bar -->
-      <form action="/search" method="GET" class="d-flex align-items-center gap-2" style="height: 38px;">
-        <input type="text" class="form-control" name="search" placeholder="Search..." style="height: 100%; width: 220px;">
-        <button type="submit" class="btn btn-outline-dark">Search</button>
-      </form>
+<form action="{{ route('teachers.student.grade.search') }}" method="GET" class="d-flex align-items-center gap-2" style="height: 38px;">
+    <input type="text" class="form-control" name="search" placeholder="Search..." style="height: 100%; width: 220px;">
+    <button type="submit" class="btn btn-outline-dark">Search</button>
+</form>
     </div>
 
     <!-- Main Content -->

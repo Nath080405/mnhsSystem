@@ -19,12 +19,16 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'class' => 'required|string|max:255',
-            'birthdate' => 'required|date',
-            'password' => 'required|string|min:6|confirmed',
+        'first_name' => $request->first_name,
+        'middle_name' => $request->middle_name,
+        'last_name' => $request->last_name,
+        'student_id' => $request->student_id,
+        'age' => $request->age,
+        'sex' => $request->sex,
+        'birth_month' => $request->birth_month,
+        'birth_day' => $request->birth_day,
+        'birth_year' => $request->birth_year,
+        'province' => $request->province,
         ]);
 
         $user = new User();
@@ -73,5 +77,24 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
     }
     
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+        // Add your search logic here
+        // $grades = Grade::where(...)->get();
 
+        return view('teachers.student.grade.index', [
+            // 'grades' => $grades,
+            'search' => $search,
+        ]);
+    }
+
+    public function gradesIndex()
+    {
+        // You can pass dummy data or an empty array for now
+        return view('teachers.student.grade.index', [
+            'grades' => [],
+            'search' => '',
+        ]);
+    }
 }
