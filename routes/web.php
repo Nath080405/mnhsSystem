@@ -8,9 +8,10 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\student\StudentController as StudentDashboardController;
 use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController;
-use App\Http\Controllers\Teacher\EventController;
+use App\Http\Controllers\Teacher\EventController as TeacherEventController;
 
 // Authentication Routes
 Route::get('', [LoginController::class, 'showLoginForm'])->name('login');
@@ -26,6 +27,15 @@ Route::middleware(['auth'])->group(function () {
         // Profile Routes
         Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
+
+        // Event Management Routes
+        Route::get('/events', [EventController::class, 'index'])->name('admin.events.index');
+        Route::get('/events/create', [EventController::class, 'create'])->name('admin.events.create');
+        Route::post('/events', [EventController::class, 'store'])->name('admin.events.store');
+        Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('admin.events.edit');
+        Route::put('/events/{id}', [EventController::class, 'update'])->name('admin.events.update');
+        Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('admin.events.destroy');
+        Route::get('/events/{id}', [EventController::class, 'show'])->name('admin.events.show');
 
         // Section Management Routes
         Route::get('/sections', [SectionController::class, 'index'])->name('admin.sections.index');
@@ -93,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Event Management Routes
         Route::get('/events', [TeacherDashboardController::class, 'event'])->name('teachers.event.index');
+        
 
         Route::post('/events/preview', [TeacherDashboardController::class, 'preview'])->name('teachers.event.preview');
      

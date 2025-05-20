@@ -9,11 +9,16 @@ class CreateEventsTable extends Migration
     public function up()
     {
         Schema::create('events', function (Blueprint $table) {
-            $table->id();
+            $table->id('event_id');
             $table->string('title');
             $table->text('description')->nullable();
             $table->date('event_date');
-            $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->string('location');
+            $table->enum('visibility', ['All', 'Students', 'Teachers'])->default('All');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->enum('status', ['Upcoming', 'Completed', 'Cancelled'])->default('Upcoming');
             $table->timestamps();
         });
     }
