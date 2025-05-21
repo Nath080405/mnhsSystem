@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Event;
+use App\Models\User;
 
 class StudentController extends Controller
 {
@@ -36,7 +38,17 @@ class StudentController extends Controller
      */
     public function events()
     {
-        return view('student.events');
+        // Get all events with their associated teachers
+        $events = Event::with('teacher')
+            ->orderBy('event_date', 'desc')
+            ->get()
+            ->map(function ($event) {
+                // Ensure teacher name is available
+                $event->teacher_name = $event->teacher ? $event->teacher->name : 'Unknown Teacher';
+                return $event;
+            });
+
+        return view('student.events', compact('events'));
     }
 
     /**

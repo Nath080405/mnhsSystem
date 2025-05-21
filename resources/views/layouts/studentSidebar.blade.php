@@ -26,6 +26,32 @@
             </li>
         </ul>
     </div>
+
+    <!-- Bottom User Info and Logout -->
+    <div class="mt-auto p-3 border-top">
+        <div class="d-flex align-items-center justify-content-between">
+            <a class="d-flex align-items-center text-decoration-none text-dark">
+                <img class="rounded-circle me-2" style="height: 32px; width: 32px; object-fit: cover;" alt="User">
+                <div>
+                    <div class="fw-bold">
+                        @php
+                            $nameParts = explode(' ', Auth::user()->name);
+                            $firstName = $nameParts[0];
+                            $lastNameInitial = count($nameParts) > 1 ? strtoupper($nameParts[count($nameParts) - 1][0]) . '.' : '';
+                            echo $firstName . ' ' . $lastNameInitial;
+                        @endphp
+                    </div>
+                    <small class="text-muted">{{ ucfirst(Auth::user()->role) }}</small>
+                </div>
+            </a>
+            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-link text-danger p-0">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <style>

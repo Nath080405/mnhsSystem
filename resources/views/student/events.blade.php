@@ -14,33 +14,53 @@
                     </div>
                 </div>
 
-                <!-- Notifications Section -->
-                <div class="notification-section" style="background-color: #ffffff;">
+                <!-- Events Section -->
+                <div class="events-section" style="background-color: #ffffff;">
                     <div class="tab-header d-flex justify-content-between align-items-center">
                         <div>
-                            <button class="active" data-filter="unread">Unread</button>
-                            <button data-filter="urgent">Urgent</button>
-                            <button data-filter="latest">Latest</button>
-                        </div>
-                        <button class="btn btn-dark btn-sm" id="markAllRead">+ Mark All Read</button>
-                    </div>
-
-                    <div id="notifications-container">
-                        <!-- Initial notifications -->
-                        <div class="notification-card urgent">
-                            <strong>Mid-term Examination Schedule</strong>
-                            <p class="mb-1">Examination schedules for all departments have been finalized.</p>
-                            <small class="notification-date">April 25, 2025 • 9:30 AM • <span class="notification-tag tag-academic">Academic</span></small>
-                        </div>
-
-                        <div class="notification-card">
-                            <strong>Scholarship Deadline</strong>
-                            <p class="mb-1">Applications for the Henderson Scholarship close soon.</p>
-                            <small class="notification-date">April 12, 2025 • 11:20 AM • <span class="notification-tag tag-academic">Academic</span></small>
+                            <button class="active" data-filter="all">All Events</button>
+                            <button data-filter="unread"></button>
                         </div>
                     </div>
 
-                    <div class="more-btn" id="loadMore">Load more notifications ↓</div>
+                    <div id="events-container">
+                        @forelse($events as $event)
+                            <div class="event-card {{ !$event->is_read ? 'unread' : '' }}" data-id="{{ $event->id }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong class="fs-5">{{ $event->title }}</strong>
+                                        <p class="mb-1 text-muted">{{ $event->description }}</p>
+                                        <div class="event-details">
+                                            <small class="event-date">
+                                                <i class="bi bi-calendar-event me-1"></i>
+                                                {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}
+                                                @if($event->event_time)
+                                                    • {{ \Carbon\Carbon::parse($event->event_time)->format('h:i A') }}
+                                                @endif
+                                            </small>
+                                            @if($event->location)
+                                                <small class="event-location ms-2">
+                                                    <i class="bi bi-geo-alt me-1"></i>
+                                                    {{ $event->location }}
+                                                </small>
+                                            @endif
+                                            <small class="ms-2">
+                                                <i class="bi bi-person me-1"></i>
+                                                Posted by: {{ $event->teacher_name }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    @if($event->venue_image)
+                                        <img src="{{ asset('storage/' . $event->venue_image) }}" alt="Venue" class="venue-image">
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-5">
+                                <p class="text-muted mb-0">No events found.</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,7 +68,7 @@
 </div>
 
 <style>
-.notification-section {
+.events-section {
     border-radius: 10px;
     padding: 20px;
     margin-top: 20px;
@@ -70,186 +90,93 @@
 }
 
 .tab-header .active {
-    color: #2ecc71;
+    color:rgb(204, 46, 157);
     border-bottom: 2px solid #2ecc71;
 }
 
-.notification-card {
+.event-card {
     background: #fff;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 15px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     position: relative;
+    transition: all 0.3s ease;
 }
 
-.notification-card.urgent {
-    border-left: 4px solid red;
-    background-color: #fef2f2;
+.event-card.unread {
+    background-color: #f8f9fa;
+    border-left: 4px solid #2ecc71;
 }
 
-.notification-tag {
-    font-size: 12px;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: 500;
-    color: white;
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.tag-academic {
-    background-color: #0d6efd;
+.event-details {
+    margin-top: 10px;
 }
 
-.tag-event {
-    background-color: #198754;
-}
-
-.tag-admin {
-    background-color: #d63384;
-}
-
-.tag-extra {
-    background-color: #ffc107;
-    color: #000;
-}
-
-.notification-date {
+.event-date, .event-location {
     font-size: 13px;
-    color: #888;
+    color: #666;
 }
 
-.more-btn {
-    color: #27ae60;
-    text-align: center;
-    display: block;
-    margin-top: 20px;
-    cursor: pointer;
+.event-location {
+    color: #0d6efd;
     font-weight: 500;
-    transition: color 0.3s ease;
 }
 
-.more-btn:hover {
-    color: #219a52;
+.venue-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-left: 15px;
 }
 </style>
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const notificationsContainer = document.getElementById('notifications-container');
-    const loadMoreBtn = document.getElementById('loadMore');
+    const eventsContainer = document.getElementById('events-container');
     const filterButtons = document.querySelectorAll('.tab-header button');
-    const markAllReadBtn = document.getElementById('markAllRead');
     
-    let currentPage = 1;
-    let currentFilter = 'unread';
-    
-    // Sample additional notifications (replace with actual data from your backend)
-    const additionalNotifications = {
-        unread: [
-            {
-                title: 'Science Fair Registration',
-                description: 'Register now for the annual science fair.',
-                date: 'April 10, 2025 • 2:00 PM',
-                type: 'event',
-                urgent: false
-            },
-            {
-                title: 'Math Competition',
-                description: 'Annual math competition registration is now open.',
-                date: 'April 8, 2025 • 9:00 AM',
-                type: 'academic',
-                urgent: false
-            }
-        ],
-        urgent: [
-            {
-                title: 'Emergency School Closure',
-                description: 'School will be closed tomorrow due to maintenance.',
-                date: 'April 20, 2025 • 8:00 AM',
-                type: 'admin',
-                urgent: true
-            },
-            {
-                title: 'Important Parent Meeting',
-                description: 'Mandatory parent-teacher meeting this Friday.',
-                date: 'April 18, 2025 • 2:00 PM',
-                type: 'admin',
-                urgent: true
-            }
-        ],
-        latest: [
-            {
-                title: 'Sports Day Announcement',
-                description: 'Annual sports day will be held next month.',
-                date: 'April 15, 2025 • 10:00 AM',
-                type: 'event',
-                urgent: false
-            },
-            {
-                title: 'New Library Hours',
-                description: 'Library will now be open until 6 PM.',
-                date: 'April 10, 2025 • 9:00 AM',
-                type: 'admin',
-                urgent: false
-            }
-        ]
-    };
-
-    function createNotificationCard(notification) {
-        return `
-            <div class="notification-card ${notification.urgent ? 'urgent' : ''}">
-                <strong>${notification.title}</strong>
-                <p class="mb-1">${notification.description}</p>
-                <small class="notification-date">${notification.date} • <span class="notification-tag tag-${notification.type}">${notification.type}</span></small>
-            </div>
-        `;
-    }
-
-    function loadMoreNotifications() {
-        const notifications = additionalNotifications[currentFilter] || [];
-        const startIndex = (currentPage - 1) * 2;
-        const endIndex = startIndex + 2;
-        const pageNotifications = notifications.slice(startIndex, endIndex);
-        
-        pageNotifications.forEach(notification => {
-            notificationsContainer.innerHTML += createNotificationCard(notification);
-        });
-        
-        currentPage++;
-        
-        // Hide load more button if no more notifications
-        if (endIndex >= notifications.length) {
-            loadMoreBtn.style.display = 'none';
-        }
-    }
-
     // Filter button click handler
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
-            currentFilter = this.dataset.filter;
-            currentPage = 1;
+            const filter = this.dataset.filter;
             
-            // Clear existing notifications
-            notificationsContainer.innerHTML = '';
-            
-            // Load initial notifications for the selected filter
-            loadMoreNotifications();
-            
-            // Show load more button
-            loadMoreBtn.style.display = 'block';
+            // Show/hide events based on filter
+            const events = document.querySelectorAll('.event-card');
+            events.forEach(event => {
+                if (filter === 'all' || (filter === 'unread' && event.classList.contains('unread'))) {
+                    event.style.display = 'block';
+                } else {
+                    event.style.display = 'none';
+                }
+            });
+
+            // Mark unread events as read when "Unread" is clicked
+            if (filter === 'unread') {
+                const unreadEvents = document.querySelectorAll('.event-card.unread');
+                unreadEvents.forEach(event => {
+                    event.classList.remove('unread');
+                    // Send an AJAX request to mark the event as read in the database
+                    const eventId = event.getAttribute('data-id');
+                    fetch(`/events/${eventId}/mark-as-read`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                });
+            }
         });
-    });
-
-    // Load more button click handler
-    loadMoreBtn.addEventListener('click', loadMoreNotifications);
-
-    // Mark all as read button click handler
-    markAllReadBtn.addEventListener('click', function() {
-        // Add your mark all as read logic here
-        console.log('Marking all as read');
     });
 });
 </script>

@@ -9,6 +9,7 @@ class Event extends Model
     use HasFactory;
 
     protected $primaryKey = 'event_id';
+    protected $table = 'events';
 
     protected $fillable = [
         'title',
@@ -19,7 +20,8 @@ class Event extends Model
         'location',
         'visibility',
         'created_by',
-        'status'
+        'status',
+        'teacher_id'
     ];
 
     protected $casts = [
@@ -31,5 +33,10 @@ class Event extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 }
