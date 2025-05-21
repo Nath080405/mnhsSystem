@@ -11,8 +11,15 @@ class EventController extends Controller
     // Display the list of events
     public function index()
     {
-        // Fetch events for the logged-in teacher
-        $events = Event::where('teacher_id', auth()->id())->paginate(10);    
+        // Fetch events that are visible to teachers
+        $events = Event::where(function($query) {
+            $query->where('visibility', 'All')
+                  ->orWhere('visibility', 'Teachers');
+        })
+        ->whereNotIn('visibility', ['Students']) // Explicitly exclude student-only events
+        ->orderBy('event_date', 'desc')
+        ->paginate(10);    
+        
         // Pass the events to the view
         return view('teachers.event.index', compact('events'));
     }

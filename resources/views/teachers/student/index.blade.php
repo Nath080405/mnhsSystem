@@ -44,6 +44,7 @@
                                 <th rowspan="2">SEX</th>
                                 <th colspan="3">BIRTHDATE</th>
                                 <th rowspan="2">PROVINCE</th>
+                                <th rowspan="2">ACTIONS</th>
                             </tr>
                             <tr>
                                 <th>LAST NAME</th>
@@ -62,15 +63,18 @@
             <td>{{ strtoupper($student->middle_name) }}</td>
             <td>{{ $student->student_id }}</td>
             <td>{{ $student->age }}</td>
-            <td>{{ strtoupper($student->sex) }}</td>
-            <td>{{ strtoupper(date('F', mktime(0, 0, 0, $student->birth_month, 1))) }}</td>
-            <td>{{ $student->birth_day }}</td>
-            <td>{{ $student->birth_year }}</td>
+            <td>{{ strtoupper($student->gender) }}</td>
+            <td>{{ strtoupper(date('F', strtotime($student->birthdate))) }}</td>
+            <td>{{ date('d', strtotime($student->birthdate)) }}</td>
+            <td>{{ date('Y', strtotime($student->birthdate)) }}</td>
             <td>{{ strtoupper($student->province) }}</td>
+            <td>
+
+            </td>
         </tr>
     @empty
         <tr>
-            <td colspan="10" class="text-muted">No students found for your assigned section.</td>
+            <td colspan="11" class="text-muted">No students found for your assigned section.</td>
         </tr>
     @endforelse
 </tbody>

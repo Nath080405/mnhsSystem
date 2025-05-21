@@ -10,7 +10,7 @@
         <img src="{{ asset('images/teacher.png') }}" alt="Avatar" class="me-4" style="width: 60px;">
         <div>
           <h5 class="mb-1 text-primary">Hello, {{ Auth::user()->name ?? 'Teacher' }} 👋</h5>
-          <p class="text-muted mb-0">Here’s a quick look at your assigned subjects.</p>
+          <p class="text-muted mb-0">Here's a quick look at your assigned subjects.</p>
         </div>
       </div>
     </div>
@@ -33,13 +33,34 @@
                     <i class="bi bi-journal-bookmark-fill text-white"></i>
                   </div>
                   <div>
-                    <h5 class="fw-bold text-secondary mb-0">{{ $subject->name }}</h5>
+                    <h5 class="0fw-bold text-secondary mb-">{{ $subject->name }}</h5>
                     <small class="text-muted">{{ $subject->code }}</small>
                   </div>
                 </div>
                 <p class="text-secondary small flex-grow-1" style="line-height: 1.6; max-height: 5.2em; overflow: hidden;">
                   {{ $subject->description }}
                 </p>
+                @if($subject->schedules->count() > 0)
+                  <div class="schedule-section">
+                    <h6 class="text-primary mb-2">Schedule:</h6>
+                    <div class="schedule-list">
+                      @foreach($subject->schedules as $schedule)
+                        <div class="schedule-item d-flex align-items-center mb-2">
+                          <i class="bi bi-clock me-2 text-primary"></i>
+                          <span class="text-secondary">
+                            {{ $schedule->day }} - 
+                            {{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }} to {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
+                          </span>
+                        </div>
+                      @endforeach
+                    </div>
+                  </div>
+                @else
+                  <div class="text-muted small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    No schedule assigned yet
+                  </div>
+                @endif
               </div>
             </div>
           </div>
@@ -71,6 +92,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.schedule-section {
+  border-top: 1px solid #e3e6f0;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+.schedule-item {
+  font-size: 0.9rem;
+}
+.schedule-item i {
+  font-size: 1rem;
 }
 </style>
 

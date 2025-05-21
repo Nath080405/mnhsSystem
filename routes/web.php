@@ -12,6 +12,9 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\student\StudentController as StudentDashboardController;
 use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController;
 use App\Http\Controllers\Teacher\EventController as TeacherEventController;
+use App\Http\Controllers\Admin\ProfileController as TeacherProfileController;
+use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
+
 
 // Authentication Routes
 Route::get('', [LoginController::class, 'showLoginForm'])->name('login');
@@ -108,8 +111,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/events/preview', [TeacherDashboardController::class, 'preview'])->name('teachers.event.preview');
      
   // Profile Routes
-        Route::get('/profile', [ProfileController::class, 'show'])->name('teachers.profile');
-        Route::put('/profile', [ProfileController::class, 'update'])->name('teachers.profile.update');
+        Route::get('/profile', [TeacherDashboardController::class, 'profile'])->name('teachers.profile');
+        Route::put('/profile', [TeacherDashboardController::class, 'updateProfile'])->name('teachers.profile.update');
     });
 
 
@@ -126,6 +129,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->group(function () {
         Route::get('/student/grades', [\App\Http\Controllers\Teacher\StudentController::class, 'gradesIndex'])->name('teachers.student.grade.index');
+
     });
 
 });

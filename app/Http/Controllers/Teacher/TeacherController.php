@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\Subject;
 use App\Models\Event;
 use App\Models\Grade;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class TeacherController extends Controller
 {
@@ -34,7 +36,11 @@ class TeacherController extends Controller
      */
     public function student()
     {
-        return view('teachers.student.index');
+        $students = User::where('role', 'student')
+            ->join('students', 'users.id', '=', 'students.user_id')
+            ->select('users.*', 'students.*')
+            ->get();
+        return view('teachers.student.index', compact('students'));
     }
 
     /**
@@ -50,7 +56,9 @@ class TeacherController extends Controller
      */
     public function subjectIndex()
     {
-        $subjects = Subject::where('teacher_id', Auth::id())->get();
+        $subjects = Subject::with('schedules')
+            ->where('teacher_id', Auth::id())
+            ->get();
         return view('teachers.subject.index', compact('subjects'));
     }
 
@@ -75,7 +83,15 @@ class TeacherController extends Controller
      */
     public function event()
     {
-        $events = Event::all();
+        // Only show events that are visible to teachers
+        $events = Event::where(function($query) {
+            $query->where('visibility', 'All')
+                  ->orWhere('visibility', 'Teachers');
+        })
+        ->whereNotIn('visibility', ['Students'])
+        ->orderBy('event_date', 'desc')
+        ->get();
+        
         return view('teachers.event.index', compact('events'));
     }
 
@@ -290,21 +306,50 @@ public function destroy($id)
         $user = Auth::user();
         return view('teachers.profile', compact('user'));
     }
-public function myClass()
-{
-    $teacher = auth()->user(); // assuming the teacher is logged in
-    $section = $teacher->section;
 
-    if (!$section) {
-        return view('teachers.index', [
-            'students' => [],
-            'error' => 'No section assigned.'
+    /**
+     * Update the teacher's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'current_password' => ['nullable', 'required_with:new_password'],
+            'new_password' => ['nullable', 'min:6', 'confirmed'],
         ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        if ($request->filled('current_password')) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'The current password is incorrect.']);
+            }
+            $user->password = Hash::make($validated['new_password']);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Profile updated successfully.');
     }
 
-    $students = $section->students;
+    public function myClass()
+    {
+        $teacher = auth()->user(); // assuming the teacher is logged in
+        $section = $teacher->section;
 
-    return view('teachers.index', compact('students'));
-}
+        if (!$section) {
+            return view('teachers.index', [
+                'students' => [],
+                'error' => 'No section assigned.'
+            ]);
+        }
 
+        $students = $section->students;
+
+        return view('teachers.index', compact('students'));
+    }
 }
