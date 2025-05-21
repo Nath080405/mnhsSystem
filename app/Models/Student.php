@@ -58,4 +58,5 @@ class Student extends Model
         if ($this->province) $address[] = $this->province;
         return implode(', ', $address);
     }
+    
 }
