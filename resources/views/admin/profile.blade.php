@@ -28,13 +28,39 @@
                             </div>
                         @endif
 
-                        <div class="mb-3">
-                            <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
-                                value="{{ old('name', $user->name) }}" required>
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control @error('last_name') is-invalid @enderror" 
+                                    value="{{ old('last_name', $user->last_name) }}" required>
+                                @error('last_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control @error('first_name') is-invalid @enderror" 
+                                    value="{{ old('first_name', $user->first_name) }}" required>
+                                @error('first_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Middle Name</label>
+                                <input type="text" name="middle_name" class="form-control @error('middle_name') is-invalid @enderror" 
+                                    value="{{ old('middle_name', $user->middle_name) }}">
+                                @error('middle_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Suffix</label>
+                                <input type="text" name="suffix" class="form-control @error('suffix') is-invalid @enderror" 
+                                    value="{{ old('suffix', $user->suffix) }}">
+                                @error('suffix')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -92,7 +118,7 @@
                                 <i class="bi bi-person-workspace display-6"></i>
                             </span>
                         </div>
-                        <h4 class="mb-1">{{ $user->name }}</h4>
+                        <h4 class="mb-1">{{ $user->first_name }} {{ $user->middle_name ? $user->middle_name . ' ' : '' }}{{ $user->last_name }}{{ $user->suffix ? ' ' . $user->suffix : '' }}</h4>
                         <p class="text-muted mb-2">{{ ucfirst($user->role) }}</p>
                         <span class="badge bg-success text-capitalize px-3 py-1">
                             Active

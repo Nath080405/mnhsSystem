@@ -21,13 +21,19 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'suffix' => ['nullable', 'string', 'max:10'],
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'current_password' => ['nullable', 'required_with:new_password'],
             'new_password' => ['nullable', 'min:6', 'confirmed'],
         ]);
 
-        $user->name = $validated['name'];
+        $user->last_name = $validated['last_name'];
+        $user->first_name = $validated['first_name'];
+        $user->middle_name = $validated['middle_name'];
+        $user->suffix = $validated['suffix'];
         $user->email = $validated['email'];
 
         if ($request->filled('current_password')) {

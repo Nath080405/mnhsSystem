@@ -17,6 +17,11 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.profile')) active @endif" href="{{ route('admin.profile') }}">
+                    <i class="bi bi-person-circle me-3"></i> My Profile
+                </a>
+            </li>
+            <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.students.index') || request()->routeIs('admin.teachers.index')) active @endif" data-bs-toggle="collapse" href="#usersSubmenu" role="button">
                     <i class="bi bi-people-fill me-3"></i> Users
                     <i class="bi bi-chevron-down ms-auto small"></i>
