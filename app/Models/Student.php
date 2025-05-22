@@ -36,7 +36,7 @@ class Student extends Model
 
     public function section()
     {
-        return $this->belongsTo(Section::class);
+        return $this->belongsTo(Section::class, 'section', 'section_id');
     }
 
     public function getFullNameAttribute()

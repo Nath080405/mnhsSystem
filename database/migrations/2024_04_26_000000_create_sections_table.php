@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
+            $table->string('section_id')->unique();
             $table->string('name');
             $table->string('grade_level');
             $table->text('description')->nullable();

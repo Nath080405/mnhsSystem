@@ -2,86 +2,133 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1 text-primary">Add New Section</h2>
-            <p class="text-muted mb-0 small">Create a new section for a grade level</p>
-        </div>
-        <a href="{{ route('admin.sections.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Sections
-        </a>
-    </div>
-
-    <!-- Form Card -->
-    <div class="card shadow-lg border-0">
-        <div class="card-body p-4">
-            <form action="{{ route('admin.sections.store') }}" method="POST">
-                @csrf
-                
-                <!-- Basic Information -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 text-primary">
+                        @if($selectedGrade)
+                            Add New Section for {{ $selectedGrade }}
+                        @else
+                            Create New Section
+                        @endif
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ route('admin.sections.store') }}" method="POST">
+                        @csrf
+                        
                         <div class="mb-3">
-                            <label class="form-label">Grade Level</label>
-                            <select name="grade_level" class="form-select @error('grade_level') is-invalid @enderror" required>
+                            <label for="grade_level" class="form-label">Grade Level</label>
+                            <select name="grade_level" id="grade_level" class="form-select @error('grade_level') is-invalid @enderror" required>
                                 <option value="">Select Grade Level</option>
-                                @for($i = 7; $i <= 12; $i++)
-                                    <option value="Grade {{ $i }}" {{ old('grade_level') == "Grade $i" ? 'selected' : '' }}>
-                                        Grade {{ $i }}
+                                @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $grade)
+                                    <option value="{{ $grade }}" {{ $selectedGrade == $grade ? 'selected' : '' }}>
+                                        {{ $grade }}
                                     </option>
-                                @endfor
+                                @endforeach
                             </select>
                             @error('grade_level')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-                    <div class="col-md-6">
+
                         <div class="mb-3">
-                            <label class="form-label">Section Name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
-                                value="{{ old('name') }}" placeholder="e.g., Section A" required>
+                            <label for="name" class="form-label">Section Name</label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                   id="name" name="name" value="{{ old('name') }}" 
+                                   placeholder="e.g., Section A" required>
+                            <div class="form-text">Enter a unique name for this section (e.g., Section A, Section B)</div>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-                </div>
 
-                <div class="row mb-4">
-                    <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">Teacher Adviser</label>
-                            <select name="adviser_id" class="form-select @error('adviser_id') is-invalid @enderror">
-                                <option value="">Select Teacher Adviser</option>
+                            <label for="section_id" class="form-label">Section ID</label>
+                            <input type="text" class="form-control @error('section_id') is-invalid @enderror" 
+                                   id="section_id" name="section_id" value="{{ old('section_id') }}" readonly>
+                            <div class="form-text">Section ID will be automatically generated based on the grade level (e.g., G7-001, G8-001)</div>
+                            @error('section_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="adviser_id" class="form-label">Section Adviser</label>
+                            <select name="adviser_id" id="adviser_id" class="form-select @error('adviser_id') is-invalid @enderror" required>
+                                <option value="">Select Adviser</option>
                                 @foreach($teachers as $teacher)
                                     <option value="{{ $teacher->id }}" {{ old('adviser_id') == $teacher->id ? 'selected' : '' }}>
-                                        {{ $teacher->last_name }}, {{ $teacher->first_name }} 
-                                        @if($teacher->email)
-                                            ({{ $teacher->email }})
-                                        @endif
+                                        {{ $teacher->last_name }}, {{ $teacher->first_name }}
                                     </option>
                                 @endforeach
                             </select>
-                            <div class="form-text">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Select a teacher to be the adviser of this section. The adviser will be responsible for managing the section.
-                            </div>
+                            <div class="form-text">Select a teacher to be the adviser of this section</div>
                             @error('adviser_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-                </div>
 
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save me-1"></i> Create Section
-                    </button>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control @error('description') is-invalid @enderror" 
+                                      id="description" name="description" rows="3" 
+                                      placeholder="Enter any additional information about this section">{{ old('description') }}</textarea>
+                            @error('description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
+                                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            <div class="form-text">Set the section's current status</div>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ route('admin.sections.index') }}" class="btn btn-light">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Create Section
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const gradeLevelSelect = document.getElementById('grade_level');
+    const sectionIdInput = document.getElementById('section_id');
+    const nameInput = document.getElementById('name');
+
+    function updateSectionId() {
+        const gradeLevel = gradeLevelSelect.value;
+        if (gradeLevel) {
+            // Extract just the number from "Grade X"
+            const gradeNumber = gradeLevel.replace('Grade ', '');
+            sectionIdInput.value = `G${gradeNumber}-001`;
+        } else {
+            sectionIdInput.value = '';
+        }
+    }
+
+    // Update section ID when grade level changes
+    gradeLevelSelect.addEventListener('change', updateSectionId);
+    
+    // Initial update
+    updateSectionId();
+});
+</script>
+@endpush
 @endsection 

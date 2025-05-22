@@ -8,21 +8,27 @@
                 <h2 class="fw-bold mb-1 text-primary">Sections Management</h2>
                 <p class="text-muted mb-0 small">Manage sections for each grade level</p>
             </div>
-            <div class="d-flex gap-2">
-                <!-- Grade Level Filter -->
-                <form action="{{ route('admin.sections.index') }}" method="GET" class="d-flex align-items-center">
-                    <select name="grade_level" class="form-select me-2" onchange="this.form.submit()">
-                        <option value="">All Grade Levels</option>
-                        @foreach($gradeLevels as $grade)
-                            <option value="{{ $grade }}" {{ $selectedGrade == $grade ? 'selected' : '' }}>
-                                {{ $grade }}
-                            </option>
-                        @endforeach
-                    </select>
-                </form>
-                <a href="{{ route('admin.sections.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg me-1"></i> Add New Section
-                </a>
+            <a href="{{ route('admin.sections.create', ['grade_level' => $selectedGrade]) }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> 
+                {{ $selectedGrade ? "Add {$selectedGrade} Section" : 'Add New Section' }}
+            </a>
+        </div>
+
+        <!-- Grade Level Filter -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-3">
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="{{ route('admin.sections.index') }}" 
+                       class="btn {{ !$selectedGrade ? 'btn-primary' : 'btn-outline-primary' }}">
+                        <i class="bi bi-grid-3x3-gap me-1"></i> All Grades
+                    </a>
+                    @foreach($gradeLevels as $grade)
+                        <a href="{{ route('admin.sections.index', ['grade_level' => $grade]) }}" 
+                           class="btn {{ $selectedGrade == $grade ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-mortarboard me-1"></i> {{ $grade }}
+                        </a>
+                    @endforeach
+                </div>
             </div>
         </div>
 
@@ -30,33 +36,61 @@
         <div class="card shadow-lg border-0">
             <div class="card-body p-4">
                 @if(session('success'))
-                    <div class="alert alert-success">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
                         {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
                 <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+                    <table class="table table-hover align-middle">
+                        <thead class="bg-light">
                             <tr>
-                                <th>Grade Level</th>
-                                <th>Section Name</th>
-                                <th>Teacher Adviser</th>
-                                <th>Enrollment Count</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th class="text-primary">Section ID</th>
+                                <th class="text-primary">Name</th>
+                                <th class="text-primary">Grade Level</th>
+                                <th class="text-primary">Adviser</th>
+                                <th class="text-primary">Students</th>
+                                <th class="text-primary">Status</th>
+                                <th class="text-primary text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($sections as $section)
                                 <tr>
-                                    <td>{{ $section->grade_level }}</td>
-                                    <td>{{ $section->name }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-hash text-primary"></i>
+                                            </div>
+                                            <span class="fw-medium">{{ $section->section_id }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-book text-info"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">{{ $section->name }}</div>
+                                                @if($section->description)
+                                                    <div class="small text-muted">{{ Str::limit($section->description, 30) }}</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-mortarboard me-1"></i>
+                                            {{ $section->grade_level }}
+                                        </span>
+                                    </td>
                                     <td>
                                         @if($section->adviser)
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
-                                                    <i class="bi bi-person-fill text-info"></i>
+                                                <div class="avatar-sm bg-success bg-opacity-10 rounded-circle me-2">
+                                                    <i class="bi bi-person-fill text-success"></i>
                                                 </div>
                                                 <div>
                                                     <div class="fw-medium">{{ $section->adviser->last_name }}, {{ $section->adviser->first_name }}</div>
@@ -66,34 +100,32 @@
                                                 </div>
                                             </div>
                                         @else
-                                            <div class="d-flex align-items-center text-muted">
-                                                <div class="avatar-sm bg-light rounded-circle me-2">
-                                                    <i class="bi bi-person-x-fill"></i>
-                                                </div>
-                                                <span>No adviser assigned</span>
-                                            </div>
+                                            <span class="text-muted">
+                                                <i class="bi bi-person-x me-1"></i> Not Assigned
+                                            </span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-people-fill text-primary"></i>
+                                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-people-fill text-warning"></i>
                                             </div>
                                             <div>
-                                                <div class="fw-medium">{{ $section->students_count ?? 0 }} Students</div>
+                                                <div class="fw-medium">{{ $section->students_count ?? 0 }}</div>
                                                 <div class="small text-muted">Enrolled</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <span class="badge bg-{{ $section->status === 'active' ? 'success' : 'danger' }}">
+                                            <i class="bi bi-{{ $section->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
                                             {{ ucfirst($section->status) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="btn-group">
+                                        <div class="d-flex justify-content-end gap-2">
                                             <a href="{{ route('admin.sections.edit', $section) }}"
-                                                class="btn btn-sm btn-outline-primary">
+                                                class="btn btn-sm btn-outline-primary" title="Edit Section">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <form action="{{ route('admin.sections.destroy', $section) }}" method="POST"
@@ -101,7 +133,8 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this section?')">
+                                                    onclick="return confirm('Are you sure you want to delete this section?')"
+                                                    title="Delete Section">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
@@ -110,7 +143,15 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">No sections found.</td>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-inbox-fill fs-2 d-block mb-2"></i>
+                                            No sections found
+                                            @if($selectedGrade)
+                                                for {{ $selectedGrade }}
+                                            @endif
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -119,4 +160,69 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .btn-outline-primary {
+            border-width: 2px;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            min-width: 120px;
+        }
+
+        .btn-outline-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card.shadow-sm {
+            background-color: #f8f9fa;
+        }
+
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-sm i {
+            font-size: 1rem;
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 0.5em 0.75em;
+            font-weight: 500;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+        }
+
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .alert i {
+            font-size: 1.1rem;
+        }
+    </style>
 @endsection
