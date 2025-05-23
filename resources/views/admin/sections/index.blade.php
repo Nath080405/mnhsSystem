@@ -8,27 +8,34 @@
                 <h2 class="fw-bold mb-1 text-primary">Sections Management</h2>
                 <p class="text-muted mb-0 small">Manage sections for each grade level</p>
             </div>
-            <a href="{{ route('admin.sections.create', ['grade_level' => $selectedGrade]) }}" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-1"></i> 
-                {{ $selectedGrade ? "Add {$selectedGrade} Section" : 'Add New Section' }}
-            </a>
-        </div>
-
-        <!-- Grade Level Filter -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body p-3">
-                <div class="d-flex gap-2 align-items-center">
-                    <a href="{{ route('admin.sections.index') }}" 
-                       class="btn {{ !$selectedGrade ? 'btn-primary' : 'btn-outline-primary' }}">
-                        <i class="bi bi-grid-3x3-gap me-1"></i> All Grades
-                    </a>
-                    @foreach($gradeLevels as $grade)
-                        <a href="{{ route('admin.sections.index', ['grade_level' => $grade]) }}" 
-                           class="btn {{ $selectedGrade == $grade ? 'btn-primary' : 'btn-outline-primary' }}">
-                            <i class="bi bi-mortarboard me-1"></i> {{ $grade }}
-                        </a>
-                    @endforeach
+            <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="gradeLevelDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-mortarboard me-1"></i>
+                        {{ $selectedGrade ? $selectedGrade : 'All Grades' }}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="gradeLevelDropdown">
+                        <li>
+                            <a class="dropdown-item {{ !$selectedGrade ? 'active' : '' }}" href="{{ route('admin.sections.index') }}">
+                                <i class="bi bi-grid-3x3-gap me-2"></i> All Grades
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        @foreach($gradeLevels as $grade)
+                            <li>
+                                <a class="dropdown-item {{ $selectedGrade == $grade ? 'active' : '' }}" 
+                                   href="{{ route('admin.sections.index', ['grade_level' => $grade]) }}">
+                                    <i class="bi bi-mortarboard me-2"></i> {{ $grade }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
+                <a href="{{ route('admin.sections.create', ['grade_level' => $selectedGrade]) }}" 
+                   class="btn btn-primary {{ !$selectedGrade ? 'disabled' : '' }}"
+                   @if(!$selectedGrade) onclick="return false;" @endif>
+                    <i class="bi bi-plus-lg me-1"></i> Add Section
+                </a>
             </div>
         </div>
 
@@ -147,9 +154,6 @@
                                         <div class="text-muted">
                                             <i class="bi bi-inbox-fill fs-2 d-block mb-2"></i>
                                             No sections found
-                                            @if($selectedGrade)
-                                                for {{ $selectedGrade }}
-                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -223,6 +227,57 @@
 
         .alert i {
             font-size: 1.1rem;
+        }
+
+        /* Enhanced Dropdown Styles */
+        .dropdown-menu {
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            min-width: 200px;
+            background-color: white;
+        }
+
+        .dropdown-item {
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            margin: 0.125rem 0;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+        }
+
+        .dropdown-item.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .dropdown-item i {
+            width: 1.25rem;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        /* Dropdown Button Enhancement */
+        .dropdown-toggle::after {
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .btn-outline-primary.dropdown-toggle {
+            padding-right: 1rem;
+            padding-left: 1rem;
         }
     </style>
 @endsection

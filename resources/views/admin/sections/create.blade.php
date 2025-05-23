@@ -18,20 +18,28 @@
                     <form action="{{ route('admin.sections.store') }}" method="POST">
                         @csrf
                         
-                        <div class="mb-3">
-                            <label for="grade_level" class="form-label">Grade Level</label>
-                            <select name="grade_level" id="grade_level" class="form-select @error('grade_level') is-invalid @enderror" required>
-                                <option value="">Select Grade Level</option>
-                                @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $grade)
-                                    <option value="{{ $grade }}" {{ $selectedGrade == $grade ? 'selected' : '' }}>
-                                        {{ $grade }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('grade_level')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        @if($selectedGrade)
+                            <input type="hidden" name="grade_level" value="{{ $selectedGrade }}">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Creating section for {{ $selectedGrade }}
+                            </div>
+                        @else
+                            <div class="mb-3">
+                                <label for="grade_level" class="form-label">Grade Level</label>
+                                <select name="grade_level" id="grade_level" class="form-select @error('grade_level') is-invalid @enderror" required>
+                                    <option value="">Select Grade Level</option>
+                                    @foreach(['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] as $grade)
+                                        <option value="{{ $grade }}" {{ old('grade_level') == $grade ? 'selected' : '' }}>
+                                            {{ $grade }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('grade_level')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="name" class="form-label">Section Name</label>
@@ -113,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nameInput = document.getElementById('name');
 
     function updateSectionId() {
-        const gradeLevel = gradeLevelSelect.value;
+        const gradeLevel = gradeLevelSelect ? gradeLevelSelect.value : '{{ $selectedGrade }}';
         if (gradeLevel) {
             // Extract just the number from "Grade X"
             const gradeNumber = gradeLevel.replace('Grade ', '');
@@ -124,7 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Update section ID when grade level changes
-    gradeLevelSelect.addEventListener('change', updateSectionId);
+    if (gradeLevelSelect) {
+        gradeLevelSelect.addEventListener('change', updateSectionId);
+    }
     
     // Initial update
     updateSectionId();

@@ -11,18 +11,18 @@ class SectionController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedGrade = $request->get('grade_level');
+        $selectedGrade = $request->input('grade_level');
+        $gradeLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+
         $sections = Section::with('adviser')
             ->withCount('students')
+            ->when($selectedGrade, function ($query) use ($selectedGrade) {
+                return $query->where('grade_level', $selectedGrade);
+            })
             ->orderBy('grade_level')
-            ->orderBy('name');
-        
-        if ($selectedGrade) {
-            $sections->where('grade_level', $selectedGrade);
-        }
-        
-        $sections = $sections->get();
-        $gradeLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+            ->orderBy('created_at', 'desc')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.sections.index', compact('sections', 'gradeLevels', 'selectedGrade'));
     }
