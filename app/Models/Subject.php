@@ -13,7 +13,6 @@ class Subject extends Model
         'name',
         'code',
         'description',
-        'credits',
         'teacher_id',
         'status',
     ];
@@ -24,5 +23,13 @@ class Subject extends Model
     public function teacher()
     {
         return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    /**
+     * Get the schedules for the subject.
+     */
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
     }
 } 

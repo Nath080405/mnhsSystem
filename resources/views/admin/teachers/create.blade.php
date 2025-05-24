@@ -1,119 +1,212 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Add New Teacher</h2>
-            <a href="{{ route('admin.teachers.index') }}" class="btn btn-outline-secondary">
+            <div>
+                <h2 class="fw-bold text-primary mb-1">Add New Teacher</h2>
+                <p class="text-muted mb-0 small">Create a new teacher account and profile</p>
+            </div>
+            <a href="{{ route('admin.teachers.index') }}" class="btn btn-outline-primary">
                 <i class="bi bi-arrow-left me-1"></i> Back to Teachers
             </a>
         </div>
 
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <form method="POST" action="{{ route('admin.teachers.store') }}">
-                    @csrf
-
-                    <div class="row">
-                        <!-- Basic Information -->
-                        <div class="col-md-6">
-                            <h5 class="mb-3">Basic Information</h5>
-                            <div class="mb-3">
-                                <label class="form-label">Name</label>
-                                <input type="text" name="name" class="form-control" required value="{{ old('name') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" required value="{{ old('email') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Phone</label>
-                                <input type="tel" name="phone" class="form-control" value="{{ old('phone') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Address</label>
-                                <textarea name="address" class="form-control" rows="2">{{ old('address') }}</textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Gender</label>
-                                <select name="gender" class="form-select">
-                                    <option value="">Select Gender</option>
-                                    <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
-                                    <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
-                                    <option value="Other" {{ old('gender') == 'Other' ? 'selected' : '' }}>Other</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Birthdate</label>
-                                <input type="date" name="birthdate" class="form-control" value="{{ old('birthdate') }}">
-                            </div>
-                        </div>
-
-                        <!-- Professional Information -->
-                        <div class="col-md-6">
-                            <h5 class="mb-3">Professional Information</h5>
-                            <div class="mb-3">
-                                <label class="form-label">Department</label>
-                                <input type="text" name="department" class="form-control" required value="{{ old('department') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Position</label>
-                                <input type="text" name="position" class="form-control" required value="{{ old('position') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Qualification</label>
-                                <input type="text" name="qualification" class="form-control" required value="{{ old('qualification') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Specialization</label>
-                                <input type="text" name="specialization" class="form-control" value="{{ old('specialization') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Date Joined</label>
-                                <input type="date" name="date_joined" class="form-control" required value="{{ old('date_joined') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
-                                    <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Confirm Password</label>
-                                <input type="password" name="password_confirmation" class="form-control" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{{ route('admin.teachers.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle me-1"></i> Save Teacher
-                        </button>
-                    </div>
-                </form>
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.teachers.store') }}">
+            @csrf
+            <div class="row g-4">
+                <!-- Teacher Personal Information -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-person-vcard me-2"></i>Teacher Personal Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="last_name" class="form-control @error('last_name') is-invalid @enderror" value="{{ old('last_name') }}" placeholder="Enter last name" required>
+                                    @error('last_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="first_name" class="form-control @error('first_name') is-invalid @enderror" value="{{ old('first_name') }}" placeholder="Enter first name" required>
+                                    @error('first_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Middle Name</label>
+                                    <input type="text" name="middle_name" class="form-control @error('middle_name') is-invalid @enderror" value="{{ old('middle_name') }}" placeholder="Enter middle name">
+                                    @error('middle_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Suffix</label>
+                                    <input type="text" name="suffix" class="form-control @error('suffix') is-invalid @enderror" value="{{ old('suffix') }}" placeholder="Enter suffix (e.g., Jr., Sr., III)">
+                                    @error('suffix')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Gender <span class="text-danger">*</span></label>
+                                    <select name="gender" class="form-select @error('gender') is-invalid @enderror" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
+                                        <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
+                                        <option value="Other" {{ old('gender') == 'Other' ? 'selected' : '' }}>Other</option>
+                                    </select>
+                                    @error('gender')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Birthdate</label>
+                                    <input type="date" name="birthdate" class="form-control @error('birthdate') is-invalid @enderror" value="{{ old('birthdate') }}">
+                                    @error('birthdate')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teacher Contact Information -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-telephone me-2"></i>Teacher Contact Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-medium">Email <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" placeholder="Enter email address" required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Phone</label>
+                                    <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone') }}" placeholder="Enter phone number">
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-medium">Address</label>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <input type="text" name="street_address" class="form-control" value="{{ old('street_address') }}" placeholder="Street Address">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" name="barangay" class="form-control" value="{{ old('barangay') }}" placeholder="Barangay">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" name="municipality" class="form-control" value="{{ old('municipality') }}" placeholder="Municipality">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" name="province" class="form-control" value="{{ old('province') }}" placeholder="Province">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Information -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>Professional Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Employee ID</label>
+                                    <input type="text" class="form-control bg-light" value="Auto-generated" disabled>
+                                    <div class="form-text">Will be generated after saving</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Date Joined <span class="text-danger">*</span></label>
+                                    <input type="date" name="date_joined" class="form-control @error('date_joined') is-invalid @enderror" value="{{ old('date_joined') }}" required>
+                                    @error('date_joined')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Status <span class="text-danger">*</span></label>
+                                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                        <option value="">Select Status</option>
+                                        <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                    @error('status')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Account Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Password <span class="text-danger">*</span></label>
+                                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Enter password" required>
+                                    <div class="form-text">Minimum 6 characters</div>
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Confirm Password <span class="text-danger">*</span></label>
+                                    <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm password">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ route('admin.teachers.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i> Save Teacher
+                </button>
+            </div>
+        </form>
     </div>
 @endsection 

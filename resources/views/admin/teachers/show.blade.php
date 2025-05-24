@@ -126,20 +126,20 @@
                         </h5>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Position</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->position ?? 'N/A' }}</p>
+                                <p class="text-muted mb-1 small">Employee ID</p>
+                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->employee_id ?? 'N/A' }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Department</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->department ?? 'N/A' }}</p>
+                                <p class="text-muted mb-1 small">Date Joined</p>
+                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->date_joined ? $teacher->teacher->date_joined->format('F d, Y') : 'N/A' }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Qualification</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->qualification ?? 'N/A' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Specialization</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->specialization ?? 'N/A' }}</p>
+                                <p class="text-muted mb-1 small">Status</p>
+                                <p class="mb-0 fw-medium">
+                                    <span class="badge bg-{{ $teacher->teacher?->status === 'active' ? 'success' : 'danger' }}">
+                                        {{ ucfirst($teacher->teacher?->status ?? 'N/A') }}
+                                    </span>
+                                </p>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.teacherApp')
 
 @section('content')
 <div class="container-fluid py-3">
@@ -8,9 +8,9 @@
             <h2 class="fw-bold mb-1 text-primary">My Profile</h2>
             <p class="text-muted mb-0 small">Manage your account information</p>
         </div>
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-        </a>
+<a href="{{ route('teachers.dashboard') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+</a>
     </div>
 
     <div class="row">
@@ -18,7 +18,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.profile.update') }}" method="POST">
+                    <form action="{{ route('teachers.profile.update') }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -28,39 +28,13 @@
                             </div>
                         @endif
 
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" name="last_name" class="form-control @error('last_name') is-invalid @enderror" 
-                                    value="{{ old('last_name', $user->last_name) }}" required>
-                                @error('last_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">First Name</label>
-                                <input type="text" name="first_name" class="form-control @error('first_name') is-invalid @enderror" 
-                                    value="{{ old('first_name', $user->first_name) }}" required>
-                                @error('first_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Middle Name</label>
-                                <input type="text" name="middle_name" class="form-control @error('middle_name') is-invalid @enderror" 
-                                    value="{{ old('middle_name', $user->middle_name) }}">
-                                @error('middle_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Suffix</label>
-                                <input type="text" name="suffix" class="form-control @error('suffix') is-invalid @enderror" 
-                                    value="{{ old('suffix', $user->suffix) }}">
-                                @error('suffix')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
+                                value="{{ old('name', $user->name) }}" required>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
@@ -118,7 +92,7 @@
                                 <i class="bi bi-person-workspace display-6"></i>
                             </span>
                         </div>
-                        <h4 class="mb-1">{{ $user->first_name }} {{ $user->middle_name ? $user->middle_name . ' ' : '' }}{{ $user->last_name }}{{ $user->suffix ? ' ' . $user->suffix : '' }}</h4>
+                        <h4 class="mb-1">{{ $user->name }}</h4>
                         <p class="text-muted mb-2">{{ ucfirst($user->role) }}</p>
                         <span class="badge bg-success text-capitalize px-3 py-1">
                             Active

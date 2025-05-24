@@ -24,11 +24,11 @@
                                     <i class="bi bi-person-fill display-4"></i>
                                 </span>
                             </div>
-                            <h4 class="mb-1">{{ $student->name }}</h4>
+                            <h4 class="mb-1">{{ $student->formal_name }}</h4>
                             <p class="text-muted mb-3">Student ID: {{ $student->student?->student_id ?? 'Not Assigned' }}</p>
                             <div class="d-flex justify-content-center gap-2">
                                 <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
-                                    <i class="bi bi-mortarboard me-1"></i> {{ $student->student?->grade ?? 'Not Assigned' }}
+                                    <i class="bi bi-mortarboard me-1"></i> Grade {{ $student->student?->grade_level ?? 'Not Assigned' }}
                                 </span>
                                 <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
                                     <i class="bi bi-check-circle me-1"></i> Active
@@ -44,8 +44,8 @@
                                     <div class="card-body">
                                         <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Personal Information</h6>
                                         <div class="mb-3">
-                                            <label class="form-label">Name</label>
-                                            <p class="mb-0">{{ $student->name }}</p>
+                                            <label class="form-label">Full Name</label>
+                                            <p class="mb-0">{{ $student->formal_name }}</p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Email</label>
@@ -67,7 +67,13 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Address</label>
-                                            <p class="mb-0">{{ $student->student?->address ?? 'Not provided' }}</p>
+                                            <p class="mb-0">
+                                                @if($student->student?->street_address || $student->student?->barangay || $student->student?->municipality || $student->student?->province)
+                                                    {{ $student->student->street_address }}, {{ $student->student->barangay }}, {{ $student->student->municipality }}, {{ $student->student->province }}
+                                                @else
+                                                    Not provided
+                                                @endif
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -76,28 +82,22 @@
                             <div class="col-md-6">
                                 <div class="card shadow-lg h-100">
                                     <div class="card-body">
-                                        <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Academic & Guardian Information</h6>
+                                        <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Academic Information</h6>
                                         <div class="mb-3">
                                             <label class="form-label">Student ID</label>
                                             <p class="mb-0">{{ $student->student?->student_id ?? 'Not Assigned' }}</p>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Guardian Name</label>
-                                            <p class="mb-0">{{ $student->student?->guardian_name ?? 'Not provided' }}</p>
+                                            <label class="form-label">LRN</label>
+                                            <p class="mb-0">{{ $student->student?->lrn ?? 'Not Assigned' }}</p>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Guardian Phone</label>
-                                            <p class="mb-0">{{ $student->student?->guardian_phone ?? 'Not provided' }}</p>
+                                            <label class="form-label">Grade Level</label>
+                                            <p class="mb-0">{{ $student->student?->grade_level ? 'Grade ' . $student->student->grade_level : 'Not Assigned' }}</p>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Guardian Email</label>
-                                            <p class="mb-0">
-                                                @if($student->student?->guardian_email)
-                                                    <a href="mailto:{{ $student->student->guardian_email }}" class="text-decoration-none">{{ $student->student->guardian_email }}</a>
-                                                @else
-                                                    Not provided
-                                                @endif
-                                            </p>
+                                            <label class="form-label">Section</label>
+                                            <p class="mb-0">{{ $student->student?->section ? 'Section ' . $student->student->section : 'Not Assigned' }}</p>
                                         </div>
                                     </div>
                                 </div>

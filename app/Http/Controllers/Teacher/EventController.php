@@ -11,8 +11,15 @@ class EventController extends Controller
     // Display the list of events
     public function index()
     {
-        // Fetch events for the logged-in teacher
-        $events = Event::where('teacher_id', auth()->id())->paginate(10);    
+        // Fetch events that are visible to teachers
+        $events = Event::where(function($query) {
+            $query->where('visibility', 'All')
+                  ->orWhere('visibility', 'Teachers');
+        })
+        ->whereNotIn('visibility', ['Students']) // Explicitly exclude student-only events
+        ->orderBy('event_date', 'desc')
+        ->paginate(10);    
+        
         // Pass the events to the view
         return view('teachers.event.index', compact('events'));
     }
@@ -25,8 +32,7 @@ class EventController extends Controller
     public function edit($id)
     {
         // Find the event by ID
-        $event = Event::findOrFail($id);
-    
+        $event = Event::where('id', $id)->where('teacher_id', auth()->id())->firstOrFail();    
         // Return the edit view with the event data
         return view('teachers.event.edit', compact('event'));
     }
@@ -39,12 +45,11 @@ class EventController extends Controller
             'event_date' => 'required|date',
             'event_time' => 'nullable|date_format:H:i',
             'location' => 'required|string|max:255',
-            'venue_image' => 'nullable|image|max:2048',
         ]);
-    
-        $event = Event::findOrFail($id); // Fetch the event by ID
-        $event->update($validated); // Update the event with validated data
-    
+
+        $event = Event::findOrFail($id);
+        $event->update($validated);
+
         return redirect()->route('teachers.event.index')->with('success', 'Event updated successfully.');
     }
 

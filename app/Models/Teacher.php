@@ -13,15 +13,14 @@ class Teacher extends Model
     protected $fillable = [
         'user_id',
         'employee_id',
-        'department',
-        'position',
-        'address',
+        'street_address',
+        'barangay',
+        'municipality',
+        'province',
         'phone',
         'birthdate',
         'gender',
         'date_joined',
-        'qualification',
-        'specialization',
         'status'
     ];
 
@@ -34,4 +33,26 @@ class Teacher extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class, 'teacher_id', 'user_id');
+    }
+
+    public function getFullAddressAttribute()
+    {
+        $parts = array_filter([
+            $this->street_address,
+            $this->barangay,
+            $this->municipality,
+            $this->province
+        ]);
+
+        return implode(', ', $parts);
+    }
+    public function section()
+{
+    return $this->hasOne(Section::class);
+}
+
 } 

@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-primary">Edit Section</h2>
-            <p class="text-muted mb-0 small">Modify section details</p>
+            <p class="text-muted mb-0 small">Update section information</p>
         </div>
         <a href="{{ route('admin.sections.index') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i> Back to Sections
@@ -50,13 +50,30 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control @error('description') is-invalid @enderror" 
-                        rows="3" placeholder="Optional description">{{ old('description', $section->description) }}</textarea>
-                    @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Teacher Adviser</label>
+                            <select name="adviser_id" class="form-select @error('adviser_id') is-invalid @enderror">
+                                <option value="">Select Teacher Adviser</option>
+                                @foreach($teachers as $teacher)
+                                    <option value="{{ $teacher->id }}" {{ (old('adviser_id', $section->adviser_id) == $teacher->id) ? 'selected' : '' }}>
+                                        {{ $teacher->last_name }}, {{ $teacher->first_name }} 
+                                        @if($teacher->email)
+                                            ({{ $teacher->email }})
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Select a teacher to be the adviser of this section. The adviser will be responsible for managing the section.
+                            </div>
+                            @error('adviser_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-3">

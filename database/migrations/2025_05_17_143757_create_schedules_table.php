@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subjects', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code', 20)->unique();
-            $table->text('description')->nullable();
-            $table->foreignId('teacher_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->foreignId('subject_id')->constrained()->onDelete('cascade');
+            $table->string('day');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subjects');
+        Schema::dropIfExists('schedules');
     }
 };

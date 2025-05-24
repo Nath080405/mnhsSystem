@@ -7,27 +7,38 @@ use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\student\StudentController as StudentDashboardController;
 use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController;
-
+use App\Http\Controllers\Teacher\EventController as TeacherEventController;
+use App\Http\Controllers\Admin\ProfileController as TeacherProfileController;
+use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 
 
 // Authentication Routes
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
+Route::get('', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('', [LoginController::class, 'login']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 // Protected Routes
 Route::middleware(['auth'])->group(function () {
     // Admin Routes
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('admin.dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
         // Profile Routes
         Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
+
+        // Event Management Routes
+        Route::get('/events', [EventController::class, 'index'])->name('admin.events.index');
+        Route::get('/events/create', [EventController::class, 'create'])->name('admin.events.create');
+        Route::post('/events', [EventController::class, 'store'])->name('admin.events.store');
+        Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('admin.events.edit');
+        Route::put('/events/{id}', [EventController::class, 'update'])->name('admin.events.update');
+        Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('admin.events.destroy');
+        Route::get('/events/{id}', [EventController::class, 'show'])->name('admin.events.show');
 
         // Section Management Routes
         Route::get('/sections', [SectionController::class, 'index'])->name('admin.sections.index');
@@ -90,18 +101,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/subjects/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.subject.show');
     
         // Grade Management Routes
-    
+        Route::get('/student/grades', [TeacherDashboardController::class, 'index'])->name('teachers.student.grade.index');
+        Route::get('/student/grades/search', [TeacherDashboardController::class, 'search'])->name('teachers.student.grade.search');
+
         // Event Management Routes
         Route::get('/events', [TeacherDashboardController::class, 'event'])->name('teachers.event.index');
-        Route::get('/events/create', [TeacherDashboardController::class, 'create'])->name('teachers.event.create');
-        Route::post('/events', [TeacherDashboardController::class, 'store'])->name('teachers.event.store');
+        
+
         Route::post('/events/preview', [TeacherDashboardController::class, 'preview'])->name('teachers.event.preview');
-        Route::get('/events/{id}/edit', [TeacherDashboardController::class, 'edit'])->name('teachers.event.edit');
-        Route::put('/events/{id}', [TeacherDashboardController::class, 'update'])->name('teachers.event.update');        Route::delete('/events/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.event.destroy');
-        Route::get('/events/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.event.show');
-
-
-    }); //ayaw og lapas dre
+     
+  // Profile Routes
+        Route::get('/profile', [TeacherDashboardController::class, 'profile'])->name('teachers.profile');
+        Route::put('/profile', [TeacherDashboardController::class, 'updateProfile'])->name('teachers.profile.update');
+    });
 
 
     // Student Routes
@@ -112,6 +124,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/events', [StudentDashboardController::class, 'events'])->name('student.events');
         Route::get('/schedule', [StudentDashboardController::class, 'schedule'])->name('student.schedule');
         Route::get('/assignments', [StudentDashboardController::class, 'assignments'])->name('student.assignments');
+        Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
+    });
+
+    Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->group(function () {
+        Route::get('/student/grades', [\App\Http\Controllers\Teacher\StudentController::class, 'gradesIndex'])->name('teachers.student.grade.index');
+
     });
 
 });

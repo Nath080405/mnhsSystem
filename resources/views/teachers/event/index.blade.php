@@ -3,7 +3,6 @@
 @section('content')
 <div class="bg-light" style="min-height: 100vh;">
     <div class="container py-4">
-
         <!-- Header Section -->
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
@@ -22,15 +21,11 @@
                 <img src="{{ asset('images/teacher.png') }}" alt="Teacher Avatar" class="img-fluid me-4" style="max-width: 120px;">
                 <div>
                     @auth
-                        <h4 class="text-primary mb-1">Hi, {{ Auth::user()->name ?? 'Teacher' }}!</h4>
-                        <p class="text-muted mb-0">Ready to create events?</p>
+                        <h4 class="text-primary mb-1">Hello, {{ Auth::user()->name ?? 'Teacher' }} 👋</h4>
+                        <p class="text-muted mb-0">Here's a quick look at your events.</p>
                     @endauth
                 </div>
             </div>
-            <!-- Button to trigger modal -->
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
-                <i class="bi bi-plus-lg me-1"></i> Add Event
-            </button>
         </div>
 
         <!-- Success Message -->
@@ -38,109 +33,168 @@
             <div class="alert alert-success mt-3">{{ session('success') }}</div>
         @endif
 
-        <!-- Events Table -->
-        <div class="table-responsive mt-4 shadow-sm rounded">
-            <table class="table table-hover text-center align-middle bg-white border rounded">
-                <thead class="bg-primary text-white">
-                    <tr>
-                        <th scope="col" class="py-3">#</th>
-                        <th scope="col" class="py-3">Title</th>
-                        <th scope="col" class="py-3">Description</th>
-                        <th scope="col" class="py-3">Date</th>
-                        <th scope="col" class="py-3">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($events as $event)
-                        <tr>
-                            <td class="fw-semibold text-secondary">{{ $loop->iteration }}</td>
-                            <td class="text-capitalize">{{ $event->title }}</td>
-                            <td class="text-muted small">{{ Str::limit($event->description, 80, '...') }}</td>
-                            <td>
-                                <span class="badge bg-light text-dark border">
-                                    {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
+        <!-- Events Cards Section -->
+        <div class="d-flex flex-column gap-3 mt-2">
+            @forelse($events as $event)
+                <div class="card shadow-sm border-0 w-100" style="background: linear-gradient(145deg, #ffe5ec, #fcd0e4); border-left: 6px solid #ff66a3;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                    <h5 class="0fw-bold text-secondary mb-">{{ $event->title }}</h5>
+                                <p class="text-dark small mb-2">{{ Str::limit($event->description, 100, '...') }}</p>
+                            </div>
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="badge {{ $event->status === 'active' ? 'bg-success' : 'bg-secondary' }} px-3 py-2 mb-2">
+                                    {{ ucfirst($event->status) }}
                                 </span>
-                            </td>
-                            <td>
-                                <a href="{{ route('teachers.event.edit', $event->id) }}" class="text-decoration-none me-3" data-bs-toggle="tooltip" title="Edit">
-                                    <i class="bi bi-pencil-square text-warning" style="font-size: 1.2rem;"></i>
-                                </a>
-                                <form action="{{ route('teachers.event.destroy', $event->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this event?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-link p-0" data-bs-toggle="tooltip" title="Delete">
-                                        <i class="bi bi-trash text-danger" style="font-size: 1.2rem;"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-muted">No events found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                @if($event->status === 'active')
+                                    <form action="{{ route('teachers.event.complete', $event->id) }}" method="POST" class="m-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-check-circle me-1"></i>Mark as Completed
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <div class="event-details d-flex flex-wrap gap-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-event text-primary me-2"></i>
+                                <span class="text-dark">
+                                    @php
+                                        $eventDate = \Carbon\Carbon::parse($event->event_date);
+                                        echo $eventDate->format('M d, Y');
+                                    @endphp
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-clock text-primary me-2"></i>
+                                <span class="text-dark">
+                                    @php
+                                        $startTime = \Carbon\Carbon::parse($event->event_time);
+                                        $endTime = \Carbon\Carbon::parse($event->end_time);
+                                        echo $startTime->format('h:i A') . ' - ' . $endTime->format('h:i A');
+                                    @endphp
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt text-primary me-2"></i>
+                                <span class="text-dark">{{ $event->location }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                    <p class="mt-2 mb-0">No events found.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 </div>
 
-<!-- Add Event Modal -->
-<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold text-primary" id="addEventModalLabel">
-                    <i class="bi bi-calendar-plus me-2"></i>Add New Event
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
 
-                <form action="{{ route('teachers.event.preview') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
+<style>
+.event-details {
+    font-size: 0.9rem;
+}
+.event-details i {
+    font-size: 1.1rem;
+}
+.badge {
+    font-weight: 500;
+    font-size: 0.8rem;
+}
 
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Event Title</label>
-                        <input type="text" name="title" id="title" class="form-control" placeholder="Enter event title" required>
-                    </div>
+/* Card hover effects */
+.card {
+    transition: all 0.3s ease;
+    transform: translateY(0);
+}
 
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea name="description" id="description" class="form-control" rows="3" placeholder="Enter event description"></textarea>
-                    </div>
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="event_date" class="form-label">Event Date</label>
-                            <input type="date" name="event_date" id="event_date" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="event_time" class="form-label">Event Time</label>
-                            <input type="time" name="event_time" id="event_time" class="form-control">
-                        </div>
-                    </div>
+/* Header section hover effect */
+.d-flex.justify-content-between.align-items-center {
+    transition: all 0.3s ease;
+}
 
-                    <div class="mb-3">
-                        <label for="location" class="form-label">Location</label>
-                        <input type="text" name="location" id="location" class="form-control" placeholder="Enter event location" required>
-                    </div>
+.d-flex.justify-content-between.align-items-center:hover {
+    transform: scale(1.01);
+}
 
-                    <div class="mb-4">
-                        <label for="venue_image" class="form-label">Venue Image (Optional)</label>
-                        <input type="file" name="venue_image" id="venue_image" class="form-control" accept="image/*">
-                    </div>
+/* Greeting section hover effect */
+.p-4.rounded.bg-white.shadow-sm {
+    transition: all 0.3s ease;
+}
 
-                    <div class="d-flex gap-2">
-                        <button type="reset" class="btn btn-secondary">Reset</button>
-                        <button type="submit" class="btn btn-primary fw-bold">
-                            <i class="bi bi-eye me-1"></i> Preview Event
-                        </button>
-                    </div>
-                </form>
+.p-4.rounded.bg-white.shadow-sm:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
 
-            </div>
-        </div>
-    </div>
-</div>
+/* Search input focus effect */
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 102, 163, 0.25);
+    border-color: #ff66a3;
+}
+
+/* Button hover effects */
+.btn-outline-dark:hover {
+    background-color: #ff66a3;
+    border-color: #ff66a3;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-outline-dark {
+    transition: all 0.3s ease;
+}
+
+/* Icon hover effects */
+.bi {
+    transition: all 0.3s ease;
+}
+
+.event-details .bi:hover {
+    transform: scale(1.2);
+    color: #ff66a3;
+}
+
+/* Badge hover effect */
+.badge {
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: scale(1.1);
+}
+
+/* Empty state icon animation */
+.bi-calendar-x {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+</style>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 @endsection

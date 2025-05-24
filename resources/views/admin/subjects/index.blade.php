@@ -30,110 +30,6 @@
             </div>
         @endif
 
-        <!-- Stats Cards -->
-        <div class="row mb-4 g-3">
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Subjects</h6>
-                                <h3 class="mb-0 fw-bold">{{ $subjects->count() }}</h3>
-                            </div>
-                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle shadow">
-                                <i class="bi bi-book-fill text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Active Subjects</h6>
-                                <h3 class="mb-0 fw-bold">{{ $subjects->where('status', 'active')->count() }}</h3>
-                            </div>
-                            <div class="avatar-sm bg-success bg-opacity-10 rounded-circle shadow">
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Assigned Teachers</h6>
-                                <h3 class="mb-0 fw-bold">{{ $subjects->whereNotNull('teacher_id')->count() }}</h3>
-                            </div>
-                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle shadow">
-                                <i class="bi bi-person-check-fill text-info"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Credits</h6>
-                                <h3 class="mb-0 fw-bold">{{ $subjects->sum('credits') }}</h3>
-                            </div>
-                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle shadow">
-                                <i class="bi bi-star-fill text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filters Section -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body p-3">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label small text-muted">Filter by Status</label>
-                        <select class="form-select">
-                            <option value="">All Statuses</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small text-muted">Filter by Teacher</label>
-                        <select class="form-select">
-                            <option value="">All Teachers</option>
-                            <option value="assigned">Assigned</option>
-                            <option value="unassigned">Unassigned</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small text-muted">Sort By</label>
-                        <select class="form-select">
-                            <option value="name_asc">Name (A-Z)</option>
-                            <option value="name_desc">Name (Z-A)</option>
-                            <option value="code_asc">Code (A-Z)</option>
-                            <option value="code_desc">Code (Z-A)</option>
-                            <option value="credits_asc">Credits (Low-High)</option>
-                            <option value="credits_desc">Credits (High-Low)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button class="btn btn-outline-primary w-100">
-                            <i class="bi bi-funnel me-1"></i> Apply Filters
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Main Content -->
         <div class="card shadow-lg border-0">
             <div class="card-header bg-white py-3">
@@ -157,7 +53,7 @@
                                 <th class="border-0 px-3">Code</th>
                                 <th class="border-0 px-3">Name</th>
                                 <th class="border-0 px-3">Teacher</th>
-                                <th class="border-0 px-3">Credits</th>
+                                <th class="border-0 px-3">Schedule</th>
                                 <th class="border-0 px-3">Status</th>
                                 <th class="border-0 px-3 text-end">Actions</th>
                             </tr>
@@ -173,13 +69,26 @@
                                                 <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
                                                     <i class="bi bi-person-fill text-info"></i>
                                                 </div>
-                                                {{ $subject->teacher->name }}
+                                                {{ $subject->teacher->formal_name }}
                                             </div>
                                         @else
                                             <span class="text-muted">Not assigned</span>
                                         @endif
                                     </td>
-                                    <td class="px-3">{{ $subject->credits }}</td>
+                                    <td class="px-3">
+                                        @if($subject->schedules->count() > 0)
+                                            <div class="d-flex flex-column gap-1">
+                                                @foreach($subject->schedules as $schedule)
+                                                    <div class="small">
+                                                        <span class="badge bg-light text-dark">{{ $schedule->day }}</span>
+                                                        <span class="text-muted">{{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-muted">No schedule set</span>
+                                        @endif
+                                    </td>
                                     <td class="px-3">
                                         @if($subject->status == 'active')
                                             <span class="badge bg-success">Active</span>

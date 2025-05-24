@@ -31,21 +31,19 @@ class SubjectController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate subject data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:subjects,code',
+            'code' => 'required|string|max:20|unique:subjects',
             'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:0',
         ]);
 
-        // Add teacher_id when storing
-        $validated['teacher_id'] = Auth::id();  // Associate with the logged-in teacher
-        Subject::create($validated);
+        $validated['teacher_id'] = Auth::id(); // if needed
+        $validated['status'] = 'active'; // default
 
-        return redirect()->route('teachers.subject.index')->with('success', 'Subject created successfully!');
+        $subject = Subject::create($validated);
+
+        return response()->json($subject);
     }
-
 
     public function edit($id)
     {
@@ -56,7 +54,6 @@ class SubjectController extends Controller
 
         return view('teachers.subject.create', compact('subject'));
     }
-
 
     public function update(Request $request, $id)
     {
@@ -70,7 +67,6 @@ class SubjectController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:subjects,code,' . $id,
             'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:0',
         ]);
 
         $subject->update($validated);
