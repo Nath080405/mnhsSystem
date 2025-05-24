@@ -132,14 +132,14 @@
                                     <td>
                                         <div class="d-flex justify-content-end gap-2">
                                             <a href="{{ route('admin.sections.edit', $section) }}"
-                                                class="btn btn-sm btn-outline-primary" title="Edit Section">
+                                                class="btn btn-xs btn-outline-primary" title="Edit Section">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <form action="{{ route('admin.sections.destroy', $section) }}" method="POST"
                                                 class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                <button type="submit" class="btn btn-xs btn-outline-danger"
                                                     onclick="return confirm('Are you sure you want to delete this section?')"
                                                     title="Delete Section">
                                                     <i class="bi bi-trash"></i>
@@ -278,6 +278,29 @@
         .btn-outline-primary.dropdown-toggle {
             padding-right: 1rem;
             padding-left: 1rem;
+        }
+
+        /* Action Button Size Enhancement */
+        .btn-xs {
+            padding: 0.25rem 0.4rem;
+            font-size: 0.75rem;
+            line-height: 1;
+            border-radius: 0.25rem;
+            min-width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-xs i {
+            font-size: 0.75rem;
+        }
+
+        .btn-outline-primary.btn-xs:hover,
+        .btn-outline-danger.btn-xs:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
     </style>
 @endsection

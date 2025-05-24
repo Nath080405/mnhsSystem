@@ -10,11 +10,22 @@ use Illuminate\Support\Facades\DB;
 
 class SubjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $subjects = Subject::with('teacher')->paginate(10);
-        \Log::info('Subjects with teachers:', ['subjects' => $subjects->toArray()]);
-        return view('admin.subjects.index', compact('subjects'));
+        $selectedFilter = $request->get('filter');
+        
+        $query = Subject::with(['teacher', 'schedules'])
+            ->orderBy('created_at', 'desc');
+
+        if ($selectedFilter === 'active') {
+            $query->where('status', 'active');
+        } elseif ($selectedFilter === 'inactive') {
+            $query->where('status', 'inactive');
+        }
+
+        $subjects = $query->get();
+
+        return view('admin.subjects.index', compact('subjects', 'selectedFilter'));
     }
 
     public function create()
