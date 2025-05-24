@@ -6,84 +6,16 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-primary">My Profile</h2>
-            <p class="text-muted mb-0 small">Manage your account information</p>
+            <p class="text-muted mb-0 small">View your profile summary</p>
         </div>
-<a href="{{ route('student.gradebook') }}" class="btn btn-outline-secondary">
-    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-</a>
+        <a href="{{ route('student.gradebook') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
     </div>
 
     <div class="row">
-        <!-- Profile Information -->
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <form action="{{ route('student.profile.update') }}" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        @if(session('success'))
-                            <div class="alert alert-success">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        <div class="mb-3">
-                            <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
-                                value="{{ $user->first_name }}{{ $user->middle_name ? ' ' . $user->middle_name : '' }} {{ $user->last_name }}{{ $user->suffix ? ' ' . $user->suffix : '' }}" required>
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                                value="{{ old('email', $user->email) }}" required>
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <hr class="my-4">
-
-                        <h5 class="mb-3">Change Password</h5>
-                        <p class="text-muted small mb-3">Leave these fields empty if you don't want to change your password.</p>
-
-                        <div class="mb-3">
-                            <label class="form-label">Current Password</label>
-                            <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror">
-                            @error('current_password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">New Password</label>
-                            <input type="password" name="new_password" class="form-control @error('new_password') is-invalid @enderror">
-                            @error('new_password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Confirm New Password</label>
-                            <input type="password" name="new_password_confirmation" class="form-control">
-                        </div>
-
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save me-1"></i> Save Changes
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Profile Summary -->
-        <div class="col-md-4">
+        <div class="col-md-12">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
@@ -99,14 +31,91 @@
                         </span>
                     </div>
 
-                    <div class="border-top pt-3">
-                        <div class="mb-3">
-                            <p class="text-muted mb-1 small">Member Since</p>
-                            <p class="mb-0 fw-medium">{{ $user->created_at->format('M d, Y') }}</p>
+                    <div class="row g-4">
+                        <!-- Academic Information -->
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Academic Information</h6>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Student ID</p>
+                                        <p class="mb-0 fw-medium">{{ $user->student?->student_id ?? 'Not Assigned' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">LRN</p>
+                                        <p class="mb-0 fw-medium">{{ $user->student?->lrn ?? 'Not Assigned' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Grade Level</p>
+                                        <p class="mb-0 fw-medium">{{ $user->student?->grade_level ? 'Grade ' . $user->student->grade_level : 'Not Assigned' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Section</p>
+                                        <p class="mb-0 fw-medium">{{ $user->student?->section ? 'Section ' . $user->student->section : 'Not Assigned' }}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <p class="text-muted mb-1 small">Last Updated</p>
-                            <p class="mb-0 fw-medium">{{ $user->updated_at->format('M d, Y H:i') }}</p>
+
+                        <!-- Contact Information -->
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Contact Information</h6>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Email</p>
+                                        <p class="mb-0 fw-medium">{{ $user->email }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Phone</p>
+                                        <p class="mb-0 fw-medium">{{ $user->student?->phone ?? 'Not provided' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Address</p>
+                                        <p class="mb-0 fw-medium">
+                                            @if($user->student?->street_address || $user->student?->barangay || $user->student?->municipality || $user->student?->province)
+                                                {{ $user->student->street_address }}, {{ $user->student->barangay }}, {{ $user->student->municipality }}, {{ $user->student->province }}
+                                            @else
+                                                Not provided
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Personal Information</h6>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Gender</p>
+                                        <p class="mb-0 fw-medium">{{ $user->student?->gender ?? 'Not provided' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Birthdate</p>
+                                        <p class="mb-0 fw-medium">{{ $user->student?->birthdate ? $user->student->birthdate->format('M d, Y') : 'Not provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Information -->
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">System Information</h6>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Member Since</p>
+                                        <p class="mb-0 fw-medium">{{ $user->created_at->format('M d, Y') }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-1 small">Last Updated</p>
+                                        <p class="mb-0 fw-medium">{{ $user->updated_at->format('M d, Y H:i') }}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -125,7 +134,7 @@
     border-radius: 50%;
 }
 .avatar-title {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 500;
 }
 .card {
@@ -134,6 +143,25 @@
 }
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+/* Increased font sizes */
+h2.fw-bold {
+    font-size: 2rem;
+}
+h4.mb-1 {
+    font-size: 2rem;
+}
+h6.text-muted {
+    font-size: 1.1rem;
+}
+p.text-muted.mb-1.small {
+    font-size: 0.95rem;
+}
+p.mb-0.fw-medium {
+    font-size: 1.1rem;
+}
+.badge {
+    font-size: 0.95rem;
 }
 </style>
 @endsection 
