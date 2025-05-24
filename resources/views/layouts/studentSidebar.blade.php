@@ -9,11 +9,7 @@
     <div class="w-100 mt-1">
         <div class="sidebar-section-title">MAIN</div>
         <ul class="nav flex-column materio-nav">
-            <li class="nav-item mb-1">
-                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('student.dashboard')) active @endif" href="{{ route('student.dashboard') }}">
-                    <i class="bi bi-house-door me-3"></i> Dashboard
-                </a>
-            </li>
+            
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('student.gradebook')) active @endif" href="{{ route('student.gradebook') }}">
                     <i class="bi bi-journal-text me-3"></i> Gradebook
