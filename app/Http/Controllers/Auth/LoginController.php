@@ -35,7 +35,7 @@ class LoginController extends Controller
             return back()
                 ->withInput($request->only('username', 'remember'))
                 ->withErrors([
-                    'username' => 'The School ID you entered is incorrect.',
+                    'username' => 'The ID number you entered is incorrect.',
                 ]);
         }
 
