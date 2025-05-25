@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Event;
+use App\Models\EventView;
 
 class StudentController extends Controller
 {
@@ -36,7 +38,40 @@ class StudentController extends Controller
      */
     public function events()
     {
-        return view('student.events');
+        $user = Auth::user();
+        
+        // Get all events visible to students
+        $events = Event::where(function($query) {
+            $query->where('visibility', 'All')
+                  ->orWhere('visibility', 'Students');
+        })
+        ->orderBy('event_date', 'desc')
+        ->get();
+
+        // Get events that user has already viewed
+        $viewedEventIds = EventView::where('user_id', $user->id)
+            ->pluck('event_id')
+            ->toArray();
+
+        // Categorize events
+        $recentEvents = $events->whereNotIn('event_id', $viewedEventIds);
+        $oldEvents = $events->whereIn('event_id', $viewedEventIds);
+
+        // Mark all recent events as viewed
+        foreach ($recentEvents as $event) {
+            EventView::updateOrCreate(
+                ['user_id' => $user->id, 'event_id' => $event->event_id],
+                ['viewed_at' => now()]
+            );
+        }
+        
+        // Get count of new events for the sidebar
+        $newEventsCount = Event::where(function($query) {
+            $query->where('visibility', 'All')
+                  ->orWhere('visibility', 'Students');
+        })->whereNotIn('event_id', $viewedEventIds)->count();
+        
+        return view('student.events', compact('recentEvents', 'oldEvents', 'newEventsCount'));
     }
 
     /**

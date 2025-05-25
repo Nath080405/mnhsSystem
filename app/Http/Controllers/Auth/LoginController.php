@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -28,29 +29,39 @@ class LoginController extends Controller
             'password.required' => 'Please enter your password.',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-
-            // Role-based redirection
-            $user = Auth::user();
-            switch ($user->role) {
-                case 'admin':
-                    return redirect()->intended(route('admin.dashboard'));
-                case 'teacher':
-                    return redirect()->intended(route('teachers.dashboard'));
-                case 'student':
-                    return redirect()->intended(route('student.dashboard'));
-                default:
-                    return redirect()->intended(route('admin.dashboard'));
-            }
+        // Check if the username exists
+        $user = User::where('username', $request->username)->first();
+        if (!$user) {
+            return back()
+                ->withInput($request->only('username', 'remember'))
+                ->withErrors([
+                    'username' => 'The ID number you entered is incorrect.',
+                ]);
         }
 
-        // If authentication fails, return with specific error message
-        return back()
-            ->withInput($request->only('username', 'remember'))
-            ->withErrors([
-                'username' => 'These credentials do not match our records.',
-            ]);
+        // If username exists, try to authenticate
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withInput($request->only('username', 'remember'))
+                ->withErrors([
+                    'password' => 'The password you entered is incorrect.',
+                ]);
+        }
+
+        $request->session()->regenerate();
+
+        // Role-based redirection
+        $user = Auth::user();
+        switch ($user->role) {
+            case 'admin':
+                return redirect()->intended(route('admin.dashboard'));
+            case 'teacher':
+                return redirect()->intended(route('teachers.dashboard'));
+            case 'student':
+                return redirect()->intended(route('student.gradebook'));
+            default:
+                return redirect()->intended(route('admin.dashboard'));
+        }
     }
 
     public function logout(Request $request)

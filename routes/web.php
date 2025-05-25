@@ -125,6 +125,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/schedule', [StudentDashboardController::class, 'schedule'])->name('student.schedule');
         Route::get('/assignments', [StudentDashboardController::class, 'assignments'])->name('student.assignments');
         Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
+        Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
+        Route::put('/student/profile', [ProfileController::class, 'update'])->name('student.profile.update');
     });
 
     Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->group(function () {

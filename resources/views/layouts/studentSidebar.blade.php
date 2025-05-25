@@ -2,18 +2,14 @@
     <!-- Logo -->
     <div class="w-100 d-flex align-items-center mb-2 logo-section">
         <img src="{{ asset('MedellinLogo.png') }}" alt="Logo" class="materio-logo me-3">
-        <span class="sidebar-appname">Medellin NHS</span>
+        <span class="sidebar-appname">MNHS Student Information Portal</span>
     </div>
 
     <!-- Main Navigation -->
     <div class="w-100 mt-1">
         <div class="sidebar-section-title">MAIN</div>
         <ul class="nav flex-column materio-nav">
-            <li class="nav-item mb-1">
-                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('student.dashboard')) active @endif" href="{{ route('student.dashboard') }}">
-                    <i class="bi bi-house-door me-3"></i> Dashboard
-                </a>
-            </li>
+            
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('student.gradebook')) active @endif" href="{{ route('student.gradebook') }}">
                     <i class="bi bi-journal-text me-3"></i> Gradebook
@@ -22,6 +18,9 @@
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('student.events')) active @endif" href="{{ route('student.events') }}">
                     <i class="bi bi-calendar-event me-3"></i> Events
+                    @if(isset($newEventsCount) && $newEventsCount > 0)
+                        <span class="badge bg-danger rounded-pill ms-2">{{ $newEventsCount }}</span>
+                    @endif
                 </a>
             </li>
         </ul>

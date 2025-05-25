@@ -4,7 +4,7 @@
     <!-- Logo -->
     <div class="w-100 d-flex align-items-center mb-2 logo-section">
         <img src="{{ asset('MedellinLogo.png') }}" alt="Logo" class="materio-logo me-3">
-        <span class="sidebar-appname">Medellin NHS</span>
+        <span class="sidebar-appname">MNHS Student Information Portal</span>
     </div>
 
     <!-- Main Navigation -->
