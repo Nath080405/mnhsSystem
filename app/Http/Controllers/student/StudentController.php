@@ -45,7 +45,7 @@ class StudentController extends Controller
             $query->where('visibility', 'All')
                   ->orWhere('visibility', 'Students');
         })
-        ->orderBy('event_date', 'desc')
+        ->orderBy('created_at', 'desc')
         ->get();
 
         // Get events that user has already viewed
