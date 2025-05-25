@@ -25,7 +25,7 @@ class LoginController extends Controller
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ], [
-            'username.required' => 'Please enter your School ID.',
+            'username.required' => 'Please enter your ID Number.',
             'password.required' => 'Please enter your password.',
         ]);
 
