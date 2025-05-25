@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\EventView;
 
 class TeacherController extends Controller
 {
@@ -150,12 +151,23 @@ class TeacherController extends Controller
                     ->with('error', 'Cannot delete teacher. They have assigned subjects. Please reassign or delete the subjects first.');
             }
 
-            // Delete the associated teacher record first
+            // Delete related records
             if ($user->teacher) {
-                $user->teacher->delete();
+                // Delete event views
+                EventView::where('user_id', $user->id)->delete();
+                
+                // Remove teacher from section if they are an adviser
+                DB::table('sections')
+                    ->where('adviser_id', $user->id)
+                    ->update(['adviser_id' => null]);
+                
+                // Delete the teacher record using user_id
+                DB::table('teachers')
+                    ->where('user_id', $user->id)
+                    ->delete();
             }
 
-            // Then delete the user record
+            // Delete the user record
             $user->delete();
 
             DB::commit();
@@ -163,8 +175,9 @@ class TeacherController extends Controller
                 ->with('success', 'Teacher deleted successfully');
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Error deleting teacher: ' . $e->getMessage());
             return redirect()->route('admin.teachers.index')
-                ->with('error', 'Failed to delete teacher. Please try again.');
+                ->with('error', 'Failed to delete teacher: ' . $e->getMessage());
         }
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Section;
 use Illuminate\Support\Facades\DB;
+use App\Models\EventView;
 
 class StudentController extends Controller
 {
@@ -121,18 +122,31 @@ class StudentController extends Controller
             
             $user = User::findOrFail($id);
 
-            // Check if student has any grades or other related records
+            // Check if student has any grades
             if ($user->student && $user->student->grades()->exists()) {
                 return redirect()->route('admin.students.index')
                     ->with('error', 'Cannot delete student. They have existing grades. Please delete the grades first.');
             }
 
-            // Delete the associated student record first
+            // Delete related records
             if ($user->student) {
-                $user->student->delete();
+                // Delete event views
+                EventView::where('user_id', $user->id)->delete();
+                
+                // Remove student from section (but don't delete the section)
+                if ($user->student->section) {
+                    DB::table('students')
+                        ->where('user_id', $user->id)
+                        ->update(['section' => null]);
+                }
+                
+                // Delete the student record using user_id
+                DB::table('students')
+                    ->where('user_id', $user->id)
+                    ->delete();
             }
 
-            // Then delete the user record
+            // Delete the user record
             $user->delete();
 
             DB::commit();
@@ -142,7 +156,7 @@ class StudentController extends Controller
             DB::rollBack();
             \Log::error('Error deleting student: ' . $e->getMessage());
             return redirect()->route('admin.students.index')
-                ->with('error', 'Failed to delete student. Please try again.');
+                ->with('error', 'Failed to delete student: ' . $e->getMessage());
         }
     }
 

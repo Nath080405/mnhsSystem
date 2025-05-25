@@ -99,16 +99,46 @@
                                                 class="btn btn-xs btn-outline-info" title="View Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <form action="{{ route('admin.teachers.destroy', $teacher->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-xs btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this teacher?')"
-                                                    title="Delete Teacher">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-xs btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal{{ $teacher->id }}"
+                                                title="Delete Teacher">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal{{ $teacher->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $teacher->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header border-0">
+                                                        <h5 class="modal-title" id="deleteModalLabel{{ $teacher->id }}">
+                                                            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                                                            Confirm Deletion
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="mb-0">Are you sure you want to delete the teacher <strong>{{ $teacher->formal_name }}</strong>?</p>
+                                                        <p class="text-danger small mt-2">
+                                                            <i class="bi bi-info-circle-fill me-1"></i>
+                                                            This action cannot be undone. All associated data will be permanently deleted.
+                                                        </p>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                                            <i class="bi bi-x-circle me-1"></i> Cancel
+                                                        </button>
+                                                        <form action="{{ route('admin.teachers.destroy', $teacher->id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="bi bi-trash me-1"></i> Delete Teacher
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -225,6 +255,45 @@
 
         .btn-xs i {
             font-size: 0.75rem;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .modal .btn {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+
+        .modal .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .modal .btn-danger:hover {
+            background-color: #bb2d3b;
+            border-color: #b02a37;
         }
     </style>
 

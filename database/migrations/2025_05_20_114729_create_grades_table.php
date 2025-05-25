@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('student_id')->constrained('students', 'user_id')->onDelete('cascade');
+            $table->foreignId('subject_id')->constrained()->onDelete('cascade');
+            $table->decimal('grade', 5, 2);
+            $table->string('remarks')->nullable();
+            $table->string('grading_period');
             $table->timestamps();
         });
     }

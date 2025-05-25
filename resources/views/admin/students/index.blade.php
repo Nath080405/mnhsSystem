@@ -59,6 +59,14 @@
                     </div>
                 @endif
 
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="bg-light">
@@ -129,11 +137,13 @@
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST"
-                                                class="d-inline">
+                                                class="d-inline delete-student-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-xs btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this student?')"
+                                                <button type="button" class="btn btn-xs btn-outline-danger delete-student-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteStudentModal"
+                                                    data-student-id="{{ $student->id }}"
+                                                    data-student-name="{{ $student->formal_name }}"
                                                     title="Delete Student">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
@@ -163,6 +173,35 @@
                     <div>
                         {{ $students->links() }}
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="deleteStudentModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-sm bg-danger bg-opacity-10 rounded-circle mx-auto mb-3">
+                            <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+                        </div>
+                        <h5 class="mb-1">Are you sure?</h5>
+                        <p class="text-muted mb-0">You are about to delete <span class="fw-bold" id="studentName"></span>. This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="bi bi-trash me-1"></i> Delete Student
+                    </button>
                 </div>
             </div>
         </div>
@@ -282,6 +321,33 @@
 
                     window.location.href = currentUrl.toString();
                 }, searchTimeout);
+            });
+
+            // Delete Student Modal Functionality
+            const deleteModal = document.getElementById('deleteStudentModal');
+            const studentNameElement = document.getElementById('studentName');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            let currentForm = null;
+
+            // When delete button is clicked
+            document.querySelectorAll('.delete-student-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const studentName = this.getAttribute('data-student-name');
+                    studentNameElement.textContent = studentName;
+                    currentForm = this.closest('form');
+                });
+            });
+
+            // When confirm delete is clicked
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (currentForm) {
+                    currentForm.submit();
+                }
+            });
+
+            // Reset form reference when modal is closed
+            deleteModal.addEventListener('hidden.bs.modal', function () {
+                currentForm = null;
             });
         });
     </script>

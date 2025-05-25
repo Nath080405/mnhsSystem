@@ -39,6 +39,11 @@ class Student extends Model
         return $this->belongsTo(Section::class, 'section', 'section_id');
     }
 
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
+
     public function getFullNameAttribute()
     {
         return $this->user->full_name;
