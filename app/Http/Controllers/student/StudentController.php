@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Event;
 
 class StudentController extends Controller
 {
@@ -36,7 +37,15 @@ class StudentController extends Controller
      */
     public function events()
     {
-        return view('student.events');
+        // Fetch events that are visible to students
+        $events = Event::where(function($query) {
+            $query->where('visibility', 'All')
+                  ->orWhere('visibility', 'Students');
+        })
+        ->orderBy('event_date', 'desc')
+        ->get();
+        
+        return view('student.events', compact('events'));
     }
 
     /**
