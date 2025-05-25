@@ -144,6 +144,25 @@
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
+/* Decreased padding and spacing */
+.card-body {
+    padding: 0.5rem !important;
+}
+.mb-3 {
+    margin-bottom: 0.25rem !important;
+}
+.mb-4 {
+    margin-bottom: 0.35rem !important;
+}
+.row.g-4 {
+    --bs-gutter-y: 0.35rem;
+}
+.card.bg-light {
+    margin-bottom: 0.25rem;
+}
+.card.bg-light .card-body {
+    padding: 0.35rem !important;
+}
 /* Increased font sizes */
 h2.fw-bold {
     font-size: 2rem;
