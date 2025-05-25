@@ -32,7 +32,7 @@
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
                         <div class="mb-3">
-                            <label for="username" class="form-label text-muted small">School ID</label>
+                            <label for="username" class="form-label text-muted small">ID Number</label>
                             <div class="input-group shadow-sm">
                                 <span class="input-group-text bg-white border-end-0">
                                     <i class="bi bi-person text-muted"></i>
