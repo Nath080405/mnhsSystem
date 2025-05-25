@@ -35,8 +35,10 @@ class TeacherController extends Controller
         $user->role = 'teacher';
         $user->save();
 
-        // Generate teacher ID and set as username
-        $employeeId = 'TCH' . str_pad($user->id, 5, '0', STR_PAD_LEFT);
+        // Get the latest teacher ID and generate the next one
+        $latestTeacher = Teacher::orderBy('user_id', 'desc')->first();
+        $nextId = $latestTeacher ? intval(substr($latestTeacher->employee_id, 3)) + 1 : 1;
+        $employeeId = 'TCH' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
         $user->username = $employeeId;
         $user->save();
 

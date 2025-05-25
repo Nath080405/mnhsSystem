@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Section;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -84,15 +85,19 @@ class StudentController extends Controller
         $user->role = 'student';
         $user->save();
 
-        // Generate student ID and set as username
-        $studentId = 'STU' . str_pad($user->id, 5, '0', STR_PAD_LEFT);
+        // Get the latest student ID and generate the next one
+        $latestStudent = \App\Models\Student::orderBy('student_id', 'desc')->first();
+        $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
+        $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+        
+        // Set the student ID as username
         $user->username = $studentId;
         $user->save();
 
         // Create student record
         $student = new \App\Models\Student();
         $student->user_id = $user->id;
-        $student->student_id = $user->username;
+        $student->student_id = $studentId;
         $student->lrn = $request->lrn;
         $student->street_address = $request->street_address;
         $student->barangay = $request->barangay;
@@ -112,7 +117,15 @@ class StudentController extends Controller
     public function destroy($id)
     {
         try {
+            DB::beginTransaction();
+            
             $user = User::findOrFail($id);
+
+            // Check if student has any grades or other related records
+            if ($user->student && $user->student->grades()->exists()) {
+                return redirect()->route('admin.students.index')
+                    ->with('error', 'Cannot delete student. They have existing grades. Please delete the grades first.');
+            }
 
             // Delete the associated student record first
             if ($user->student) {
@@ -122,9 +135,12 @@ class StudentController extends Controller
             // Then delete the user record
             $user->delete();
 
+            DB::commit();
             return redirect()->route('admin.students.index')
                 ->with('success', 'Student deleted successfully');
         } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error deleting student: ' . $e->getMessage());
             return redirect()->route('admin.students.index')
                 ->with('error', 'Failed to delete student. Please try again.');
         }

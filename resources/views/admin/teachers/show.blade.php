@@ -1,170 +1,134 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-3">
-        <!-- Header Section -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="fw-bold mb-1 text-primary">Teacher Details</h2>
-                <p class="text-muted mb-0 small">View and manage teacher information</p>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('admin.teachers.edit', $teacher->id) }}" class="btn btn-primary shadow-sm">
-                    <i class="bi bi-pencil me-1"></i> Edit Teacher
-                </a>
-                <a href="{{ route('admin.teachers.index') }}" class="btn btn-outline-secondary shadow-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Back to Teachers
-                </a>
+    <div class="container py-4">
+        <div class="header-section mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold text-primary">Teacher Details</h2>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.teachers.index') }}" class="btn btn-light">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Teachers
+                    </a>
+                    <a href="{{ route('admin.teachers.edit', $teacher->id) }}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-1"></i> Edit Teacher
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="row">
-            <!-- Teacher Profile Card -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-lg border-0 h-100">
-                    <div class="card-body p-4">
+        <div class="card main-card">
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-4">
                         <div class="text-center mb-4">
-                            <div class="avatar-lg mx-auto mb-3">
-                                <span class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
-                                    <i class="bi bi-person-workspace display-6"></i>
+                            <div class="avatar-container mb-3">
+                                <div class="avatar-wrapper">
+                                    <span class="avatar-icon">
+                                        <i class="bi bi-person-workspace"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <h4 class="mb-1 fw-bold">{{ $teacher->formal_name }}</h4>
+                            <p class="text-muted mb-3">Employee ID: {{ $teacher->teacher?->employee_id ?? 'Not Assigned' }}</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <span class="status-badge position-badge">
+                                    <i class="bi bi-briefcase me-1"></i> {{ $teacher->teacher?->position ?? 'Teacher' }}
+                                </span>
+                                <span class="status-badge status-{{ $teacher->teacher?->status === 'active' ? 'active' : 'inactive' }}">
+                                    <i class="bi bi-{{ $teacher->teacher?->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
+                                    {{ ucfirst($teacher->teacher?->status ?? 'inactive') }}
                                 </span>
                             </div>
-                            <h4 class="mb-1">{{ $teacher->name }}</h4>
-                            <p class="text-muted mb-2">{{ $teacher->teacher?->position ?? 'Teacher' }}</p>
-                            <span class="badge bg-{{ $teacher->teacher?->status === 'active' ? 'success' : 'danger' }} text-capitalize px-3 py-1">
-                                {{ ucfirst($teacher->teacher?->status ?? 'N/A') }}
-                            </span>
-                        </div>
-
-                        <div class="border-top pt-4">
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
-                                            <i class="bi bi-envelope text-primary"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-muted mb-0 small">Email</p>
-                                            <a href="mailto:{{ $teacher->email }}" class="text-decoration-none">{{ $teacher->email }}</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
-                                            <i class="bi bi-phone text-info"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-muted mb-0 small">Phone</p>
-                                            <p class="mb-0">{{ $teacher->teacher?->phone ?? 'N/A' }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm bg-success bg-opacity-10 rounded-circle me-2">
-                                            <i class="bi bi-building text-success"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-muted mb-0 small">Department</p>
-                                            <p class="mb-0">{{ $teacher->teacher?->department ?? 'N/A' }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
-                                            <i class="bi bi-mortarboard text-warning"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-muted mb-0 small">Qualification</p>
-                                            <p class="mb-0">{{ $teacher->teacher?->qualification ?? 'N/A' }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Teacher Details -->
-            <div class="col-md-8">
-                <!-- Basic Information -->
-                <div class="card shadow-lg border-0 mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold text-primary mb-4">
-                            <i class="bi bi-person-badge me-2"></i>Basic Information
-                        </h5>
-                        <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="row g-4">
                             <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Employee ID</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->employee_id ?? 'N/A' }}</p>
+                                <div class="info-card">
+                                    <div class="card-header-custom">
+                                        <i class="bi bi-person-vcard me-2"></i>
+                                        <span>Personal Information</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="info-item">
+                                            <label>Full Name</label>
+                                            <p>{{ $teacher->formal_name }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Email</label>
+                                            <p>
+                                                <a href="mailto:{{ $teacher->email }}" class="text-decoration-none">{{ $teacher->email }}</a>
+                                            </p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Phone</label>
+                                            <p>{{ $teacher->teacher?->phone ?? 'Not provided' }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Gender</label>
+                                            <p>{{ $teacher->teacher?->gender ?? 'Not provided' }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Birthdate</label>
+                                            <p>{{ $teacher->teacher?->birthdate ? $teacher->teacher->birthdate->format('M d, Y') : 'Not provided' }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Address</label>
+                                            <p>{{ $teacher->teacher?->address ?? 'Not provided' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Date Joined</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->date_joined ? $teacher->teacher->date_joined->format('M d, Y') : 'N/A' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Gender</p>
-                                <p class="mb-0 fw-medium text-capitalize">{{ $teacher->teacher?->gender ?? 'N/A' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Date of Birth</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->birthdate ? $teacher->teacher->birthdate->format('M d, Y') : 'N/A' }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Professional Information -->
-                <div class="card shadow-lg border-0 mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold text-primary mb-4">
-                            <i class="bi bi-briefcase me-2"></i>Professional Information
-                        </h5>
-                        <div class="row g-3">
                             <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Employee ID</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->employee_id ?? 'N/A' }}</p>
+                                <div class="info-card">
+                                    <div class="card-header-custom">
+                                        <i class="bi bi-briefcase me-2"></i>
+                                        <span>Professional Information</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="info-item">
+                                            <label>Employee ID</label>
+                                            <p>{{ $teacher->teacher?->employee_id ?? 'Not Assigned' }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Date Joined</label>
+                                            <p>{{ $teacher->teacher?->date_joined ? $teacher->teacher->date_joined->format('M d, Y') : 'Not provided' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Date Joined</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->date_joined ? $teacher->teacher->date_joined->format('F d, Y') : 'N/A' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Status</p>
-                                <p class="mb-0 fw-medium">
-                                    <span class="badge bg-{{ $teacher->teacher?->status === 'active' ? 'success' : 'danger' }}">
-                                        {{ ucfirst($teacher->teacher?->status ?? 'N/A') }}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Contact Information -->
-                <div class="card shadow-lg border-0">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold text-primary mb-4">
-                            <i class="bi bi-geo-alt me-2"></i>Contact Information
-                        </h5>
-                        <div class="row g-3">
                             <div class="col-12">
-                                <p class="text-muted mb-1 small">Address</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->address ?? 'N/A' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Email</p>
-                                <p class="mb-0 fw-medium">
-                                    <a href="mailto:{{ $teacher->email }}" class="text-decoration-none">{{ $teacher->email }}</a>
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1 small">Phone</p>
-                                <p class="mb-0 fw-medium">{{ $teacher->teacher?->phone ?? 'N/A' }}</p>
+                                <div class="info-card">
+                                    <div class="card-header-custom">
+                                        <i class="bi bi-gear me-2"></i>
+                                        <span>System Information</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-4">
+                                            <div class="col-md-4">
+                                                <div class="info-item">
+                                                    <label>Role</label>
+                                                    <p>{{ ucfirst($teacher->role) }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="info-item">
+                                                    <label>Last Updated</label>
+                                                    <p>{{ $teacher->updated_at->format('M d, Y H:i') }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="info-item">
+                                                    <label>Created At</label>
+                                                    <p>{{ $teacher->created_at->format('M d, Y H:i') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -174,50 +138,133 @@
     </div>
 
     <style>
-        .card {
+        .text-gradient {
+            background: linear-gradient(45deg, #2196F3, #4CAF50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-section {
+            padding: 1rem;
             border-radius: 0.5rem;
-            overflow: hidden;
+            background: linear-gradient(45deg, #f8f9fa, #ffffff);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .avatar-lg {
-            width: 80px;
-            height: 80px;
+        .main-card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+
+        .avatar-wrapper {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #2196F3, #4CAF50);
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 0.5rem 1rem rgba(33, 150, 243, 0.3);
         }
 
-        .avatar-sm {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .avatar-icon {
+            color: white;
+            font-size: 3rem;
         }
 
-        .avatar-title {
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
-
-        .badge {
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            border-radius: 0.375rem;
-        }
-
-        .btn {
+        .status-badge {
             padding: 0.5rem 1rem;
+            border-radius: 2rem;
             font-weight: 500;
-            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
         }
 
-        .text-muted {
-            font-size: 0.8125rem;
+        .position-badge {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
         }
 
-        .fw-medium {
+        .status-active {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .status-inactive {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .card-header-custom {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 600;
+            color: #2196F3;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-item {
+            margin-bottom: 1rem;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item p {
+            margin: 0;
             font-weight: 500;
+            color: #212529;
+        }
+
+        .btn-light {
+            background: #f8f9fa;
+            border-color: #f8f9fa;
+            color: #212529;
+        }
+
+        .btn-light:hover {
+            background: #e9ecef;
+            border-color: #e9ecef;
+            color: #212529;
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: #0b5ed7;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     </style>
 @endsection 
