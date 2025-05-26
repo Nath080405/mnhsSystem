@@ -13,106 +13,115 @@
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
-                    <input type="text" class="form-control border-start-0" placeholder="Search events...">
+                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search events..."
+                        value="{{ request('search') }}">
                 </div>
                 <a href="{{ route('admin.events.create') }}" class="btn btn-primary shadow-sm">
-                    <i class="bi bi-plus-circle me-1"></i> Add New Event
+                    <i class="bi bi-plus-lg me-1"></i> Add Event
                 </a>
             </div>
         </div>
 
-        <!-- Success Message -->
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
         <!-- Main Content -->
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">Event List</h5>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-file-earmark-excel me-1"></i> Export
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-printer me-1"></i> Print
-                        </button>
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
-            </div>
-            <div class="card-body p-0">
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle">
                         <thead class="bg-light">
                             <tr>
-                                <th class="border-0 px-3">Event Details</th>
-                                <th class="border-0 px-3">Schedule</th>
-                                <th class="border-0 px-3">Location</th>
-                                <th class="border-0 px-3">Visibility</th>
-                                <th class="border-0 px-3">Status</th>
-                                <th class="border-0 px-3 text-end">Actions</th>
+                                <th class="text-primary">Event Details</th>
+                                <th class="text-primary">Schedule</th>
+                                <th class="text-primary">Location</th>
+                                <th class="text-primary">Visibility</th>
+                                <th class="text-primary">Status</th>
+                                <th class="text-primary text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($events as $event)
                                 <tr>
-                                    <td class="px-3">
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-semibold">{{ $event->title }}</span>
-                                            <small class="text-muted">{{ Str::limit($event->description, 50) }}</small>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-calendar-event text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">{{ $event->title }}</div>
+                                                <div class="small text-muted">{{ Str::limit($event->description, 50) }}</div>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td class="px-3">
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-medium">{{ $event->event_date->format('M d, Y') }}</span>
-                                            <small class="text-muted">
-                                                {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - 
-                                                {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}
-                                            </small>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-clock text-info"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">{{ $event->event_date->format('M d, Y') }}</div>
+                                                <div class="small text-muted">
+                                                    {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - 
+                                                    {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td class="px-3">
-                                        <span class="badge bg-light text-dark border">
-                                            <i class="bi bi-geo-alt me-1"></i>{{ $event->location }}
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-geo-alt text-warning"></i>
+                                            </div>
+                                            <span class="fw-medium">{{ $event->location }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-success bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-eye text-success"></i>
+                                            </div>
+                                            <span class="fw-medium">{{ $event->visibility }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $event->status === 'Upcoming' ? 'success' : ($event->status === 'Completed' ? 'info' : 'danger') }}">
+                                            <i class="bi bi-{{ $event->status === 'Upcoming' ? 'clock' : ($event->status === 'Completed' ? 'check-circle' : 'x-circle') }} me-1"></i>
+                                            {{ $event->status }}
                                         </span>
                                     </td>
-                                    <td class="px-3">
-                                        <span class="badge bg-light text-dark border">
-                                            <i class="bi bi-eye me-1"></i>{{ $event->visibility }}
-                                        </span>
-                                    </td>
-                                    <td class="px-3">
-                                        @if($event->status == 'Upcoming')
-                                            <span class="badge bg-light text-dark border">
-                                                <i class="bi bi-clock me-1"></i>Upcoming
-                                            </span>
-                                        @elseif($event->status == 'Completed')
-                                            <span class="badge bg-light text-dark border">
-                                                <i class="bi bi-check-circle me-1"></i>Completed
-                                            </span>
-                                        @else
-                                            <span class="badge bg-light text-dark border">
-                                                <i class="bi bi-x-circle me-1"></i>Cancelled
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-3 text-end">
-                                        <div class="btn-group">
-                                            <a href="{{ route('admin.events.show', $event->event_id) }}" class="btn btn-sm btn-outline-primary" title="View Details">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="{{ route('admin.events.edit', $event->event_id) }}" class="btn btn-sm btn-outline-secondary" title="Edit Event">
+                                    <td>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="{{ route('admin.events.edit', $event->event_id) }}"
+                                                class="btn btn-xs btn-outline-primary" title="Edit Event">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <form action="{{ route('admin.events.destroy', $event->event_id) }}" method="POST" class="d-inline">
+                                            <a href="{{ route('admin.events.show', $event->event_id) }}"
+                                                class="btn btn-xs btn-outline-info" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <form action="{{ route('admin.events.destroy', $event->event_id) }}" method="POST"
+                                                class="d-inline delete-event-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this event?')" title="Delete Event">
+                                                <button type="button" class="btn btn-xs btn-outline-danger delete-event-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteEventModal"
+                                                    data-event-id="{{ $event->event_id }}"
+                                                    data-event-title="{{ $event->title }}"
+                                                    title="Delete Event">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
@@ -121,10 +130,10 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-3 py-4 text-center text-muted">
-                                        <div class="py-4">
-                                            <i class="bi bi-calendar-x display-6 mb-3"></i>
-                                            <p class="mb-0">No events found</p>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                                            No events found
                                         </div>
                                     </td>
                                 </tr>
@@ -132,11 +141,11 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div class="card-footer bg-white border-top-0">
-                <div class="d-flex justify-content-between align-items-center">
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
                     <div class="text-muted small">
-                        Showing {{ $events->firstItem() ?? 0 }} to {{ $events->lastItem() ?? 0 }} of {{ $events->total() ?? 0 }} entries
+                        Showing {{ $events->firstItem() ?? 0 }} to {{ $events->lastItem() ?? 0 }} of
+                        {{ $events->total() ?? 0 }} entries
                     </div>
                     <div>
                         {{ $events->links() }}
@@ -146,39 +155,160 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="deleteEventModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-sm bg-danger bg-opacity-10 rounded-circle mx-auto mb-3">
+                            <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+                        </div>
+                        <h5 class="mb-1">Are you sure?</h5>
+                        <p class="text-muted mb-0">You are about to delete <span class="fw-bold" id="eventTitle"></span>. This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="bi bi-trash me-1"></i> Delete Event
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
+        .btn-outline-primary {
+            border-width: 2px;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            min-width: 120px;
+        }
+
+        .btn-outline-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card.shadow-sm {
+            background-color: #f8f9fa;
+        }
+
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-sm i {
+            font-size: 1rem;
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
         .badge {
             padding: 0.5em 0.75em;
             font-weight: 500;
-            font-size: 0.75rem;
-            background-color: #f8f9fa !important;
-            color: #212529 !important;
-            border: 1px solid #dee2e6 !important;
         }
-        .badge i {
-            font-size: 0.875rem;
-        }
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
-        }
-        .table > :not(caption) > * > * {
-            padding: 1rem 0.75rem;
-        }
-        .table tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.02);
-        }
-        .card {
+
+        .alert {
+            border: none;
             border-radius: 0.5rem;
         }
-        .btn-group .btn {
-            border-radius: 0.25rem !important;
-            margin: 0 0.125rem;
+
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
         }
-        .btn-group .btn:first-child {
-            margin-left: 0;
+
+        .btn-xs {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            min-width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        .btn-group .btn:last-child {
-            margin-right: 0;
+
+        .btn-xs i {
+            font-size: 0.75rem;
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.querySelector('input[name="search"]');
+            const searchTimeout = 500; // milliseconds
+            let timeoutId;
+
+            searchInput.addEventListener('input', function () {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    const currentUrl = new URL(window.location.href);
+                    const searchValue = this.value.trim();
+
+                    if (searchValue) {
+                        currentUrl.searchParams.set('search', searchValue);
+                    } else {
+                        currentUrl.searchParams.delete('search');
+                    }
+
+                    window.location.href = currentUrl.toString();
+                }, searchTimeout);
+            });
+
+            // Delete Event Modal Functionality
+            const deleteModal = document.getElementById('deleteEventModal');
+            const eventTitleElement = document.getElementById('eventTitle');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            let currentForm = null;
+
+            // When delete button is clicked
+            document.querySelectorAll('.delete-event-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const eventTitle = this.getAttribute('data-event-title');
+                    eventTitleElement.textContent = eventTitle;
+                    currentForm = this.closest('form');
+                });
+            });
+
+            // When confirm delete is clicked
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (currentForm) {
+                    currentForm.submit();
+                }
+            });
+
+            // Reset form reference when modal is closed
+            deleteModal.addEventListener('hidden.bs.modal', function () {
+                currentForm = null;
+            });
+        });
+    </script>
 @endsection 

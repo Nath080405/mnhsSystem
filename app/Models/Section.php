@@ -23,7 +23,7 @@ class Section extends Model
      */
     public function students()
     {
-        return $this->hasMany(Student::class, 'section', 'section_id');
+        return $this->hasMany(Student::class, 'section', 'name');
     }
 
     /**

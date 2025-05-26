@@ -12,6 +12,8 @@ use App\Models\Event;
 use App\Models\Grade;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\Section;
+use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
@@ -28,7 +30,15 @@ class TeacherController extends Controller
      */
     public function createStudent()
     {
-        return view('teachers.student.index');
+        $teacher = auth()->user();
+        $section = Section::where('adviser_id', $teacher->id)->first();
+        
+        if (!$section) {
+            return redirect()->route('teachers.student.index')
+                ->with('error', 'You are not assigned to any section. Please contact the administrator.');
+        }
+
+        return view('teachers.student.create', compact('section'));
     }
 
     /**
@@ -67,9 +77,13 @@ class TeacherController extends Controller
      */
     public function indexStudent()
     {
-        $students = Student::all();
+        $students = User::where('role', 'student')
+            ->join('students', 'users.id', '=', 'students.user_id')
+            ->select('users.*', 'students.*')
+            ->paginate(10);
         return view('teachers.student.index', compact('students'));
     }
+
     public function indexStudentGrade()
     {
         // Fetch grades for students
@@ -78,6 +92,7 @@ class TeacherController extends Controller
         // Return the view with the grades
         return view('teachers.student.grade.index', compact('grades'));
     }
+
     /**
      * Show the event page with a list of events.
      */
@@ -127,12 +142,8 @@ class TeacherController extends Controller
      */
     public function show($id)
     {
-        $subject = Subject::with('teacher')
-            ->where('id', $id)
-            ->where('teacher_id', Auth::id())
-            ->firstOrFail();
-
-        return view('teachers.subject.show', compact('subject'));
+        $student = Student::with('user')->where('user_id', $id)->firstOrFail();
+        return view('teachers.student.show', compact('student'));
     }
 
     /**
@@ -140,13 +151,8 @@ class TeacherController extends Controller
      */
     public function edit($id)
     {
-        $subject = Subject::where('id', $id)
-            ->where('teacher_id', Auth::id())
-            ->firstOrFail();
-
-        $teachers = User::where('role', 'teacher')->get(); // Get a list of teachers
-
-        return view('teachers.subject.edit', compact('subject', 'teachers'));
+        $student = Student::with('user')->where('user_id', $id)->firstOrFail();
+        return view('teachers.student.edit', compact('student'));
     }
 
     /**
@@ -154,31 +160,55 @@ class TeacherController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validate incoming data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:subjects,code,' . $id,
-            'credits' => 'required|integer|min:1',
-            'teacher_id' => 'nullable|exists:users,id',
-            'status' => 'required|in:active,inactive',
-            'description' => 'nullable|string',
+        $student = Student::with('user')->where('user_id', $id)->firstOrFail();
+
+        $validated = $request->validate([
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'suffix' => 'nullable|string|max:10',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'gender' => 'required|string|in:Male,Female,Other',
+            'birthdate' => 'required|date',
+            'lrn' => 'required|string|unique:students,lrn,' . $id . ',user_id',
+            'grade_level' => 'required|string',
+            'phone' => 'nullable|string|max:20',
+            'street_address' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
         ]);
 
-        $subject = Subject::where('id', $id)
-            ->where('teacher_id', Auth::id())
-            ->firstOrFail();
+        DB::beginTransaction();
+        try {
+            // Update user record
+            $student->user->update([
+                'last_name' => $validated['last_name'],
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'suffix' => $validated['suffix'],
+                'email' => $validated['email'],
+            ]);
 
-        // Update the subject
-        $subject->update([
-            'name' => $request->input('name'),
-            'code' => $request->input('code'),
-            'credits' => $request->input('credits'),
-            'teacher_id' => $request->input('teacher_id'),
-            'status' => $request->input('status'),
-            'description' => $request->input('description'),
-        ]);
+            // Update student record
+            $student->update([
+                'gender' => $validated['gender'],
+                'birthdate' => $validated['birthdate'],
+                'lrn' => $validated['lrn'],
+                'grade_level' => $validated['grade_level'],
+                'phone' => $validated['phone'],
+                'street_address' => $validated['street_address'],
+                'barangay' => $validated['barangay'],
+                'municipality' => $validated['municipality'],
+                'province' => $validated['province'],
+            ]);
 
-        return redirect()->route('teachers.subject.index')->with('success', 'Subject updated successfully.');
+            DB::commit();
+            return redirect()->route('teachers.student.index')->with('success', 'Student updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to update student: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -257,45 +287,92 @@ public function storeStudent(Request $request)
 {
     // Validate the student data
     $request->validate([
+        'last_name' => 'required|string|max:255',
         'first_name' => 'required|string|max:255',
         'middle_name' => 'nullable|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'student_id' => 'required|string|unique:students,student_id',
-        'age' => 'required|integer|min:1',
-        'sex' => 'required|string|in:Male,Female,Other',
-        'birth_month' => 'required|integer|min:1|max:12',
-        'birth_day' => 'required|integer|min:1|max:31',
-        'birth_year' => 'required|integer|min:1900|max:' . date('Y'),
-        'province' => 'required|string|max:255',
+        'suffix' => 'nullable|string|max:10',
+        'email' => 'required|email|unique:users,email',
+        'gender' => 'required|string|in:Male,Female,Other',
+        'birthdate' => 'required|date',
+        'lrn' => 'required|string|unique:students,lrn',
+        'grade_level' => 'required|string',
+        'section' => 'required|string',
+        'phone' => 'nullable|string|max:20',
+        'street_address' => 'nullable|string|max:255',
+        'barangay' => 'nullable|string|max:255',
+        'municipality' => 'nullable|string|max:255',
+        'province' => 'nullable|string|max:255',
     ]);
 
-    // Create a new student
-    Student::create([
-        'first_name' => $request->input('first_name'),
-        'middle_name' => $request->input('middle_name'),
-        'last_name' => $request->input('last_name'),
-        'student_id' => $request->input('student_id'),
-        'age' => $request->input('age'),
-        'sex' => $request->input('sex'),
-        'birthdate' => $request->input('birth_year') . '-' . $request->input('birth_month') . '-' . $request->input('birth_day'),
-        'province' => $request->input('province'),
-        'user_id' => Auth::id(), // Associate the student with the logged-in teacher
-    ]);
+    try {
+        DB::beginTransaction();
 
-    // Redirect back with a success message
-    return redirect()->route('teachers.student.index')->with('success', 'Student added successfully!');
+        // Get the latest student ID and generate the next one
+        $latestStudent = Student::orderBy('student_id', 'desc')->first();
+        $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
+        $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+        
+        // Generate temporary password based on student ID
+        $tempPassword = 'TEMP' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+        // Create user record
+        $user = User::create([
+            'last_name' => $request->last_name,
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'suffix' => $request->suffix,
+            'email' => $request->email,
+            'username' => $studentId,
+            'password' => bcrypt($tempPassword),
+            'role' => 'student',
+        ]);
+
+        // Create student record
+        Student::create([
+            'user_id' => $user->id,
+            'student_id' => $studentId,
+            'lrn' => $request->lrn,
+            'street_address' => $request->street_address,
+            'barangay' => $request->barangay,
+            'municipality' => $request->municipality,
+            'province' => $request->province,
+            'phone' => $request->phone,
+            'birthdate' => $request->birthdate,
+            'gender' => $request->gender,
+            'grade_level' => $request->grade_level,
+            'section' => $request->section,
+            'status' => 'active',
+        ]);
+
+        DB::commit();
+        return redirect()->route('teachers.student.index')
+            ->with('success', 'Student added successfully! Temporary password: ' . $tempPassword);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Failed to add student: ' . $e->getMessage());
+    }
 }
 public function destroy($id)
 {
-    \Log::info("Deleting event with ID: $id");
-
-    $event = Event::findOrFail($id);
-
-    \Log::info("Event found: " . $event);
-
-    $event->delete();
-
-    return redirect()->route('teachers.event.index')->with('success', 'Event deleted successfully.');
+    try {
+        DB::beginTransaction();
+        
+        // Find and delete the student record using user_id
+        $student = Student::where('user_id', $id)->firstOrFail();
+        Student::where('user_id', $id)->delete();
+        
+        // Delete the associated user record
+        $user = User::findOrFail($id);
+        $user->delete();
+        
+        DB::commit();
+        return redirect()->route('teachers.student.index')->with('success', 'Student deleted successfully.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->route('teachers.student.index')->with('error', 'Failed to delete student: ' . $e->getMessage());
+    }
 }
 
     /**
@@ -315,25 +392,18 @@ public function destroy($id)
         $user = Auth::user();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'current_password' => ['nullable', 'required_with:new_password'],
-            'new_password' => ['nullable', 'min:6', 'confirmed'],
+            'current_password' => ['required'],
+            'new_password' => ['required', 'min:6', 'confirmed'],
         ]);
 
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-
-        if ($request->filled('current_password')) {
-            if (!Hash::check($request->current_password, $user->password)) {
-                return back()->withErrors(['current_password' => 'The current password is incorrect.']);
-            }
-            $user->password = Hash::make($validated['new_password']);
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'The current password is incorrect.']);
         }
 
+        $user->password = Hash::make($validated['new_password']);
         $user->save();
 
-        return back()->with('success', 'Profile updated successfully.');
+        return back()->with('success', 'Password updated successfully.');
     }
 
     public function myClass()

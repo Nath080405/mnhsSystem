@@ -6,11 +6,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-primary">My Profile</h2>
-            <p class="text-muted mb-0 small">Manage your account information</p>
+            <p class="text-muted mb-0 small">View your account information</p>
         </div>
-<a href="{{ route('teachers.dashboard') }}" class="btn btn-outline-secondary">
-    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-</a>
+        <a href="{{ route('teachers.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
     </div>
 
     <div class="row">
@@ -23,33 +23,49 @@
                         @method('PUT')
 
                         @if(session('success'))
-                            <div class="alert alert-success">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
                                 {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         @endif
 
-                        <div class="mb-3">
-                            <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
-                                value="{{ old('name', $user->name) }}" required>
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->last_name }}" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->first_name }}" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Middle Name</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->middle_name }}" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Suffix</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->suffix }}" readonly>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                                value="{{ old('email', $user->email) }}" required>
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="email" class="form-control bg-light" value="{{ $user->email }}" readonly>
                         </div>
 
                         <hr class="my-4">
 
                         <h5 class="mb-3">Change Password</h5>
-                        <p class="text-muted small mb-3">Leave these fields empty if you don't want to change your password.</p>
+                        <p class="text-muted small mb-3">You can change your password here.</p>
 
                         <div class="mb-3">
                             <label class="form-label">Current Password</label>
@@ -74,7 +90,7 @@
 
                         <div class="text-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save me-1"></i> Save Changes
+                                <i class="bi bi-key me-1"></i> Update Password
                             </button>
                         </div>
                     </form>
@@ -92,7 +108,7 @@
                                 <i class="bi bi-person-workspace display-6"></i>
                             </span>
                         </div>
-                        <h4 class="mb-1">{{ $user->name }}</h4>
+                        <h4 class="mb-1">{{ $user->first_name }} {{ $user->middle_name ? $user->middle_name . ' ' : '' }}{{ $user->last_name }}{{ $user->suffix ? ' ' . $user->suffix : '' }}</h4>
                         <p class="text-muted mb-2">{{ ucfirst($user->role) }}</p>
                         <span class="badge bg-success text-capitalize px-3 py-1">
                             Active
@@ -134,6 +150,22 @@
 }
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+.alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+}
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
 }
 </style>
 @endsection 

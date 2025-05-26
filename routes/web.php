@@ -14,6 +14,7 @@ use App\Http\Controllers\Teacher\TeacherController as TeacherDashboardController
 use App\Http\Controllers\Teacher\EventController as TeacherEventController;
 use App\Http\Controllers\Admin\ProfileController as TeacherProfileController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
+use App\Models\User;
 
 
 // Authentication Routes
@@ -84,35 +85,36 @@ Route::middleware(['auth'])->group(function () {
         })->name('teachers.dashboard');
     
         // Student Management Routes
-        Route::get('/students', [TeacherDashboardController::class, 'indexStudent'])->name('teachers.student.index');
-        Route::get('/students/create', [TeacherDashboardController::class, 'createStudent'])->name('teachers.student.create');
-        Route::post('/students', [TeacherDashboardController::class, 'storeStudent'])->name('teachers.student.store');
-        Route::get('/students/search', [TeacherDashboardController::class, 'search'])->name('teachers.student.search');
-        Route::get('/students/grade', [TeacherDashboardController::class, 'indexStudentGrade'])->name('teachers.student.grade.index');
+        Route::get('/students', [\App\Http\Controllers\Teacher\TeacherController::class, 'indexStudent'])->name('teachers.student.index');
+        Route::get('/students/create', [\App\Http\Controllers\Teacher\TeacherController::class, 'createStudent'])->name('teachers.student.create');
+        Route::post('/students', [\App\Http\Controllers\Teacher\TeacherController::class, 'storeStudent'])->name('teachers.student.store');
+        Route::get('/students/{id}/edit', [\App\Http\Controllers\Teacher\TeacherController::class, 'edit'])->name('teachers.student.edit');
+        Route::put('/students/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'update'])->name('teachers.student.update');
+        Route::delete('/students/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'destroy'])->name('teachers.student.destroy');
+        Route::get('/students/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'show'])->name('teachers.student.show');
+        Route::get('/students/search', [\App\Http\Controllers\Teacher\TeacherController::class, 'searchStudent'])->name('teachers.student.search');
+        Route::get('/students/grade', [\App\Http\Controllers\Teacher\TeacherController::class, 'indexStudentGrade'])->name('teachers.student.grade.index');
 
-    
         // Subject Management Routes
-        Route::get('/subjects', [TeacherDashboardController::class, 'subjectIndex'])->name('teachers.subject.index');
-        Route::get('/subjects/create', [TeacherDashboardController::class, 'create'])->name('teachers.subject.create');
-        Route::post('/subjects', [TeacherDashboardController::class, 'store'])->name('teachers.subject.store');
-        Route::get('/subjects/{id}/edit', [TeacherDashboardController::class, 'edit'])->name('teachers.subject.edit');
-        Route::put('/subjects/{id}', [TeacherDashboardController::class, 'update'])->name('teachers.subject.update');
-        Route::delete('/subjects/{id}', [TeacherDashboardController::class, 'destroy'])->name('teachers.subject.destroy');
-        Route::get('/subjects/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.subject.show');
+        Route::get('/subjects', [\App\Http\Controllers\Teacher\TeacherController::class, 'subjectIndex'])->name('teachers.subject.index');
+        Route::get('/subjects/create', [\App\Http\Controllers\Teacher\TeacherController::class, 'create'])->name('teachers.subject.create');
+        Route::post('/subjects', [\App\Http\Controllers\Teacher\TeacherController::class, 'store'])->name('teachers.subject.store');
+        Route::get('/subjects/{id}/edit', [\App\Http\Controllers\Teacher\TeacherController::class, 'edit'])->name('teachers.subject.edit');
+        Route::put('/subjects/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'update'])->name('teachers.subject.update');
+        Route::delete('/subjects/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'destroy'])->name('teachers.subject.destroy');
+        Route::get('/subjects/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'show'])->name('teachers.subject.show');
     
         // Grade Management Routes
-        Route::get('/student/grades', [TeacherDashboardController::class, 'index'])->name('teachers.student.grade.index');
-        Route::get('/student/grades/search', [TeacherDashboardController::class, 'search'])->name('teachers.student.grade.search');
+        Route::get('/student/grades', [\App\Http\Controllers\Teacher\TeacherController::class, 'index'])->name('teachers.student.grade.index');
+        Route::get('/student/grades/search', [\App\Http\Controllers\Teacher\TeacherController::class, 'search'])->name('teachers.student.grade.search');
 
         // Event Management Routes
-        Route::get('/events', [TeacherDashboardController::class, 'event'])->name('teachers.event.index');
-        
-
-        Route::post('/events/preview', [TeacherDashboardController::class, 'preview'])->name('teachers.event.preview');
+        Route::get('/events', [\App\Http\Controllers\Teacher\TeacherController::class, 'event'])->name('teachers.event.index');
+        Route::post('/events/preview', [\App\Http\Controllers\Teacher\TeacherController::class, 'preview'])->name('teachers.event.preview');
      
-  // Profile Routes
-        Route::get('/profile', [TeacherDashboardController::class, 'profile'])->name('teachers.profile');
-        Route::put('/profile', [TeacherDashboardController::class, 'updateProfile'])->name('teachers.profile.update');
+        // Profile Routes
+        Route::get('/profile', [\App\Http\Controllers\Teacher\TeacherController::class, 'profile'])->name('teachers.profile');
+        Route::put('/profile', [\App\Http\Controllers\Teacher\TeacherController::class, 'updateProfile'])->name('teachers.profile.update');
     });
 
 
