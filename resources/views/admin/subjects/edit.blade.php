@@ -91,57 +91,35 @@
                         <h5 class="mb-3">Schedule Information</h5>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            Update the schedule for this subject.
+                            Update the daily schedule for this subject.
                         </div>
-                    </div>
-                    <div id="schedules-container">
-                        @foreach($subject->schedules as $index => $schedule)
-                        <div class="schedule-item border rounded p-3 mb-3">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Day <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('schedules.'.$index.'.day') is-invalid @enderror" 
-                                            name="schedules[{{ $index }}][day]" required>
-                                            <option value="">Select Day</option>
-                                            <option value="Monday" {{ old('schedules.'.$index.'.day', $schedule->day) == 'Monday' ? 'selected' : '' }}>Monday</option>
-                                            <option value="Tuesday" {{ old('schedules.'.$index.'.day', $schedule->day) == 'Tuesday' ? 'selected' : '' }}>Tuesday</option>
-                                            <option value="Wednesday" {{ old('schedules.'.$index.'.day', $schedule->day) == 'Wednesday' ? 'selected' : '' }}>Wednesday</option>
-                                            <option value="Thursday" {{ old('schedules.'.$index.'.day', $schedule->day) == 'Thursday' ? 'selected' : '' }}>Thursday</option>
-                                            <option value="Friday" {{ old('schedules.'.$index.'.day', $schedule->day) == 'Friday' ? 'selected' : '' }}>Friday</option>
-                                            <option value="Saturday" {{ old('schedules.'.$index.'.day', $schedule->day) == 'Saturday' ? 'selected' : '' }}>Saturday</option>
-                                        </select>
-                                        @error('schedules.'.$index.'.day')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Time <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control @error('start_time') is-invalid @enderror" 
+                                                name="start_time" value="{{ old('start_time', $subject->schedules->first()->start_time ?? '') }}" required>
+                                            @error('start_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Start Time <span class="text-danger">*</span></label>
-                                        <input type="time" class="form-control @error('schedules.'.$index.'.start_time') is-invalid @enderror" 
-                                            name="schedules[{{ $index }}][start_time]" 
-                                            value="{{ old('schedules.'.$index.'.start_time', $schedule->start_time) }}" required>
-                                        @error('schedules.'.$index.'.start_time')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">End Time <span class="text-danger">*</span></label>
-                                        <input type="time" class="form-control @error('schedules.'.$index.'.end_time') is-invalid @enderror" 
-                                            name="schedules[{{ $index }}][end_time]" 
-                                            value="{{ old('schedules.'.$index.'.end_time', $schedule->end_time) }}" required>
-                                        @error('schedules.'.$index.'.end_time')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Time <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control @error('end_time') is-invalid @enderror" 
+                                                name="end_time" value="{{ old('end_time', $subject->schedules->first()->end_time ?? '') }}" required>
+                                            @error('end_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" name="schedules[{{ $index }}][id]" value="{{ $schedule->id }}">
                         </div>
-                        @endforeach
                     </div>
                 </div>
                 

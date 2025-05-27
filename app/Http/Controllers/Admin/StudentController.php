@@ -68,11 +68,16 @@ class StudentController extends Controller
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
-            'grade_level' => 'required|string',
-            'section' => 'required|string',
             'lrn' => 'required|string|unique:students,lrn',
         ]);
+
+        // Get the latest student ID and generate the next one
+        $latestStudent = \App\Models\Student::orderBy('student_id', 'desc')->first();
+        $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
+        $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+        
+        // Generate temporary password based on student ID
+        $tempPassword = 'TEMP' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         // Create user record
         $user = new \App\Models\User();
@@ -81,18 +86,9 @@ class StudentController extends Controller
         $user->middle_name = $request->middle_name;
         $user->suffix = $request->suffix;
         $user->email = $request->email;
-        $user->username = '';
-        $user->password = bcrypt($request->password);
-        $user->role = 'student';
-        $user->save();
-
-        // Get the latest student ID and generate the next one
-        $latestStudent = \App\Models\Student::orderBy('student_id', 'desc')->first();
-        $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
-        $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
-        
-        // Set the student ID as username
         $user->username = $studentId;
+        $user->password = bcrypt($tempPassword);
+        $user->role = 'student';
         $user->save();
 
         // Create student record
@@ -107,12 +103,11 @@ class StudentController extends Controller
         $student->phone = $request->phone;
         $student->birthdate = $request->birthdate;
         $student->gender = $request->gender;
-        $student->grade_level = $request->grade_level;
-        $student->section = $request->section;
         $student->status = 'active';
         $student->save();
 
-        return redirect()->route('admin.students.index')->with('success', 'Student added successfully! Student ID: ' . $studentId);
+        return redirect()->route('admin.students.index')
+            ->with('success', 'Student added successfully! Temporary password: ' . $tempPassword);
     }
 
     public function destroy($id)
@@ -163,8 +158,7 @@ class StudentController extends Controller
     public function edit($id)
     {
         $student = User::with('student')->findOrFail($id);
-        $sections = Section::orderBy('grade_level')->orderBy('name')->get();
-        return view('admin.students.edit', compact('student', 'sections'));
+        return view('admin.students.edit', compact('student'));
     }
 
     public function update(Request $request, $id)
@@ -176,8 +170,6 @@ class StudentController extends Controller
             'first_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8|confirmed',
-            'grade_level' => 'required|string',
-            'section' => 'required|string',
             'lrn' => 'required|string|unique:students,lrn,' . $user->student->user_id . ',user_id',
         ]);
 
@@ -207,8 +199,6 @@ class StudentController extends Controller
             'phone' => $request->phone,
             'birthdate' => $request->birthdate,
             'gender' => $request->gender,
-            'grade_level' => $request->grade_level,
-            'section' => $request->section,
             'status' => $request->status ?? 'active',
         ];
 

@@ -171,38 +171,6 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-medium">Grade Level <span class="text-danger">*</span></label>
-                                            <select name="grade_level" id="grade_level" class="form-select @error('grade_level') is-invalid @enderror" required>
-                                                <option value="">Select grade level</option>
-                                                @for($i = 7; $i <= 12; $i++)
-                                                    <option value="{{ $i }}" {{ old('grade_level', $student->student->grade_level) == $i ? 'selected' : '' }}>
-                                                        Grade {{ $i }}
-                                                    </option>
-                                                @endfor
-                                            </select>
-                                            @error('grade_level')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-medium">Section <span class="text-danger">*</span></label>
-                                            <select name="section" id="section" class="form-select @error('section') is-invalid @enderror" required>
-                                                <option value="">Select section</option>
-                                                @foreach($sections as $section)
-                                                    <option value="{{ $section->name }}" 
-                                                        data-grade="{{ $section->grade_level }}"
-                                                        {{ old('section', $student->student->section) == $section->name ? 'selected' : '' }}>
-                                                        {{ $section->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('section')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
                                     </div>
                                 </div>
                             </div>

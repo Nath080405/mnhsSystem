@@ -44,15 +44,12 @@
                   <div class="schedule-section">
                     <h6 class="text-primary mb-2">Schedule:</h6>
                     <div class="schedule-list">
-                      @foreach($subject->schedules as $schedule)
-                        <div class="schedule-item d-flex align-items-center mb-2">
-                          <i class="bi bi-clock me-2 text-primary"></i>
-                          <span class="text-secondary">
-                            {{ $schedule->day }} - 
-                            {{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }} to {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
-                          </span>
-                        </div>
-                      @endforeach
+                      <div class="schedule-item d-flex align-items-center mb-2">
+                        <i class="bi bi-clock me-2 text-primary"></i>
+                        <span class="text-secondary">
+                          Everyday {{ \Carbon\Carbon::parse($subject->schedules->first()->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($subject->schedules->first()->end_time)->format('h:i A') }}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 @else

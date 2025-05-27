@@ -45,10 +45,8 @@ class SubjectController extends Controller
             'description' => 'nullable|string',
             'teacher_id' => 'nullable|exists:users,id',
             'status' => 'required|in:active,inactive',
-            'schedules' => 'array',
-            'schedules.*.day' => 'required|string',
-            'schedules.*.start_time' => 'required',
-            'schedules.*.end_time' => 'required',
+            'start_time' => 'required',
+            'end_time' => 'required',
         ]);
 
         \Log::info('Validated data:', $validated);
@@ -57,18 +55,14 @@ class SubjectController extends Controller
         try {
             $subject = Subject::create($validated);
 
-            // Handle schedules
-            if ($request->has('schedules')) {
-                \Log::info('Processing schedules:', $request->schedules);
-                foreach ($request->schedules as $schedule) {
-                    if (!isset($schedule['_destroy'])) {
-                        $subject->schedules()->create([
-                            'day' => $schedule['day'],
-                            'start_time' => $schedule['start_time'],
-                            'end_time' => $schedule['end_time'],
-                        ]);
-                    }
-                }
+            // Create schedules for all days of the week
+            $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            foreach ($days as $day) {
+                $subject->schedules()->create([
+                    'day' => $day,
+                    'start_time' => $request->start_time,
+                    'end_time' => $request->end_time,
+                ]);
             }
 
             DB::commit();
@@ -100,29 +94,23 @@ class SubjectController extends Controller
             'description' => 'nullable|string',
             'teacher_id' => 'nullable|exists:users,id',
             'status' => 'required|in:active,inactive',
-            'schedules' => 'array',
-            'schedules.*.day' => 'required|string',
-            'schedules.*.start_time' => 'required',
-            'schedules.*.end_time' => 'required',
+            'start_time' => 'required',
+            'end_time' => 'required',
         ]);
 
         $subject->update($validated);
 
-        // Handle schedules
-        if ($request->has('schedules')) {
-            // Delete all existing schedules
-            $subject->schedules()->delete();
+        // Delete all existing schedules
+        $subject->schedules()->delete();
 
-            // Create new schedules
-            foreach ($request->schedules as $schedule) {
-                if (!isset($schedule['_destroy'])) {
-                    $subject->schedules()->create([
-                        'day' => $schedule['day'],
-                        'start_time' => $schedule['start_time'],
-                        'end_time' => $schedule['end_time'],
-                    ]);
-                }
-            }
+        // Create new schedules for all days
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        foreach ($days as $day) {
+            $subject->schedules()->create([
+                'day' => $day,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+            ]);
         }
 
         return redirect()->route('admin.subjects.index')->with('success', 'Subject updated successfully!');

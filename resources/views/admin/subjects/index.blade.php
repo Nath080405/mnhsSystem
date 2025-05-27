@@ -92,40 +92,28 @@
                                         @if($subject->teacher)
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm bg-success bg-opacity-10 rounded-circle me-2">
-                                                    <i class="bi bi-person-fill text-success"></i>
+                                                    <i class="bi bi-person text-success"></i>
                                                 </div>
-                                                <div>
-                                                    <div class="fw-medium">{{ $subject->teacher->formal_name }}</div>
-                                                    @if($subject->teacher->email)
-                                                        <div class="small text-muted">{{ $subject->teacher->email }}</div>
-                                                    @endif
-                                                </div>
+                                                <span>{{ $subject->teacher->formal_name }}</span>
                                             </div>
                                         @else
-                                            <span class="text-muted">
-                                                <i class="bi bi-person-x me-1"></i> Not Assigned
-                                            </span>
+                                            <span class="text-muted">Not assigned</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @if($subject->schedules->count() > 0)
-                                            <div class="d-flex flex-column gap-1">
-                                                @foreach($subject->schedules as $schedule)
-                                                    <div class="small">
-                                                        <span class="badge bg-light text-dark">{{ $schedule->day }}</span>
-                                                        <span class="text-muted">{{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}</span>
-                                                    </div>
-                                                @endforeach
+                                        @if($subject->schedules->isNotEmpty())
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
+                                                    <i class="bi bi-clock text-warning"></i>
+                                                </div>
+                                                <span>Everyday {{ \Carbon\Carbon::parse($subject->schedules->first()->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($subject->schedules->first()->end_time)->format('h:i A') }}</span>
                                             </div>
                                         @else
-                                            <span class="text-muted">
-                                                <i class="bi bi-clock me-1"></i> No schedule set
-                                            </span>
+                                            <span class="text-muted">No schedule set</span>
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $subject->status === 'active' ? 'success' : 'danger' }}">
-                                            <i class="bi bi-{{ $subject->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
+                                        <span class="badge {{ $subject->status == 'active' ? 'bg-success' : 'bg-danger' }}">
                                             {{ ucfirst($subject->status) }}
                                         </span>
                                     </td>

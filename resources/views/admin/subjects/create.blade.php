@@ -90,49 +90,31 @@
                         <h5 class="mb-3">Schedule Information</h5>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            Add the schedule for this subject.
+                            Set the daily schedule for this subject.
                         </div>
-                    </div>
-                    <div id="schedules-container">
-                        <!-- Initial schedule -->
-                        <div class="schedule-item border rounded p-3 mb-3">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Day <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('schedules.0.day') is-invalid @enderror" 
-                                            name="schedules[0][day]" required>
-                                            <option value="">Select Day</option>
-                                            <option value="Monday">Monday</option>
-                                            <option value="Tuesday">Tuesday</option>
-                                            <option value="Wednesday">Wednesday</option>
-                                            <option value="Thursday">Thursday</option>
-                                            <option value="Friday">Friday</option>
-                                            <option value="Saturday">Saturday</option>
-                                        </select>
-                                        @error('schedules.0.day')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Time <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control @error('start_time') is-invalid @enderror" 
+                                                name="start_time" required>
+                                            @error('start_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Start Time <span class="text-danger">*</span></label>
-                                        <input type="time" class="form-control @error('schedules.0.start_time') is-invalid @enderror" 
-                                            name="schedules[0][start_time]" required>
-                                        @error('schedules.0.start_time')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">End Time <span class="text-danger">*</span></label>
-                                        <input type="time" class="form-control @error('schedules.0.end_time') is-invalid @enderror" 
-                                            name="schedules[0][end_time]" required>
-                                        @error('schedules.0.end_time')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Time <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control @error('end_time') is-invalid @enderror" 
+                                                name="end_time" required>
+                                            @error('end_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -93,7 +93,11 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/students/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'destroy'])->name('teachers.student.destroy');
         Route::get('/students/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'show'])->name('teachers.student.show');
         Route::get('/students/search', [\App\Http\Controllers\Teacher\TeacherController::class, 'searchStudent'])->name('teachers.student.search');
-        Route::get('/students/grade', [\App\Http\Controllers\Teacher\TeacherController::class, 'indexStudentGrade'])->name('teachers.student.grade.index');
+        
+        // Grade Management Routes
+        Route::get('/student/grades', [\App\Http\Controllers\Teacher\TeacherController::class, 'indexStudentGrade'])->name('teachers.student.grade.index');
+        Route::post('/student/grades', [\App\Http\Controllers\Teacher\TeacherController::class, 'storeGrades'])->name('teachers.student.grade.store');
+        Route::get('/student/grades/search', [\App\Http\Controllers\Teacher\TeacherController::class, 'search'])->name('teachers.student.grade.search');
 
         // Subject Management Routes
         Route::get('/subjects', [\App\Http\Controllers\Teacher\TeacherController::class, 'subjectIndex'])->name('teachers.subject.index');
@@ -104,10 +108,6 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/subjects/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'destroy'])->name('teachers.subject.destroy');
         Route::get('/subjects/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'show'])->name('teachers.subject.show');
     
-        // Grade Management Routes
-        Route::get('/student/grades', [\App\Http\Controllers\Teacher\TeacherController::class, 'index'])->name('teachers.student.grade.index');
-        Route::get('/student/grades/search', [\App\Http\Controllers\Teacher\TeacherController::class, 'search'])->name('teachers.student.grade.search');
-
         // Event Management Routes
         Route::get('/events', [\App\Http\Controllers\Teacher\TeacherController::class, 'event'])->name('teachers.event.index');
         Route::post('/events/preview', [\App\Http\Controllers\Teacher\TeacherController::class, 'preview'])->name('teachers.event.preview');
@@ -115,6 +115,10 @@ Route::middleware(['auth'])->group(function () {
         // Profile Routes
         Route::get('/profile', [\App\Http\Controllers\Teacher\TeacherController::class, 'profile'])->name('teachers.profile');
         Route::put('/profile', [\App\Http\Controllers\Teacher\TeacherController::class, 'updateProfile'])->name('teachers.profile.update');
+
+        // CSV Import and Template Download
+        Route::get('/student/template', [\App\Http\Controllers\Teacher\TeacherController::class, 'downloadTemplate'])->name('teachers.student.template');
+        Route::post('/student/import', [\App\Http\Controllers\Teacher\TeacherController::class, 'importStudents'])->name('teachers.student.import');
     });
 
 
@@ -129,11 +133,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
         Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
         Route::put('/student/profile', [ProfileController::class, 'update'])->name('student.profile.update');
-    });
-
-    Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->group(function () {
-        Route::get('/student/grades', [\App\Http\Controllers\Teacher\StudentController::class, 'gradesIndex'])->name('teachers.student.grade.index');
-
     });
 
 });

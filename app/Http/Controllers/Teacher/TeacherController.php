@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\Section;
 use Illuminate\Support\Facades\DB;
+use App\Models\EventView;
+use League\Csv\Reader;
+use League\Csv\Writer;
+use Illuminate\Support\Facades\Storage;
 
 class TeacherController extends Controller
 {
@@ -77,20 +81,66 @@ class TeacherController extends Controller
      */
     public function indexStudent()
     {
+        $teacher = auth()->user();
+        
+        // Get the section where the teacher is assigned as adviser
+        $section = Section::where('adviser_id', $teacher->id)->first();
+        
+        if (!$section) {
+            return view('teachers.student.index', [
+                'students' => collect(),
+                'error' => 'You are not assigned to any section. Please contact the administrator.'
+            ]);
+        }
+
+        // Get students from the teacher's assigned section
         $students = User::where('role', 'student')
             ->join('students', 'users.id', '=', 'students.user_id')
+            ->where('students.section', $section->name)
             ->select('users.*', 'students.*')
+            ->orderBy('users.last_name')
+            ->orderBy('users.first_name')
             ->paginate(10);
+
         return view('teachers.student.index', compact('students'));
     }
 
     public function indexStudentGrade()
     {
-        // Fetch grades for students
-        $grades = Grade::with('student', 'subject')->get();
-    
-        // Return the view with the grades
-        return view('teachers.student.grade.index', compact('grades'));
+        $teacher = auth()->user();
+        
+        // Get the section where the teacher is assigned as adviser
+        $section = Section::where('adviser_id', $teacher->id)->first();
+        
+        if (!$section) {
+            return view('teachers.student.grade.index', [
+                'students' => collect(),
+                'subjects' => collect(),
+                'grades' => collect(),
+                'error' => 'You are not assigned to any section. Please contact the administrator.'
+            ]);
+        }
+
+        // Get students from the teacher's assigned section
+        $students = User::where('role', 'student')
+            ->join('students', 'users.id', '=', 'students.user_id')
+            ->where('students.section', $section->name)
+            ->select('users.*', 'students.*')
+            ->orderBy('users.last_name')
+            ->orderBy('users.first_name')
+            ->get();
+
+        // Get subjects assigned to this teacher
+        $subjects = Subject::where('teacher_id', $teacher->id)
+            ->orderBy('name')
+            ->get();
+
+        // Get existing grades for the selected subject and grading period
+        $grades = Grade::whereIn('student_id', $students->pluck('user_id'))
+            ->whereIn('subject_id', $subjects->pluck('id'))
+            ->get();
+
+        return view('teachers.student.grade.index', compact('students', 'subjects', 'grades'));
     }
 
     /**
@@ -190,8 +240,8 @@ class TeacherController extends Controller
                 'email' => $validated['email'],
             ]);
 
-            // Update student record
-            $student->update([
+            // Update student record using user_id
+            Student::where('user_id', $id)->update([
                 'gender' => $validated['gender'],
                 'birthdate' => $validated['birthdate'],
                 'lrn' => $validated['lrn'],
@@ -421,5 +471,191 @@ public function destroy($id)
         $students = $section->students;
 
         return view('teachers.index', compact('students'));
+    }
+
+    public function storeGrades(Request $request)
+    {
+        $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'grading_period' => 'required|in:1st,2nd,3rd,4th',
+            'grades' => 'required|array',
+            'grades.*.grade' => 'required|numeric|min:0|max:100',
+            'grades.*.remarks' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->grades as $studentId => $gradeData) {
+                Grade::updateOrCreate(
+                    [
+                        'student_id' => $studentId,
+                        'subject_id' => $request->subject_id,
+                        'grading_period' => $request->grading_period,
+                    ],
+                    [
+                        'grade' => $gradeData['grade'],
+                        'remarks' => $gradeData['remarks'] ?? null,
+                    ]
+                );
+            }
+
+            DB::commit();
+            return redirect()->route('teachers.student.grade.index')
+                ->with('success', 'Grades saved successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to save grades: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download the CSV template for student import
+     */
+    public function downloadTemplate()
+    {
+        $csv = Writer::createFromString('');
+        
+        // Add headers
+        $csv->insertOne([
+            'last_name',
+            'first_name',
+            'middle_name',
+            'suffix',
+            'email',
+            'lrn',
+            'gender',
+            'birthdate',
+            'phone',
+            'street_address',
+            'barangay',
+            'municipality',
+            'province'
+        ]);
+
+        // Add sample data
+        $csv->insertOne([
+            'Doe',
+            'John',
+            'Smith',
+            'Jr',
+            'john.doe@example.com',
+            '123456789012',
+            'Male',
+            '2000-01-01',
+            '09123456789',
+            '123 Main St',
+            'Sample Barangay',
+            'Sample Municipality',
+            'Sample Province'
+        ]);
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="student_import_template.csv"',
+        ];
+
+        return response($csv->toString(), 200, $headers);
+    }
+
+    /**
+     * Import students from CSV file
+     */
+    public function importStudents(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:10240' // max 10MB
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $csv = Reader::createFromPath($request->file('csv_file')->getPathname());
+            $csv->setHeaderOffset(0);
+
+            $teacher = auth()->user();
+            $section = Section::where('adviser_id', $teacher->id)->first();
+
+            if (!$section) {
+                throw new \Exception('You are not assigned to any section. Please contact the administrator.');
+            }
+
+            $records = $csv->getRecords();
+            $importedCount = 0;
+            $errors = [];
+
+            foreach ($records as $index => $record) {
+                try {
+                    // Validate required fields
+                    if (empty($record['last_name']) || empty($record['first_name']) || empty($record['email']) || empty($record['lrn'])) {
+                        throw new \Exception('Required fields missing');
+                    }
+
+                    // Check if email already exists
+                    if (User::where('email', $record['email'])->exists()) {
+                        throw new \Exception('Email already exists');
+                    }
+
+                    // Check if LRN already exists
+                    if (Student::where('lrn', $record['lrn'])->exists()) {
+                        throw new \Exception('LRN already exists');
+                    }
+
+                    // Get the latest student ID and generate the next one
+                    $latestStudent = Student::orderBy('student_id', 'desc')->first();
+                    $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
+                    $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+                    
+                    // Generate temporary password based on student ID
+                    $tempPassword = 'TEMP' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+                    // Create user record
+                    $user = new User();
+                    $user->last_name = $record['last_name'];
+                    $user->first_name = $record['first_name'];
+                    $user->middle_name = $record['middle_name'] ?? null;
+                    $user->suffix = $record['suffix'] ?? null;
+                    $user->email = $record['email'];
+                    $user->username = $studentId;
+                    $user->password = bcrypt($tempPassword);
+                    $user->role = 'student';
+                    $user->save();
+
+                    // Create student record
+                    $student = new Student();
+                    $student->user_id = $user->id;
+                    $student->student_id = $studentId;
+                    $student->lrn = $record['lrn'];
+                    $student->street_address = $record['street_address'] ?? null;
+                    $student->barangay = $record['barangay'] ?? null;
+                    $student->municipality = $record['municipality'] ?? null;
+                    $student->province = $record['province'] ?? null;
+                    $student->phone = $record['phone'] ?? null;
+                    $student->birthdate = $record['birthdate'] ?? null;
+                    $student->gender = $record['gender'] ?? null;
+                    $student->section = $section->name;
+                    $student->status = 'active';
+                    $student->save();
+
+                    $importedCount++;
+                } catch (\Exception $e) {
+                    $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                }
+            }
+
+            if ($importedCount > 0) {
+                DB::commit();
+                return redirect()->route('teachers.student.index')
+                    ->with('success', "Successfully imported {$importedCount} students.");
+            } else {
+                DB::rollBack();
+                return redirect()->route('teachers.student.index')
+                    ->with('error', 'No students were imported. Please check the CSV file format.');
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('teachers.student.index')
+                ->with('error', 'Failed to import students: ' . $e->getMessage());
+        }
     }
 }
