@@ -1,200 +1,132 @@
 @extends('layouts.teacherApp')
 
 @section('content')
-<div class="bg-light" style="min-height: 100vh;">
-    <div class="container py-4">
-        <!-- Header Section -->
-        <div class="d-flex justify-content-between align-items-center mb-5">
+<div class="bg-light min-vh-100">
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <p class="mb-1 text-muted small">Overview</p>
                 <h3 class="mb-0 fw-bold text-primary">My Events</h3>
             </div>
-            <form action="/search" method="GET" class="d-flex gap-2" style="height: 38px;">
-                <input type="text" name="search" class="form-control" placeholder="Search..." style="width: 220px;">
-                <button type="submit" class="btn btn-outline-dark">Search</button>
-            </form>
-        </div>
-
-        <!-- Greeting Section -->
-        <div class="p-4 rounded bg-white shadow-sm mb-4 d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center">
-                <img src="{{ asset('images/teacher.png') }}" alt="Teacher Avatar" class="img-fluid me-4" style="max-width: 120px;">
-                <div>
-                    @auth
-                        <h4 class="text-primary mb-1">Hello, {{ Auth::user()->name ?? 'Teacher' }} 👋</h4>
-                        <p class="text-muted mb-0">Here's a quick look at your events.</p>
-                    @endauth
+            <div class="d-flex gap-3">
+                <div class="dropdown filter-events-dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Filter Events
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-filter="all">All Events</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="upcoming">Upcoming</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="completed">Completed</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="cancelled">Cancelled</a></li>
+                    </ul>
                 </div>
+                <form action="/search" method="GET" class="d-flex gap-2" style="height: 38px;">
+                    <input type="text" name="search" class="form-control" placeholder="Search..." style="width: 220px;">
+                    <button type="submit" class="btn btn-outline-dark">Search</button>
+                </form>
             </div>
         </div>
 
-        <!-- Success Message -->
-        @if(session('success'))
-            <div class="alert alert-success mt-3">{{ session('success') }}</div>
-        @endif
+        <div class="row">
+            <!-- Events List -->
+            <div class="col-md-4">
+                <div class="bg-white rounded shadow-sm p-3 overflow-auto" style="height: calc(100vh - 200px);">
+                    @forelse($events as $event)
+                        @php $eventDate = \Carbon\Carbon::parse($event->event_date); @endphp
+                        <div class="card mb-2 event-card" data-event-id="{{ $event->id }}" data-status="{{ strtolower($event->status) }}" style="cursor: pointer;">
+                            <div class="card-body d-flex">
+                                <div class="me-3 text-center">
+                                    <div class="fw-bold text-primary">{{ $eventDate->format('M d') }}</div>
+                                    <small class="text-muted">{{ $eventDate->format('Y') }}</small>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 fw-bold text-dark">{{ $event->title }}</h6>
+                                    <p class="text-muted small mb-1">Organizer: {{ $event->creator->name ?? 'N/A' }}</p>
+                                    <span class="badge {{ $event->status === 'Upcoming' ? 'bg-success' : ($event->status === 'Completed' ? 'bg-secondary' : 'bg-danger') }}">
+                                        {{ $event->status }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-calendar-x display-4"></i>
+                            <p class="mt-2 mb-0">No events found.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
 
-        <!-- Events Cards Section -->
-        <div class="d-flex flex-column gap-3 mt-2">
-            @forelse($events as $event)
-                <div class="card shadow-sm border-0 w-100" style="background: linear-gradient(145deg, #ffe5ec, #fcd0e4); border-left: 6px solid #ff66a3;">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                    <h5 class="0fw-bold text-secondary mb-">{{ $event->title }}</h5>
-                                <p class="text-dark small mb-2">{{ Str::limit($event->description, 100, '...') }}</p>
-                            </div>
-                            <div class="d-flex flex-column align-items-end">
-                                <span class="badge {{ $event->status === 'active' ? 'bg-success' : 'bg-secondary' }} px-3 py-2 mb-2">
-                                    {{ ucfirst($event->status) }}
-                                </span>
-                                @if($event->status === 'active')
-                                    <form action="{{ route('teachers.event.complete', $event->id) }}" method="POST" class="m-0">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-success">
-                                            <i class="bi bi-check-circle me-1"></i>Mark as Completed
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-                        
-                        <div class="event-details d-flex flex-wrap gap-4">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-calendar-event text-primary me-2"></i>
-                                <span class="text-dark">
-                                    @php
-                                        $eventDate = \Carbon\Carbon::parse($event->event_date);
-                                        echo $eventDate->format('M d, Y');
-                                    @endphp
-                                </span>
-                            </div>
-                            
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-clock text-primary me-2"></i>
-                                <span class="text-dark">
-                                    @php
-                                        $startTime = \Carbon\Carbon::parse($event->event_time);
-                                        $endTime = \Carbon\Carbon::parse($event->end_time);
-                                        echo $startTime->format('h:i A') . ' - ' . $endTime->format('h:i A');
-                                    @endphp
-                                </span>
-                            </div>
-                            
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-geo-alt text-primary me-2"></i>
-                                <span class="text-dark">{{ $event->location }}</span>
-                            </div>
-                        </div>
+            <!-- Event Details -->
+            <div class="col-md-8">
+                <div class="bg-white rounded shadow-sm p-4 overflow-auto" style="height: calc(100vh - 200px);">
+                    <div id="eventDetails" class="text-center text-muted py-5">
+                        <i class="bi bi-calendar-event display-4"></i>
+                        <p class="mt-2 mb-0">Select an event to view details</p>
                     </div>
+                    @foreach($events as $event)
+                        <div id="event-detail-{{ $event->id }}" class="event-details-content d-none">
+                            <h3 class="mb-4">{{ $event->title }}</h3>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <p><i class="bi bi-calendar me-2"></i>Date: {{ $event->event_date }}</p>
+                                    <p><i class="bi bi-person me-2"></i>Organizer: {{ $event->creator->name ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><i class="bi bi-clock me-2"></i>Time: {{ $event->event_time }} - {{ $event->end_time }}</p>
+                                    <p><i class="bi bi-geo-alt me-2"></i>Location: {{ $event->location }}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h5>Description</h5>
+                                <p class="text-muted">{{ $event->description }}</p>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-            @empty
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
-                    <p class="mt-2 mb-0">No events found.</p>
-                </div>
-            @endforelse
+            </div>
         </div>
     </div>
 </div>
 
+<!-- JavaScript for interactivity -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const eventCards = document.querySelectorAll('.event-card');
+    const eventDetailsPlaceholder = document.getElementById('eventDetails');
+    const allEventDetails = document.querySelectorAll('.event-details-content');
+    // Only select filter dropdown items, not all .dropdown-item
+    const filterLinks = document.querySelectorAll('.filter-events-dropdown .dropdown-item');
 
-<style>
-.event-details {
-    font-size: 0.9rem;
-}
-.event-details i {
-    font-size: 1.1rem;
-}
-.badge {
-    font-weight: 500;
-    font-size: 0.8rem;
-}
-
-/* Card hover effects */
-.card {
-    transition: all 0.3s ease;
-    transform: translateY(0);
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Header section hover effect */
-.d-flex.justify-content-between.align-items-center {
-    transition: all 0.3s ease;
-}
-
-.d-flex.justify-content-between.align-items-center:hover {
-    transform: scale(1.01);
-}
-
-/* Greeting section hover effect */
-.p-4.rounded.bg-white.shadow-sm {
-    transition: all 0.3s ease;
-}
-
-.p-4.rounded.bg-white.shadow-sm:hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
-
-/* Search input focus effect */
-.form-control:focus {
-    box-shadow: 0 0 0 0.2rem rgba(255, 102, 163, 0.25);
-    border-color: #ff66a3;
-}
-
-/* Button hover effects */
-.btn-outline-dark:hover {
-    background-color: #ff66a3;
-    border-color: #ff66a3;
-    color: white;
-    transform: translateY(-1px);
-}
-
-.btn-outline-dark {
-    transition: all 0.3s ease;
-}
-
-/* Icon hover effects */
-.bi {
-    transition: all 0.3s ease;
-}
-
-.event-details .bi:hover {
-    transform: scale(1.2);
-    color: #ff66a3;
-}
-
-/* Badge hover effect */
-.badge {
-    transition: all 0.3s ease;
-}
-
-.badge:hover {
-    transform: scale(1.1);
-}
-
-/* Empty state icon animation */
-.bi-calendar-x {
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px);
+    function resetDetailsView() {
+        allEventDetails.forEach(detail => detail.classList.add('d-none'));
+        eventDetailsPlaceholder.classList.remove('d-none');
     }
-    50% {
-        transform: translateY(-10px);
-    }
-    100% {
-        transform: translateY(0px);
-    }
-}
-</style>
 
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    eventCards.forEach(card => {
+        card.addEventListener('click', function() {
+            eventCards.forEach(c => c.classList.remove('border-primary'));
+            this.classList.add('border-primary');
+            resetDetailsView();
+            const eventId = this.dataset.eventId;
+            const detailView = document.getElementById('event-detail-' + eventId);
+            if (detailView) {
+                detailView.classList.remove('d-none');
+                eventDetailsPlaceholder.classList.add('d-none');
+            }
+        });
+    });
+
+    filterLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filter = this.dataset.filter;
+            eventCards.forEach(card => {
+                const status = card.dataset.status;
+                card.style.display = (filter === 'all' || status === filter) ? 'block' : 'none';
+            });
+        });
+    });
+});
+</script>
 @endsection

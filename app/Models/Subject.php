@@ -32,4 +32,12 @@ class Subject extends Model
     {
         return $this->hasMany(Schedule::class);
     }
+
+    /**
+     * Get the grades for the subject.
+     */
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
 } 

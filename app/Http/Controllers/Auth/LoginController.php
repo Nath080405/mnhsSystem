@@ -59,6 +59,8 @@ class LoginController extends Controller
                 return redirect()->intended(route('teachers.dashboard'));
             case 'student':
                 return redirect()->intended(route('student.gradebook'));
+            case 'principal':
+                return redirect()->intended(route('admin.dashboard'));
             default:
                 return redirect()->intended(route('admin.dashboard'));
         }

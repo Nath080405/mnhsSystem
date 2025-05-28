@@ -24,7 +24,50 @@ class TeacherController extends Controller
 
     public function store(Request $request)
     {
-        // Create user record
+        // Check if user with this email already exists
+        $existingUser = User::where('email', $request->email)->first();
+
+        if ($existingUser) {
+            // Update existing user
+            $existingUser->last_name = $request->last_name;
+            $existingUser->first_name = $request->first_name;
+            $existingUser->middle_name = $request->middle_name;
+            $existingUser->suffix = $request->suffix;
+            if ($request->filled('password')) {
+                $existingUser->password = bcrypt($request->password);
+            }
+            $existingUser->role = 'teacher';
+            $existingUser->save();
+
+            // Get the latest teacher ID and generate the next one
+            $latestTeacher = Teacher::orderBy('user_id', 'desc')->first();
+            $nextId = $latestTeacher ? intval(substr($latestTeacher->employee_id, 3)) + 1 : 1;
+            $employeeId = 'TCH' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+            $existingUser->username = $employeeId;
+            $existingUser->save();
+
+            // Create or update teacher record
+            $teacher = Teacher::updateOrCreate(
+                ['user_id' => $existingUser->id],
+                [
+                    'employee_id' => $employeeId,
+                    'street_address' => $request->street_address,
+                    'barangay' => $request->barangay,
+                    'municipality' => $request->municipality,
+                    'province' => $request->province,
+                    'phone' => $request->phone,
+                    'birthdate' => $request->birthdate,
+                    'gender' => $request->gender,
+                    'date_joined' => $request->date_joined,
+                    'status' => 'active'
+                ]
+            );
+
+            return redirect()->route('admin.teachers.index')
+                ->with('success', 'Teacher updated successfully! Employee ID: ' . $employeeId);
+        }
+
+        // Create new user record
         $user = new User();
         $user->last_name = $request->last_name;
         $user->first_name = $request->first_name;

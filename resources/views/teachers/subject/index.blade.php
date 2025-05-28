@@ -24,44 +24,125 @@
       <div class="alert alert-warning">No subjects assigned yet. Please add one.</div>
     @else
       <div class="row g-4">
-        @foreach($subjects as $subject)
-          <div class="col-md-4 col-sm-6">
-            <div class="card subject-card p-4 h-100">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex align-items-center mb-3">
-                  <div class="icon-circle me-3">
-                    <i class="bi bi-journal-bookmark-fill text-white"></i>
-                  </div>
-                  <div>
-                    <h5 class="0fw-bold text-secondary mb-">{{ $subject->name }}</h5>
-                    <small class="text-muted">{{ $subject->code }}</small>
-                  </div>
-                </div>
-                <p class="text-secondary small flex-grow-1" style="line-height: 1.6; max-height: 5.2em; overflow: hidden;">
-                  {{ $subject->description }}
-                </p>
-                @if($subject->schedules->count() > 0)
-                  <div class="schedule-section">
-                    <h6 class="text-primary mb-2">Schedule:</h6>
-                    <div class="schedule-list">
-                      <div class="schedule-item d-flex align-items-center mb-2">
-                        <i class="bi bi-clock me-2 text-primary"></i>
-                        <span class="text-secondary">
-                          Everyday {{ \Carbon\Carbon::parse($subject->schedules->first()->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($subject->schedules->first()->end_time)->format('h:i A') }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                @else
-                  <div class="text-muted small">
-                    <i class="bi bi-info-circle me-1"></i>
-                    No schedule assigned yet
-                  </div>
-                @endif
-              </div>
+      @foreach($subjects as $subject)
+  <div class="col-md-4 col-sm-6">
+    <div class="card subject-card p-4 h-80" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#subjectModal{{ $subject->id }}">
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon-circle me-3">
+            <i class="bi bi-journal-bookmark-fill text-white"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-secondary mb-1">{{ $subject->name }}</h5>
+            <div class="d-flex align-items-center gap-2">
+              <small class="text-muted">{{ $subject->code }}</small>
+              <span class="badge bg-primary bg-opacity-10 text-primary">
+                <i class="bi bi-people-fill me-1"></i>
+                {{ $subject->grades->count() }} Students
+              </span>
             </div>
           </div>
-        @endforeach
+        </div>
+
+        <p class="text-secondary small flex-grow-1" style="line-height: 1.6; max-height: 5.2em; overflow: hidden;">
+          {{ $subject->description }}
+          <br>
+          @if($subject->schedules->count() > 0)
+            <i class="bi bi-clock me-1 text-primary"></i>
+            <span class="text-secondary">
+              Monday-Friday {{ \Carbon\Carbon::parse($subject->schedules->first()->start_time)->format('h:i A') }}
+              - {{ \Carbon\Carbon::parse($subject->schedules->first()->end_time)->format('h:i A') }}
+            </span>
+          @else
+            <i class="bi bi-info-circle me-1 text-muted"></i>
+            <span class="text-muted">No schedule yet</span>
+          @endif
+        </p>
+
+      </div>
+    </div>
+
+    <!-- Subject Modal -->
+    <div class="modal fade" id="subjectModal{{ $subject->id }}" tabindex="-1" aria-labelledby="subjectModalLabel{{ $subject->id }}" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="subjectModalLabel{{ $subject->id }}">
+              {{ $subject->name }} - {{ $subject->code }}
+              <span class="badge bg-primary bg-opacity-10 text-primary ms-2">
+                <i class="bi bi-people-fill me-1"></i>
+                {{ $subject->grades->count() }} Students
+              </span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-4">
+              <h6 class="text-primary mb-3">Subject Details</h6>
+              <p class="text-secondary">{{ $subject->description }}</p>
+              @if($subject->schedules->count() > 0)
+                <div class="mt-3">
+                  <h6 class="text-primary mb-2">Schedule</h6>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-clock me-2 text-primary"></i>
+                    <span class="text-secondary">
+                      Monday-Friday {{ \Carbon\Carbon::parse($subject->schedules->first()->start_time)->format('h:i A') }}
+                      - {{ \Carbon\Carbon::parse($subject->schedules->first()->end_time)->format('h:i A') }}
+                    </span>
+                  </div>
+                </div>
+              @endif
+            </div>
+
+            <div class="mt-4">
+              <h6 class="text-primary mb-3">Enrolled Students</h6>
+              @if($subject->grades->count() > 0)
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Grade</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($subject->grades as $grade)
+                        <tr>
+                          <td>{{ $grade->user->student_id }}</td>
+                          <td>{{ $grade->user->first_name }} {{ $grade->user->last_name }}</td>
+                          <td>{{ $grade->grade ?? 'Not graded' }}</td>
+                          <td>
+                            <a href="{{ route('teachers.student.grade.index') }}" class="btn btn-sm btn-primary">
+                              <i class="bi bi-pencil-square"></i> Grade
+                            </a>
+                          </td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              @else
+                <div class="alert alert-info">
+                  <i class="bi bi-info-circle me-2"></i>
+                  No students enrolled in this subject yet.
+                </div>
+              @endif
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a href="{{ route('teachers.student.grade.index') }}" class="btn btn-primary">
+              <i class="bi bi-pencil-square me-1"></i> Manage Grades
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+@endforeach
+
       </div>
     @endif
 
@@ -100,6 +181,38 @@
 }
 .schedule-item i {
   font-size: 1rem;
+}
+
+/* Modal Styles */
+.modal-content {
+  border: none;
+  border-radius: 15px;
+}
+.modal-header {
+  border-bottom: 1px solid #e3e6f0;
+  background: #f8f9fc;
+  border-radius: 15px 15px 0 0;
+}
+.modal-footer {
+  border-top: 1px solid #e3e6f0;
+  background: #f8f9fc;
+  border-radius: 0 0 15px 15px;
+}
+.table {
+  margin-bottom: 0;
+}
+.table th {
+  font-weight: 600;
+  color: #4e73df;
+}
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+}
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+  font-size: 0.75rem;
 }
 </style>
 

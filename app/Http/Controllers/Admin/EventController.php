@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\NewEventNotification;
 
 class EventController extends Controller
 {
@@ -36,7 +37,7 @@ class EventController extends Controller
 
         $validated['created_by'] = Auth::id();
 
-        Event::create($validated);
+        $event = Event::create($validated);
 
         return redirect()->route('admin.events.index')
             ->with('success', 'Event created successfully.');

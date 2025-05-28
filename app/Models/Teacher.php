@@ -10,6 +10,9 @@ class Teacher extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $primaryKey = 'user_id';
+    public $incrementing = false;
+
     protected $fillable = [
         'user_id',
         'employee_id',
