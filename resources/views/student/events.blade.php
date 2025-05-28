@@ -5,7 +5,7 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1" style="color: #0d6efd;">School Events</h2>
+            <h2 class="fw-bold mb-1" style="color: #0d6efd;">School Events, Annoucements & Updates</h2>
             <p class="text-muted mb-0 small">View and track school events and activities</p>
         </div>
     </div>
