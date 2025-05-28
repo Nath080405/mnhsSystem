@@ -65,7 +65,7 @@
                 <!-- Old Events Section -->
                 @if($oldEvents->count() > 0)
                     <div>
-                        <h5 class="fw-bold mb-3">Previous Events</h5>
+                        <h5 class="fw-bold mb-3">All Events</h5>
                         <div class="events-section">
                             @foreach($oldEvents as $event)
                                 <div class="card shadow-sm border-0 mb-3" style="background: linear-gradient(145deg, #ffe5ec, #fcd0e4); border-left: 6px solid #ff66a3;">
