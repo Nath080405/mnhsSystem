@@ -197,6 +197,12 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="alert alert-info mb-0">
+                                                <i class="bi bi-info-circle-fill me-2"></i>
+                                                Leave password fields empty to keep the current password.
+                                            </div>
+                                        </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-medium">Password</label>
                                             <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Enter new password">

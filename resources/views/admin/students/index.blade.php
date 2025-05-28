@@ -42,6 +42,12 @@
                         @endfor
                     </ul>
                 </div>
+
+                <!-- CSV Import Button -->
+                <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadCsvModal">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Import CSV
+                </button>
+
                 <a href="{{ route('admin.students.create') }}" class="btn btn-primary shadow-sm">
                     <i class="bi bi-plus-lg me-1"></i> Add Student
                 </a>
@@ -73,8 +79,7 @@
                             <tr>
                                 <th class="text-primary">Student ID</th>
                                 <th class="text-primary">Name</th>
-                                <th class="text-primary">Grade Level</th>
-                                <th class="text-primary">Section</th>
+                                <th class="text-primary">Email</th>
                                 <th class="text-primary">Status</th>
                                 <th class="text-primary text-end">Actions</th>
                             </tr>
@@ -97,54 +102,35 @@
                                             </div>
                                             <div>
                                                 <div class="fw-medium">{{ $student->formal_name }}</div>
-                                                <div class="small text-muted">{{ $student->email }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-mortarboard text-warning"></i>
+                                                <i class="bi bi-envelope text-warning"></i>
                                             </div>
-                                            <span
-                                                class="fw-medium">{{ $student->student?->grade_level ? 'Grade ' . $student->student->grade_level : 'N/A' }}</span>
+                                            <a href="mailto:{{ $student->email }}" class="text-decoration-none">{{ $student->email }}</a>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-success bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-people text-success"></i>
-                                            </div>
-                                            <span class="fw-medium">{{ $student->student?->section ?? 'N/A' }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span
-                                            class="badge bg-{{ $student->student?->status === 'active' ? 'success' : 'danger' }}">
-                                            <i
-                                                class="bi bi-{{ $student->student?->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
+                                        <span class="badge bg-{{ $student->student?->status === 'active' ? 'success' : 'danger' }}">
+                                            <i class="bi bi-{{ $student->student?->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
                                             {{ ucfirst($student->student?->status ?? 'inactive') }}
                                         </span>
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-end gap-2">
-                                            <a href="{{ route('admin.students.edit', $student->id) }}"
-                                                class="btn btn-xs btn-outline-primary" title="Edit Student">
+                                            <a href="{{ route('admin.students.edit', $student->id) }}" class="btn btn-xs btn-outline-primary" title="Edit Student">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <a href="{{ route('admin.students.show', $student->id) }}"
-                                                class="btn btn-xs btn-outline-info" title="View Details">
+                                            <a href="{{ route('admin.students.show', $student->id) }}" class="btn btn-xs btn-outline-info" title="View Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST"
-                                                class="d-inline delete-student-form">
+                                            <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST" class="d-inline delete-student-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn btn-xs btn-outline-danger delete-student-btn"
-                                                    data-bs-toggle="modal" data-bs-target="#deleteStudentModal"
-                                                    data-student-id="{{ $student->id }}"
-                                                    data-student-name="{{ $student->formal_name }}"
-                                                    title="Delete Student">
+                                                <button type="button" class="btn btn-xs btn-outline-danger delete-student-btn" data-bs-toggle="modal" data-bs-target="#deleteStudentModal" data-student-id="{{ $student->id }}" data-student-name="{{ $student->formal_name }}" title="Delete Student">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
@@ -153,7 +139,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">
+                                    <td colspan="5" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="bi bi-people fs-2 d-block mb-2"></i>
                                             No students found
@@ -203,6 +189,51 @@
                         <i class="bi bi-trash me-1"></i> Delete Student
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSV Upload Modal -->
+    <div class="modal fade" id="uploadCsvModal" tabindex="-1" aria-labelledby="uploadCsvModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadCsvModalLabel">Import Students from CSV</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('admin.students.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="csvFile" class="form-label">Select CSV File</label>
+                            <input type="file" class="form-control" id="csvFile" name="csv_file" accept=".csv" required>
+                            <div class="form-text">
+                                The CSV file should have the following columns:
+                                <ul class="mb-0 mt-1">
+                                    <li><strong>Required:</strong> last_name, first_name, email, lrn, gender, birthdate</li>
+                                    <li><strong>Optional:</strong> middle_name, suffix, street_address, barangay, municipality, province, phone</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Note:</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Make sure your CSV file follows the required format</li>
+                                <li>Dates must be in MM/DD/YYYY format</li>
+                                <li>Gender must be one of: Male, Female, Other</li>
+                                <li>Email addresses must be valid</li>
+                            </ul>
+                        </div>
+                        <a href="{{ route('admin.students.template') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download me-1"></i> Download Template
+                        </a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

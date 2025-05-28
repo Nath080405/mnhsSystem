@@ -8,14 +8,22 @@
             <h2 class="fw-bold mb-1 text-primary">Edit Subject</h2>
             <p class="text-muted mb-0 small">Update subject information</p>
         </div>
-        <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Subjects
+        <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Subject
         </a>
     </div>
 
     <!-- Form Card -->
     <div class="card shadow-lg border-0">
         <div class="card-body p-4">
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <form action="{{ route('admin.subjects.update', $subject->id) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -35,14 +43,13 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="code" class="form-label">Subject Code <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('code') is-invalid @enderror" 
-                                id="code" name="code" value="{{ old('code', $subject->code) }}" required>
-                            <div class="form-text">A unique code to identify the subject (e.g., MATH101)</div>
-                            @error('code')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label for="code" class="form-label">Subject Code</label>
+                            <input type="text" class="form-control bg-light" 
+                                id="code" value="{{ $subject->code }}" readonly>
+                            <div class="form-text">Subject codes cannot be modified</div>
                         </div>
+
+                        <input type="hidden" name="code" value="{{ $subject->code }}">
                     </div>
                     
                     <div class="col-md-6">
@@ -101,7 +108,7 @@
                                         <div class="mb-3">
                                             <label class="form-label">Start Time <span class="text-danger">*</span></label>
                                             <input type="time" class="form-control @error('start_time') is-invalid @enderror" 
-                                                name="start_time" value="{{ old('start_time', $subject->schedules->first()->start_time ?? '') }}" required>
+                                                name="start_time" value="{{ old('start_time', $startTime) }}" required>
                                             @error('start_time')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -111,7 +118,7 @@
                                         <div class="mb-3">
                                             <label class="form-label">End Time <span class="text-danger">*</span></label>
                                             <input type="time" class="form-control @error('end_time') is-invalid @enderror" 
-                                                name="end_time" value="{{ old('end_time', $subject->schedules->first()->end_time ?? '') }}" required>
+                                                name="end_time" value="{{ old('end_time', $endTime) }}" required>
                                             @error('end_time')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -124,7 +131,7 @@
                 </div>
                 
                 <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle me-1"></i> Update Subject
                     </button>

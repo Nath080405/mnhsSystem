@@ -50,22 +50,32 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/sections/{section}', [SectionController::class, 'destroy'])->name('admin.sections.destroy');
 
         // Subject Management Routes
-        Route::get('/subjects', [SubjectController::class, 'index'])->name('admin.subjects.index');
-        Route::get('/subjects/create', [SubjectController::class, 'create'])->name('admin.subjects.create');
-        Route::post('/subjects', [SubjectController::class, 'store'])->name('admin.subjects.store');
-        Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('admin.subjects.edit');
-        Route::put('/subjects/{id}', [SubjectController::class, 'update'])->name('admin.subjects.update');
-        Route::delete('/subjects/{id}', [SubjectController::class, 'destroy'])->name('admin.subjects.destroy');
-        Route::get('/subjects/{id}', [SubjectController::class, 'show'])->name('admin.subjects.show');
+        Route::prefix('subjects')->name('admin.subjects.')->group(function () {
+            Route::get('/', [SubjectController::class, 'index'])->name('index');
+            Route::get('/create', [SubjectController::class, 'create'])->name('create');
+            Route::post('/', [SubjectController::class, 'store'])->name('store');
+            Route::get('/plan', [SubjectController::class, 'plan'])->name('plan');
+            Route::get('/grade/{grade}', [SubjectController::class, 'gradeSubjects'])->name('grade');
+            Route::get('/label/{id}/subjects', [SubjectController::class, 'labelSubjects'])->name('label.subjects');
+            Route::get('/{subject}/edit', [SubjectController::class, 'edit'])->name('edit');
+            Route::put('/{subject}', [SubjectController::class, 'update'])->name('update');
+            Route::delete('/{subject}', [SubjectController::class, 'destroy'])->name('destroy');
+            Route::get('/{subject}', [SubjectController::class, 'show'])->name('show');
+        });
 
         // Teacher Management Routes
         Route::get('/teachers', [TeacherController::class, 'index'])->name('admin.teachers.index');
         Route::get('/teachers/create', [TeacherController::class, 'create'])->name('admin.teachers.create');
         Route::post('/teachers', [TeacherController::class, 'store'])->name('admin.teachers.store');
+        
+        // CSV Import and Template Download for Teachers
+        Route::get('/teachers/template', [TeacherController::class, 'downloadTemplate'])->name('admin.teachers.template');
+        Route::post('/teachers/import', [TeacherController::class, 'importTeachers'])->name('admin.teachers.import');
+        
+        Route::get('/teachers/{id}', [TeacherController::class, 'show'])->name('admin.teachers.show');
         Route::get('/teachers/{id}/edit', [TeacherController::class, 'edit'])->name('admin.teachers.edit');
         Route::put('/teachers/{id}', [TeacherController::class, 'update'])->name('admin.teachers.update');
         Route::delete('/teachers/{id}', [TeacherController::class, 'destroy'])->name('admin.teachers.destroy');
-        Route::get('/teachers/{id}', [TeacherController::class, 'show'])->name('admin.teachers.show');
 
         // Student Management Routes
         Route::get('/students', [StudentController::class, 'index'])->name('admin.students.index');
@@ -75,6 +85,10 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/students/{id}', [StudentController::class, 'update'])->name('admin.students.update');
         Route::delete('/students/{id}', [StudentController::class, 'destroy'])->name('admin.students.destroy');
         Route::get('/students/{id}', [StudentController::class, 'show'])->name('admin.students.show');
+        
+        // CSV Import and Template Download
+        Route::get('/students/template', [StudentController::class, 'downloadTemplate'])->name('admin.students.template');
+        Route::post('/students/import', [StudentController::class, 'importStudents'])->name('admin.students.import');
     });
 
     // Teacher Routes
