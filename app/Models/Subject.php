@@ -15,6 +15,8 @@ class Subject extends Model
         'description',
         'teacher_id',
         'status',
+        'grade_level',
+        'parent_id',
     ];
 
     /**
@@ -34,10 +36,19 @@ class Subject extends Model
     }
 
     /**
-     * Get the grades for the subject.
+
+     * Get the parent subject label.
      */
-    public function grades()
+    public function parent()
     {
-        return $this->hasMany(Grade::class);
+        return $this->belongsTo(Subject::class, 'parent_id');
+    }
+
+    /**
+     * Get the child subjects.
+     */
+    public function children()
+    {
+        return $this->hasMany(Subject::class, 'parent_id');
     }
 } 

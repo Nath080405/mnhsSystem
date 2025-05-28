@@ -9,13 +9,97 @@
             <p class="text-muted mb-0 small">View your profile summary</p>
         </div>
         <a href="{{ route('student.gradebook') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            <i class="bi bi-arrow-left me-1"></i> Back
         </a>
     </div>
 
-    <div class="row">
+   <div class="row">
+        <!-- Profile Information -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <form action="{{ route('student.profile.update') }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->last_name }}" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->first_name }}" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Middle Name</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->middle_name }}" readonly>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Suffix</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->suffix }}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control bg-light" value="{{ $user->email }}" readonly>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">Change Password</h5>
+                        <p class="text-muted small mb-3">You can change your password here.</p>
+
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror">
+                            @error('current_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="form-control @error('new_password') is-invalid @enderror">
+                            @error('new_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" name="new_password_confirmation" class="form-control">
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-key me-1"></i> Update Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Profile Summary -->
-        <div class="col-md-12">
+        <div class="col-md-4">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
@@ -31,91 +115,14 @@
                         </span>
                     </div>
 
-                    <div class="row g-4">
-                        <!-- Academic Information -->
-                        <div class="col-md-6">
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
-                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Academic Information</h6>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Student ID</p>
-                                        <p class="mb-0 fw-medium">{{ $user->student?->student_id ?? 'Not Assigned' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">LRN</p>
-                                        <p class="mb-0 fw-medium">{{ $user->student?->lrn ?? 'Not Assigned' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Grade Level</p>
-                                        <p class="mb-0 fw-medium">{{ $user->student?->grade_level ? 'Grade ' . $user->student->grade_level : 'Not Assigned' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Section</p>
-                                        <p class="mb-0 fw-medium">{{ $user->student?->section ? 'Section ' . $user->student->section : 'Not Assigned' }}</p>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="border-top pt-3">
+                        <div class="mb-3">
+                            <p class="text-muted mb-1 small">Member Since</p>
+                            <p class="mb-0 fw-medium">{{ $user->created_at->format('M d, Y') }}</p>
                         </div>
-
-                        <!-- Contact Information -->
-                        <div class="col-md-6">
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
-                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Contact Information</h6>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Email</p>
-                                        <p class="mb-0 fw-medium">{{ $user->email }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Phone</p>
-                                        <p class="mb-0 fw-medium">{{ $user->student?->phone ?? 'Not provided' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Address</p>
-                                        <p class="mb-0 fw-medium">
-                                            @if($user->student?->street_address || $user->student?->barangay || $user->student?->municipality || $user->student?->province)
-                                                {{ $user->student->street_address }}, {{ $user->student->barangay }}, {{ $user->student->municipality }}, {{ $user->student->province }}
-                                            @else
-                                                Not provided
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Personal Information -->
-                        <div class="col-md-6">
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
-                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">Personal Information</h6>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Gender</p>
-                                        <p class="mb-0 fw-medium">{{ $user->student?->gender ?? 'Not provided' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Birthdate</p>
-                                        <p class="mb-0 fw-medium">{{ $user->student?->birthdate ? $user->student->birthdate->format('M d, Y') : 'Not provided' }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- System Information -->
-                        <div class="col-md-6">
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
-                                    <h6 class="text-muted mb-3 small text-uppercase fw-semibold">System Information</h6>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Member Since</p>
-                                        <p class="mb-0 fw-medium">{{ $user->created_at->format('M d, Y') }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p class="text-muted mb-1 small">Last Updated</p>
-                                        <p class="mb-0 fw-medium">{{ $user->updated_at->format('M d, Y H:i') }}</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mb-3">
+                            <p class="text-muted mb-1 small">Last Updated</p>
+                            <p class="mb-0 fw-medium">{{ $user->updated_at->format('M d, Y H:i') }}</p>
                         </div>
                     </div>
                 </div>
@@ -134,7 +141,7 @@
     border-radius: 50%;
 }
 .avatar-title {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 500;
 }
 .card {
@@ -144,43 +151,21 @@
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
-/* Decreased padding and spacing */
-.card-body {
-    padding: 0.5rem !important;
+.alert {
+    border: none;
+    border-radius: 0.5rem;
 }
-.mb-3 {
-    margin-bottom: 0.25rem !important;
+.alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
 }
-.mb-4 {
-    margin-bottom: 0.35rem !important;
+.alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
 }
-.row.g-4 {
-    --bs-gutter-y: 0.35rem;
-}
-.card.bg-light {
-    margin-bottom: 0.25rem;
-}
-.card.bg-light .card-body {
-    padding: 0.35rem !important;
-}
-/* Increased font sizes */
-h2.fw-bold {
-    font-size: 2rem;
-}
-h4.mb-1 {
-    font-size: 2rem;
-}
-h6.text-muted {
-    font-size: 1.1rem;
-}
-p.text-muted.mb-1.small {
-    font-size: 0.95rem;
-}
-p.mb-0.fw-medium {
-    font-size: 1.1rem;
-}
-.badge {
-    font-size: 0.95rem;
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
 }
 </style>
 @endsection 

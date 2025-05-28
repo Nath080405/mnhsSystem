@@ -35,14 +35,47 @@ Route::middleware('auth')->group(function () {
         // Sections
         Route::resource('sections', SectionController::class)->names('admin.sections');
 
-        // Subjects
-        Route::resource('subjects', SubjectController::class)->names('admin.subjects');
 
-        // Teachers
-        Route::resource('teachers', TeacherController::class)->names('admin.teachers');
+        // Subject Management Routes
+        Route::prefix('subjects')->name('admin.subjects.')->group(function () {
+            Route::get('/', [SubjectController::class, 'index'])->name('index');
+            Route::get('/create', [SubjectController::class, 'create'])->name('create');
+            Route::post('/', [SubjectController::class, 'store'])->name('store');
+            Route::get('/plan', [SubjectController::class, 'plan'])->name('plan');
+            Route::get('/grade/{grade}', [SubjectController::class, 'gradeSubjects'])->name('grade');
+            Route::get('/label/{id}/subjects', [SubjectController::class, 'labelSubjects'])->name('label.subjects');
+            Route::get('/{subject}/edit', [SubjectController::class, 'edit'])->name('edit');
+            Route::put('/{subject}', [SubjectController::class, 'update'])->name('update');
+            Route::delete('/{subject}', [SubjectController::class, 'destroy'])->name('destroy');
+            Route::get('/{subject}', [SubjectController::class, 'show'])->name('show');
+        });
 
-        // Students
-        Route::resource('students', StudentController::class)->names('admin.students');
+        // Teacher Management Routes
+        Route::get('/teachers', [TeacherController::class, 'index'])->name('admin.teachers.index');
+        Route::get('/teachers/create', [TeacherController::class, 'create'])->name('admin.teachers.create');
+        Route::post('/teachers', [TeacherController::class, 'store'])->name('admin.teachers.store');
+        
+        // CSV Import and Template Download for Teachers
+        Route::get('/teachers/template', [TeacherController::class, 'downloadTemplate'])->name('admin.teachers.template');
+        Route::post('/teachers/import', [TeacherController::class, 'importTeachers'])->name('admin.teachers.import');
+        
+        Route::get('/teachers/{id}', [TeacherController::class, 'show'])->name('admin.teachers.show');
+        Route::get('/teachers/{id}/edit', [TeacherController::class, 'edit'])->name('admin.teachers.edit');
+        Route::put('/teachers/{id}', [TeacherController::class, 'update'])->name('admin.teachers.update');
+        Route::delete('/teachers/{id}', [TeacherController::class, 'destroy'])->name('admin.teachers.destroy');
+
+        // Student Management Routes
+        Route::get('/students', [StudentController::class, 'index'])->name('admin.students.index');
+        Route::get('/students/create', [StudentController::class, 'create'])->name('admin.students.create');
+        Route::post('/students', [StudentController::class, 'store'])->name('admin.students.store');
+        Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('admin.students.edit');
+        Route::put('/students/{id}', [StudentController::class, 'update'])->name('admin.students.update');
+        Route::delete('/students/{id}', [StudentController::class, 'destroy'])->name('admin.students.destroy');
+        Route::get('/students/{id}', [StudentController::class, 'show'])->name('admin.students.show');
+        
+        // CSV Import and Template Download
+        Route::get('/students/template', [StudentController::class, 'downloadTemplate'])->name('admin.students.template');
+        Route::post('/students/import', [StudentController::class, 'importStudents'])->name('admin.students.import');
     });
 
     // Teacher routes
