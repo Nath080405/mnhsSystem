@@ -196,17 +196,12 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-medium">Password <span class="text-danger">*</span></label>
-                                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Enter password" required>
-                                            @error('password')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-medium">Confirm Password <span class="text-danger">*</span></label>
-                                            <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm password" required>
+                                        <div class="col-12">
+                                            <div class="alert alert-info mb-0">
+                                                <i class="bi bi-info-circle-fill me-2"></i>
+                                                A temporary password will be automatically generated based on the Employee ID.
+                                            </div>
+                                            <input type="hidden" name="password" id="password">
                                         </div>
                                     </div>
                                 </div>

@@ -15,6 +15,8 @@ class Subject extends Model
         'description',
         'teacher_id',
         'status',
+        'grade_level',
+        'parent_id',
     ];
 
     /**
@@ -31,5 +33,21 @@ class Subject extends Model
     public function schedules()
     {
         return $this->hasMany(Schedule::class);
+    }
+
+    /**
+     * Get the parent subject label.
+     */
+    public function parent()
+    {
+        return $this->belongsTo(Subject::class, 'parent_id');
+    }
+
+    /**
+     * Get the child subjects.
+     */
+    public function children()
+    {
+        return $this->hasMany(Subject::class, 'parent_id');
     }
 } 

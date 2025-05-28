@@ -216,7 +216,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="uploadCsvModalLabel">Import Students from CSV</h5>
+                    <h5 class="modal-title" id="uploadCsvModalLabel">Update Students from CSV</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('teachers.student.import') }}" method="POST" enctype="multipart/form-data">
@@ -226,12 +226,24 @@
                             <label for="csvFile" class="form-label">Select CSV File</label>
                             <input type="file" class="form-control" id="csvFile" name="csv_file" accept=".csv" required>
                             <div class="form-text">
-                                The CSV file should have the following columns: last_name, first_name, middle_name, suffix, email, lrn, gender, birthdate, phone, street_address, barangay, municipality, province
+                                The CSV file should have the following columns:
+                                <ul class="mb-0 mt-1">
+                                    <li><strong>Required:</strong> last_name, first_name, email, lrn</li>
+                                    <li><strong>Optional:</strong> middle_name, suffix, street_address, barangay, municipality, province, phone, birthdate, gender</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            <strong>Note:</strong> Make sure your CSV file follows the required format. Download the template below.
+                            <strong>Note:</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>This will only update existing students. New students cannot be created through CSV import.</li>
+                                <li>Make sure your CSV file follows the required format</li>
+                                <li>Dates must be in YYYY-MM-DD format</li>
+                                <li>Gender must be one of: Male, Female, Other</li>
+                                <li>Email addresses must be valid</li>
+                                <li>LRN must match an existing student record</li>
+                            </ul>
                         </div>
                         <a href="{{ route('teachers.student.template') }}" class="btn btn-outline-primary btn-sm">
                             <i class="bi bi-download me-1"></i> Download Template
@@ -239,7 +251,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Import</button>
+                        <button type="submit" class="btn btn-primary">Update Students</button>
                     </div>
                 </form>
             </div>

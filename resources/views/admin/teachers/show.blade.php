@@ -75,7 +75,16 @@
                                         </div>
                                         <div class="info-item">
                                             <label>Address</label>
-                                            <p>{{ $teacher->teacher?->address ?? 'Not provided' }}</p>
+                                            <p>
+                                                @if($teacher->teacher?->street_address || $teacher->teacher?->barangay || $teacher->teacher?->municipality || $teacher->teacher?->province)
+                                                    {{ $teacher->teacher?->street_address ? $teacher->teacher->street_address . ', ' : '' }}
+                                                    {{ $teacher->teacher?->barangay ? $teacher->teacher->barangay . ', ' : '' }}
+                                                    {{ $teacher->teacher?->municipality ? $teacher->teacher->municipality . ', ' : '' }}
+                                                    {{ $teacher->teacher?->province ? $teacher->teacher->province : '' }}
+                                                @else
+                                                    Not provided
+                                                @endif
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -96,36 +105,9 @@
                                             <label>Date Joined</label>
                                             <p>{{ $teacher->teacher?->date_joined ? $teacher->teacher->date_joined->format('M d, Y') : 'Not provided' }}</p>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="info-card">
-                                    <div class="card-header-custom">
-                                        <i class="bi bi-gear me-2"></i>
-                                        <span>System Information</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-4">
-                                            <div class="col-md-4">
-                                                <div class="info-item">
-                                                    <label>Role</label>
-                                                    <p>{{ ucfirst($teacher->role) }}</p>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="info-item">
-                                                    <label>Last Updated</label>
-                                                    <p>{{ $teacher->updated_at->format('M d, Y H:i') }}</p>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="info-item">
-                                                    <label>Created At</label>
-                                                    <p>{{ $teacher->created_at->format('M d, Y H:i') }}</p>
-                                                </div>
-                                            </div>
+                                        <div class="info-item">
+                                            <label>Role</label>
+                                            <p>{{ ucfirst($teacher->role) }}</p>
                                         </div>
                                     </div>
                                 </div>
