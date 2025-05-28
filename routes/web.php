@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/events', [TeacherEventController::class, 'index'])->name('teachers.event.index');
         Route::post('/events/preview', [TeacherEventController::class, 'preview'])->name('teachers.event.preview');
         Route::get('/events/{event}', [TeacherEventController::class, 'showEvent'])->name('teachers.event.show');
+        Route::delete('/events/{id}', [TeacherEventController::class, 'destroy'])->name('teachers.event.destroy');
 
         // Profile
         Route::get('/profile', [TeacherDashboardController::class, 'profile'])->name('teachers.profile');

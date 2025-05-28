@@ -86,15 +86,18 @@ class EventController extends Controller
 
     public function destroy($id)
     {
-        try {
-            $event = Event::findOrFail($id);
-            $event->delete();
+        $event = Event::where('event_id', $id)
+                      ->where('created_by', auth()->id())
+                      ->firstOrFail();
 
-            return redirect()->route('admin.events.index')
-                ->with('success', 'Event deleted successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Failed to delete event. Please try again.');
+        $event->delete();
+
+        // If AJAX, return JSON
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
         }
+
+        // Otherwise, redirect
+        return redirect()->route('admin.events.index')->with('success', 'Event deleted successfully.');
     }
 } 
