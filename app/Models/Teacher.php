@@ -31,12 +31,12 @@ class Teacher extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function subjects()
     {
-        return $this->hasMany(Subject::class, 'teacher_id', 'user_id');
+        return $this->hasMany(Subject::class, 'teacher_id', 'user_id')->withTrashed();
     }
 
     public function getFullAddressAttribute()
