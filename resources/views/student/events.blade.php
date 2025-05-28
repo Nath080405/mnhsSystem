@@ -1,149 +1,153 @@
 @extends('layouts.studentApp')
 
 @section('content')
-<div class="container-fluid" style="background-color: #f2f0f1; min-height: 100vh;">
-    <div class="row">
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-12 ms-auto">
-            <div class="p-4">
-                <!-- Header -->
-                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2" style="border-color: black !important;">
-                    <div>
-                        <p class="mb-1 text-black-50" style="font-size: 0.9rem;">Overview</p>
-                        <h3 class="mb-0 fw-bold text-black">School Events</h3>
-                    </div>
-                </div>
+<div class="container-fluid py-3">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #0d6efd;">School Events</h2>
+            <p class="text-muted mb-0 small">View and track upcoming school events and activities</p>
+        </div>
+    </div>
 
-                <!-- Recent Events Section -->
-                @if($recentEvents->count() > 0)
-                    <div class="mb-4">
-                        <h5 class="fw-bold mb-3">Recent Events</h5>
-                        <div class="events-section">
+    <!-- Main Content -->
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-4">
+            @if($recentEvents->count() > 0 || $oldEvents->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="color: #0d6efd;">Event Details</th>
+                                <th style="color: #0d6efd;">Schedule</th>
+                                <th style="color: #0d6efd;">Location</th>
+                                <th style="color: #0d6efd;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             @foreach($recentEvents as $event)
-                                <div class="card shadow-sm border-0 mb-3" style="background: linear-gradient(145deg, #ffe5ec, #fcd0e4); border-left: 6px solid #ff66a3;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-3">
-                                            <div>
-                                                <h5 class="fw-bold text-secondary mb-2">{{ $event->title }}</h5>
-                                                <p class="text-dark small mb-2">{{ Str::limit($event->description, 100, '...') }}</p>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-calendar-event" style="color: #6f4ef2;"></i>
                                             </div>
-                                            <div class="d-flex flex-column align-items-end">
-                                                <span class="badge {{ $event->status === 'Upcoming' ? 'bg-success' : ($event->status === 'Completed' ? 'bg-secondary' : 'bg-danger') }} px-3 py-2 mb-2">
-                                                    {{ $event->status }}
-                                                </span>
+                                            <div>
+                                                <div class="fw-medium">
+                                                    {{ $event->title }}
+                                                    <span class="badge bg-danger ms-2">Recent</span>
+                                                </div>
+                                                <div class="small text-muted">{{ Str::limit($event->description, 50) }}</div>
                                             </div>
                                         </div>
-                                        
-                                        <div class="event-details d-flex flex-wrap gap-4">
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-calendar-event text-primary me-2"></i>
-                                                <span class="text-dark">
-                                                    {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
-                                                </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-clock text-info"></i>
                                             </div>
-                                            
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-clock text-primary me-2"></i>
-                                                <span class="text-dark">
+                                            <div>
+                                                <div class="fw-medium">{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</div>
+                                                <div class="small text-muted">
                                                     {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - 
                                                     {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}
-                                                </span>
-                                            </div>
-                                            
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-geo-alt text-primary me-2"></i>
-                                                <span class="text-dark">{{ $event->location }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-geo-alt text-warning"></i>
+                                            </div>
+                                            <span class="fw-medium">{{ $event->location }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $event->status === 'Upcoming' ? 'success' : ($event->status === 'Completed' ? 'info' : 'danger') }}">
+                                            <i class="bi bi-{{ $event->status === 'Upcoming' ? 'clock' : ($event->status === 'Completed' ? 'check-circle' : 'x-circle') }} me-1"></i>
+                                            {{ $event->status }}
+                                        </span>
+                                    </td>
+                                </tr>
                             @endforeach
-                        </div>
-                    </div>
-                @endif
 
-                <!-- Old Events Section -->
-                @if($oldEvents->count() > 0)
-                    <div>
-                        <h5 class="fw-bold mb-3">Previous Events</h5>
-                        <div class="events-section">
                             @foreach($oldEvents as $event)
-                                <div class="card shadow-sm border-0 mb-3" style="background: linear-gradient(145deg, #ffe5ec, #fcd0e4); border-left: 6px solid #ff66a3;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-3">
-                                            <div>
-                                                <h5 class="fw-bold text-secondary mb-2">{{ $event->title }}</h5>
-                                                <p class="text-dark small mb-2">{{ Str::limit($event->description, 100, '...') }}</p>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-calendar-event" style="color: #6f4ef2;"></i>
                                             </div>
-                                            <div class="d-flex flex-column align-items-end">
-                                                <span class="badge {{ $event->status === 'Upcoming' ? 'bg-success' : ($event->status === 'Completed' ? 'bg-secondary' : 'bg-danger') }} px-3 py-2 mb-2">
-                                                    {{ $event->status }}
-                                                </span>
+                                            <div>
+                                                <div class="fw-medium">{{ $event->title }}</div>
+                                                <div class="small text-muted">{{ Str::limit($event->description, 50) }}</div>
                                             </div>
                                         </div>
-                                        
-                                        <div class="event-details d-flex flex-wrap gap-4">
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-calendar-event text-primary me-2"></i>
-                                                <span class="text-dark">
-                                                    {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
-                                                </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-clock text-info"></i>
                                             </div>
-                                            
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-clock text-primary me-2"></i>
-                                                <span class="text-dark">
+                                            <div>
+                                                <div class="fw-medium">{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</div>
+                                                <div class="small text-muted">
                                                     {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - 
                                                     {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}
-                                                </span>
-                                            </div>
-                                            
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-geo-alt text-primary me-2"></i>
-                                                <span class="text-dark">{{ $event->location }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
+                                                <i class="bi bi-geo-alt text-warning"></i>
+                                            </div>
+                                            <span class="fw-medium">{{ $event->location }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $event->status === 'Upcoming' ? 'success' : ($event->status === 'Completed' ? 'info' : 'danger') }}">
+                                            <i class="bi bi-{{ $event->status === 'Upcoming' ? 'clock' : ($event->status === 'Completed' ? 'check-circle' : 'x-circle') }} me-1"></i>
+                                            {{ $event->status }}
+                                        </span>
+                                    </td>
+                                </tr>
                             @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                @if($recentEvents->count() === 0 && $oldEvents->count() === 0)
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
-                        <p class="mt-2 mb-0">No events found.</p>
-                    </div>
-                @endif
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                    <p class="mt-2 mb-0">No events found.</p>
+                </div>
+            @endif
         </div>
     </div>
 </div>
 
 <style>
 .card {
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
-}
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-.shadow-sm {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    border-radius: 1rem;
 }
 .badge {
-    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
 }
-.event-details {
-    font-size: 0.9rem;
+.avatar-sm {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.card-body {
-    transition: all 0.3s ease;
+.table > :not(caption) > * > * {
+    padding: 1rem;
 }
-.card:hover .card-body {
-    background: linear-gradient(145deg, #ffd6e4, #f8b8d0);
+.table-hover tbody tr:hover {
+    background-color: rgba(111, 78, 242, 0.05);
 }
 </style>
 @endsection
