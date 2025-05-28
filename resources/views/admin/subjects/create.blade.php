@@ -8,24 +8,14 @@
             <h2 class="fw-bold mb-1 text-primary">Add New Subject</h2>
             <p class="text-muted mb-0 small">Create a new subject</p>
         </div>
-        <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Subject
+        <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Subjects
         </a>
     </div>
 
     <!-- Form Card -->
     <div class="card shadow-lg border-0">
         <div class="card-body p-4">
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <form action="{{ route('admin.subjects.store') }}" method="POST">
                 @csrf
                 
@@ -42,23 +32,16 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
+                        
                         <div class="mb-3">
-                            <label for="code" class="form-label">Subject Code</label>
-                            <input type="text" class="form-control bg-light" 
-                                id="code" value="Will be auto-generated" readonly>
-                            <div class="form-text">
-                                @if(request('parent_id'))
-                                    Format: [Label Prefix][Grade Level][Sequence Number] (e.g., ENG0700001)
-                                @else
-                                    Format: [Subject Prefix][Grade Level][Sequence Number] (e.g., ENG700001)
-                                @endif
-                            </div>
+                            <label for="code" class="form-label">Subject Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('code') is-invalid @enderror" 
+                                id="code" name="code" value="{{ old('code') }}" required>
+                            <div class="form-text">A unique code to identify the subject (e.g., MATH101)</div>
+                            @error('code')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-
-                        <input type="hidden" name="grade_level" value="{{ request('grade_level') }}">
-                        <input type="hidden" name="parent_id" value="{{ request('parent_id') }}">
-                        <input type="hidden" name="status" value="active">
                     </div>
                     
                     <div class="col-md-6">
@@ -75,6 +58,26 @@
                                 @endforeach
                             </select>
                             @error('teacher_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                            <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
+                                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control @error('description') is-invalid @enderror" 
+                                id="description" name="description" rows="4">{{ old('description') }}</textarea>
+                            @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -97,7 +100,7 @@
                                         <div class="mb-3">
                                             <label class="form-label">Start Time <span class="text-danger">*</span></label>
                                             <input type="time" class="form-control @error('start_time') is-invalid @enderror" 
-                                                name="start_time" value="{{ old('start_time') }}" required>
+                                                name="start_time" required>
                                             @error('start_time')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -107,7 +110,7 @@
                                         <div class="mb-3">
                                             <label class="form-label">End Time <span class="text-danger">*</span></label>
                                             <input type="time" class="form-control @error('end_time') is-invalid @enderror" 
-                                                name="end_time" value="{{ old('end_time') }}" required>
+                                                name="end_time" required>
                                             @error('end_time')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -120,9 +123,9 @@
                 </div>
                 
                 <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle me-1"></i> Add Subject
+                        <i class="bi bi-check-circle me-1"></i> Create Subject
                     </button>
                 </div>
             </form>
@@ -141,4 +144,55 @@
     background-color: #f8f9fa;
 }
 </style>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('schedules-container');
+    const form = document.querySelector('form');
+
+    // Validate time conflicts
+    const validateTimeConflicts = () => {
+        const schedules = container.querySelectorAll('.schedule-item');
+        const conflicts = [];
+
+        schedules.forEach((schedule, i) => {
+            const day = schedule.querySelector(`select[name="schedules[${i}][day]"]`).value;
+            const startTime = schedule.querySelector(`input[name="schedules[${i}][start_time]"]`).value;
+            const endTime = schedule.querySelector(`input[name="schedules[${i}][end_time]"]`).value;
+
+            if (day && startTime && endTime) {
+                schedules.forEach((otherSchedule, j) => {
+                    if (i !== j) {
+                        const otherDay = otherSchedule.querySelector(`select[name="schedules[${j}][day]"]`).value;
+                        const otherStartTime = otherSchedule.querySelector(`input[name="schedules[${j}][start_time]"]`).value;
+                        const otherEndTime = otherSchedule.querySelector(`input[name="schedules[${j}][end_time]"]`).value;
+
+                        if (day === otherDay && 
+                            ((startTime >= otherStartTime && startTime < otherEndTime) ||
+                             (endTime > otherStartTime && endTime <= otherEndTime) ||
+                             (startTime <= otherStartTime && endTime >= otherEndTime))) {
+                            conflicts.push(`Schedule ${i + 1} conflicts with Schedule ${j + 1}`);
+                        }
+                    }
+                });
+            }
+        });
+
+        return conflicts;
+    };
+
+    // Add validation before form submission
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const conflicts = validateTimeConflicts();
+            if (conflicts.length > 0) {
+                e.preventDefault();
+                alert('Schedule conflicts detected:\n' + conflicts.join('\n'));
+            }
+        });
+    }
+});
+</script>
+@endpush
 @endsection 

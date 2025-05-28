@@ -13,10 +13,8 @@ class SubjectController extends Controller
     public function index(Request $request)
     {
         $selectedFilter = $request->get('filter');
-        $selectedGrade = $request->get('grade');
         
         $query = Subject::with(['teacher', 'schedules'])
-            ->whereNull('parent_id')  // Only get parent subjects (subject labels)
             ->orderBy('created_at', 'desc');
 
         if ($selectedFilter === 'active') {
@@ -25,143 +23,65 @@ class SubjectController extends Controller
             $query->where('status', 'inactive');
         }
 
-        if ($selectedGrade) {
-            $query->where('grade_level', $selectedGrade);
-        }
-
         $subjects = $query->get();
 
-        // Get unique grade levels for the filter
-        $gradeLevels = Subject::whereNull('parent_id')  // Only get grade levels from parent subjects
-            ->select('grade_level')
-            ->distinct()
-            ->orderBy('grade_level')
-            ->pluck('grade_level');
-
-        return view('admin.subjects.subjectlist.index', compact('subjects', 'selectedFilter', 'selectedGrade', 'gradeLevels'));
+        return view('admin.subjects.index', compact('subjects', 'selectedFilter'));
     }
 
     public function create()
     {
         $teachers = User::where('role', 'teacher')->get();
         \Log::info('Teachers found:', ['count' => $teachers->count(), 'teachers' => $teachers->toArray()]);
-        return view('admin.subjects.subjectlist.create', compact('teachers'));
+        return view('admin.subjects.create', compact('teachers'));
     }
 
     public function store(Request $request)
     {
         \Log::info('Received request data:', $request->all());
 
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:20|unique:subjects,code',
+            'description' => 'nullable|string',
+            'teacher_id' => 'nullable|exists:users,id',
+            'status' => 'required|in:active,inactive',
+            'start_time' => 'required',
+            'end_time' => 'required',
+        ]);
+
+        \Log::info('Validated data:', $validated);
+
+        DB::beginTransaction();
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'grade_level' => 'required|string',
-                'status' => 'required|in:active,inactive',
-                'parent_id' => 'nullable|exists:subjects,id',
-                'teacher_id' => 'nullable|exists:users,id',
-                'start_time' => 'nullable',
-                'end_time' => 'nullable',
-            ]);
+            $subject = Subject::create($validated);
 
-            \Log::info('Validated data:', $validated);
-
-            DB::beginTransaction();
-            
-            // Generate a unique code based on the parent subject label and grade level
-            $parentId = $request->input('parent_id');
-            if ($parentId) {
-                // Get the parent subject (label)
-                $parentSubject = Subject::findOrFail($parentId);
-                $subjectPrefix = strtoupper(substr(preg_replace('/[^a-zA-Z0-9]/', '', $parentSubject->name), 0, 3));
-            } else {
-                // For subject labels, use their own name
-                $subjectPrefix = strtoupper(substr(preg_replace('/[^a-zA-Z0-9]/', '', $validated['name']), 0, 3));
-            }
-            
-            $gradeLevel = preg_replace('/[^0-9]/', '', $validated['grade_level']);
-            
-            // Get the latest subject code for this prefix and grade level
-            $latestSubject = Subject::where('code', 'like', $subjectPrefix . $gradeLevel . '%')
-                ->orderBy('code', 'desc')
-                ->first();
-            
-            $sequence = 1;
-            if ($latestSubject) {
-                // Extract the sequence number from the latest code and increment
-                $lastSequence = intval(substr($latestSubject->code, -5));
-                $sequence = $lastSequence + 1;
-            }
-            
-            $code = $subjectPrefix . $gradeLevel . str_pad($sequence, 5, '0', STR_PAD_LEFT);
-            
-            $subject = Subject::create([
-                'name' => $validated['name'],
-                'code' => $code,
-                'grade_level' => $validated['grade_level'],
-                'status' => $validated['status'],
-                'description' => '',
-                'parent_id' => $parentId,
-                'teacher_id' => $validated['teacher_id'] ?? null,
-            ]);
-
-            // Only create schedules if start_time and end_time are provided
-            if ($request->filled(['start_time', 'end_time'])) {
-                $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                foreach ($days as $day) {
-                    $subject->schedules()->create([
-                        'day' => $day,
-                        'start_time' => $validated['start_time'],
-                        'end_time' => $validated['end_time'],
-                    ]);
-                }
+            // Create schedules for all days of the week
+            $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            foreach ($days as $day) {
+                $subject->schedules()->create([
+                    'day' => $day,
+                    'start_time' => $request->start_time,
+                    'end_time' => $request->end_time,
+                ]);
             }
 
             DB::commit();
-
-            // Determine where to redirect based on the previous URL
-            $previousUrl = url()->previous();
-            
-            if (str_contains($previousUrl, '/grade/')) {
-                // If coming from grade view, redirect back to grade view
-                return redirect()->route('admin.subjects.grade', $validated['grade_level'])
-                    ->with('success', 'Subject added successfully!');
-            } elseif (isset($validated['parent_id'])) {
-                // If adding a child subject, redirect to label subjects view
-                return redirect()->route('admin.subjects.label.subjects', $validated['parent_id'])
-                    ->with('success', 'Subject added successfully!');
-            } else {
-                // Default redirect to subject list
-                return redirect()->route('admin.subjects.index')
-                    ->with('success', 'Subject added successfully!');
-            }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation error:', ['errors' => $e->errors()]);
-            return back()->withErrors($e->errors())->withInput();
+            return redirect()->route('admin.subjects.index')->with('success', 'Subject added successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error creating subject:', ['error' => $e->getMessage()]);
-            return back()->with('error', 'Failed to create subject: ' . $e->getMessage())->withInput();
+            \Log::error('Error creating subject:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->with('error', 'Failed to create subject. Please try again.');
         }
     }
 
     public function edit($id)
     {
-        $subject = Subject::with(['teacher', 'schedules'])->findOrFail($id);
+        $subject = Subject::with('schedules')->findOrFail($id);
         $teachers = User::where('role', 'teacher')->get();
-        
-        // Get the first schedule's time if it exists
-        $firstSchedule = $subject->schedules->first();
-        $startTime = $firstSchedule ? $firstSchedule->start_time : '';
-        $endTime = $firstSchedule ? $firstSchedule->end_time : '';
-        
-        \Log::info('Subject being edited:', [
-            'subject' => $subject->toArray(),
-            'schedules' => $subject->schedules->toArray(),
-            'start_time' => $startTime,
-            'end_time' => $endTime
-        ]);
-        
-        return view('admin.subjects.subjectlist.edit', compact('subject', 'teachers', 'startTime', 'endTime'));
+        return view('admin.subjects.edit', compact('subject', 'teachers'));
     }
 
     public function update(Request $request, $id)
@@ -178,89 +98,35 @@ class SubjectController extends Controller
             'end_time' => 'required',
         ]);
 
-        try {
-            DB::beginTransaction();
+        $subject->update($validated);
 
-            $subject->update($validated);
+        // Delete all existing schedules
+        $subject->schedules()->delete();
 
-            // Delete all existing schedules
-            $subject->schedules()->delete();
-
-            // Create new schedules for all days
-            $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            foreach ($days as $day) {
-                $subject->schedules()->create([
-                    'day' => $day,
-                    'start_time' => $request->start_time,
-                    'end_time' => $request->end_time,
-                ]);
-            }
-
-            DB::commit();
-
-            // Determine where to redirect based on the previous URL
-            $previousUrl = url()->previous();
-            
-            if (str_contains($previousUrl, '/grade/')) {
-                // If coming from grade view, redirect back to grade view
-                return redirect()->route('admin.subjects.grade', $subject->grade_level)
-                    ->with('success', 'Subject updated successfully!');
-            } elseif ($subject->parent_id) {
-                // If editing a child subject, redirect to label subjects view
-                return redirect()->route('admin.subjects.label.subjects', $subject->parent_id)
-                    ->with('success', 'Subject updated successfully!');
-            } else {
-                // Default redirect to subject list
-                return redirect()->route('admin.subjects.index')
-                    ->with('success', 'Subject updated successfully!');
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error updating subject:', ['error' => $e->getMessage()]);
-            return back()->with('error', 'Failed to update subject: ' . $e->getMessage())->withInput();
+        // Create new schedules for all days
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        foreach ($days as $day) {
+            $subject->schedules()->create([
+                'day' => $day,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+            ]);
         }
+
+        return redirect()->route('admin.subjects.index')->with('success', 'Subject updated successfully!');
     }
 
     public function destroy($id)
     {
         try {
             $subject = Subject::findOrFail($id);
-            $parentId = $subject->parent_id;
-            $gradeLevel = $subject->grade_level;
             $subject->delete();
 
-            // Determine where to redirect based on the previous URL
-            $previousUrl = url()->previous();
-            
-            if (str_contains($previousUrl, '/grade/')) {
-                // If coming from grade view, redirect back to grade view
-                return redirect()->route('admin.subjects.grade', $gradeLevel)
-                    ->with('success', 'Subject deleted successfully');
-            } elseif ($parentId) {
-                // If deleting a child subject, redirect to label subjects view
-                return redirect()->route('admin.subjects.label.subjects', $parentId)
-                    ->with('success', 'Subject deleted successfully');
-            } else {
-                // Default redirect to subject list
-                return redirect()->route('admin.subjects.index')
-                    ->with('success', 'Subject deleted successfully');
-            }
+            return redirect()->route('admin.subjects.index')
+                ->with('success', 'Subject deleted successfully');
         } catch (\Exception $e) {
-            \Log::error('Error deleting subject:', ['error' => $e->getMessage()]);
-            
-            // Determine where to redirect based on the previous URL
-            $previousUrl = url()->previous();
-            
-            if (str_contains($previousUrl, '/grade/')) {
-                return redirect()->route('admin.subjects.grade', $gradeLevel)
-                    ->with('error', 'Failed to delete subject. Please try again.');
-            } elseif ($parentId) {
-                return redirect()->route('admin.subjects.label.subjects', $parentId)
-                    ->with('error', 'Failed to delete subject. Please try again.');
-            } else {
-                return redirect()->route('admin.subjects.index')
-                    ->with('error', 'Failed to delete subject. Please try again.');
-            }
+            return redirect()->route('admin.subjects.index')
+                ->with('error', 'Failed to delete subject. Please try again.');
         }
     }
 
@@ -269,44 +135,5 @@ class SubjectController extends Controller
         $subject = Subject::with('teacher')->findOrFail($id);
         \Log::info('Subject with teacher:', ['subject' => $subject->toArray()]);
         return view('admin.subjects.show', compact('subject'));
-    }
-
-    public function plan()
-    {
-        // Get subjects grouped by grade level
-        $juniorHighSubjects = Subject::where('grade_level', 'like', 'Grade%')
-            ->where('grade_level', 'not like', 'Grade 11%')
-            ->where('grade_level', 'not like', 'Grade 12%')
-            ->orderBy('grade_level')
-            ->get();
-
-        $seniorHighSubjects = Subject::where('grade_level', 'like', 'Grade 11%')
-            ->orWhere('grade_level', 'like', 'Grade 12%')
-            ->orderBy('grade_level')
-            ->get();
-
-        return view('admin.subjects.subjectplan.plan', compact('juniorHighSubjects', 'seniorHighSubjects'));
-    }
-
-    public function gradeSubjects($grade)
-    {
-        $subjects = Subject::where('grade_level', $grade)
-            ->whereNull('parent_id')  // Only get parent subjects (subject labels)
-            ->orderBy('name')
-            ->get();
-        
-        $teachers = User::where('role', 'teacher')->get();
-        
-        return view('admin.subjects.subjectplan.grade', compact('subjects', 'grade', 'teachers'));
-    }
-
-    public function labelSubjects($id)
-    {
-        $subjectLabel = Subject::findOrFail($id);
-        $subjects = Subject::where('parent_id', $id)
-            ->orderBy('name')
-            ->get();
-        
-        return view('admin.subjects.subjectlist.label_subjects', compact('subjectLabel', 'subjects'));
     }
 } 

@@ -27,14 +27,9 @@
                 </div>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.subjects.*')) active @endif" data-bs-toggle="collapse" href="#subjectsSubmenu" role="button">
+                <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.subjects.index')) active @endif" href="{{ route('admin.subjects.index') }}">
                     <i class="bi bi-book-fill me-3"></i> Subjects
-                    <i class="bi bi-chevron-down ms-auto small"></i>
                 </a>
-                <div class="collapse ps-4" id="subjectsSubmenu">
-                    <a href="{{ route('admin.subjects.index') }}" class="nav-link materio-sublink">Subject List</a>
-                    <a href="{{ route('admin.subjects.plan') }}" class="nav-link materio-sublink">Subject Plan</a>
-                </div>
             </li>
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.sections.index')) active @endif" href="{{ route('admin.sections.index') }}">

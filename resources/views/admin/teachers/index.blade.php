@@ -15,12 +15,6 @@
                     </span>
                     <input type="text" name="search" class="form-control border-start-0" placeholder="Search teachers..." value="{{ request('search') }}">
                 </div>
-
-                <!-- CSV Import Button -->
-                <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadCsvModal">
-                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Import CSV
-                </button>
-
                 <a href="{{ route('admin.teachers.create') }}" class="btn btn-primary shadow-sm">
                     <i class="bi bi-plus-lg me-1"></i> Add Teacher
                 </a>
@@ -75,6 +69,7 @@
                                             </div>
                                             <div>
                                                 <div class="fw-medium">{{ $teacher->formal_name }}</div>
+                                                <div class="small text-muted">{{ $teacher->email }}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -169,51 +164,6 @@
                         {{ $teachers->links() }}
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CSV Upload Modal -->
-    <div class="modal fade" id="uploadCsvModal" tabindex="-1" aria-labelledby="uploadCsvModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="uploadCsvModalLabel">Import Teachers from CSV</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{ route('admin.teachers.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="csvFile" class="form-label">Select CSV File</label>
-                            <input type="file" class="form-control" id="csvFile" name="csv_file" accept=".csv" required>
-                            <div class="form-text">
-                                The CSV file should have the following columns:
-                                <ul class="mb-0 mt-1">
-                                    <li><strong>Required:</strong> last_name, first_name, email, gender, date_joined</li>
-                                    <li><strong>Optional:</strong> middle_name, suffix, street_address, barangay, municipality, province, phone, birthdate</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <strong>Note:</strong>
-                            <ul class="mb-0 mt-1">
-                                <li>Make sure your CSV file follows the required format</li>
-                                <li>Dates must be in MM/DD/YYYY format</li>
-                                <li>Gender must be one of: Male, Female, Other</li>
-                                <li>Email addresses must be valid</li>
-                            </ul>
-                        </div>
-                        <a href="{{ route('admin.teachers.template') }}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-download me-1"></i> Download Template
-                        </a>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Import</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

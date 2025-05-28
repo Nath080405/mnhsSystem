@@ -175,38 +175,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Account Information -->
-                        <div class="col-md-6">
-                            <div class="info-card h-100">
-                                <div class="card-header-custom">
-                                    <i class="bi bi-shield-lock me-2"></i>
-                                    <span>Account Information</span>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <div class="alert alert-info mb-0">
-                                                <i class="bi bi-info-circle-fill me-2"></i>
-                                                Leave password fields empty to keep the current password.
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-medium">Password</label>
-                                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Enter new password">
-                                            @error('password')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-medium">Confirm Password</label>
-                                            <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm new password">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-4">

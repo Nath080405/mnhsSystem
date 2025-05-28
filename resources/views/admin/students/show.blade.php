@@ -109,9 +109,36 @@
                                             <label>Section</label>
                                             <p>{{ $student->student?->section ? 'Section ' . $student->student->section : 'Not Assigned' }}</p>
                                         </div>
-                                        <div class="info-item">
-                                            <label>Role</label>
-                                            <p>{{ ucfirst($student->role) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-card">
+                                    <div class="card-header-custom">
+                                        <i class="bi bi-gear me-2"></i>
+                                        <span>System Information</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-4">
+                                            <div class="col-md-4">
+                                                <div class="info-item">
+                                                    <label>Role</label>
+                                                    <p>{{ ucfirst($student->role) }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="info-item">
+                                                    <label>Last Updated</label>
+                                                    <p>{{ $student->updated_at->format('M d, Y H:i') }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="info-item">
+                                                    <label>Created At</label>
+                                                    <p>{{ $student->created_at->format('M d, Y H:i') }}</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -197,43 +197,20 @@ class TeacherController extends Controller
     }
 
     /**
-     * Show the form for editing a specific student.
+     * Show the form for editing a specific subject.
      */
     public function edit($id)
     {
-        $teacher = auth()->user();
-        $section = Section::where('adviser_id', $teacher->id)->first();
-
-        if (!$section) {
-            return redirect()->route('teachers.student.index')
-                ->with('error', 'You are not assigned to any section. Please contact the administrator.');
-        }
-
-        $student = Student::with('user')
-            ->where('user_id', $id)
-            ->where('section', $section->name)
-            ->firstOrFail();
-
-        return view('teachers.student.edit', compact('student', 'section'));
+        $student = Student::with('user')->where('user_id', $id)->firstOrFail();
+        return view('teachers.student.edit', compact('student'));
     }
 
     /**
-     * Handle the update of a student.
+     * Handle the update of a subject.
      */
     public function update(Request $request, $id)
     {
-        $teacher = auth()->user();
-        $section = Section::where('adviser_id', $teacher->id)->first();
-
-        if (!$section) {
-            return redirect()->route('teachers.student.index')
-                ->with('error', 'You are not assigned to any section. Please contact the administrator.');
-        }
-
-        // Verify the student belongs to the teacher's section
-        $student = Student::where('user_id', $id)
-            ->where('section', $section->name)
-            ->firstOrFail();
+        $student = Student::with('user')->where('user_id', $id)->firstOrFail();
 
         $validated = $request->validate([
             'last_name' => 'required|string|max:255',
@@ -244,6 +221,7 @@ class TeacherController extends Controller
             'gender' => 'required|string|in:Male,Female,Other',
             'birthdate' => 'required|date',
             'lrn' => 'required|string|unique:students,lrn,' . $id . ',user_id',
+            'grade_level' => 'required|string',
             'phone' => 'nullable|string|max:20',
             'street_address' => 'nullable|string|max:255',
             'barangay' => 'nullable|string|max:255',
@@ -267,13 +245,12 @@ class TeacherController extends Controller
                 'gender' => $validated['gender'],
                 'birthdate' => $validated['birthdate'],
                 'lrn' => $validated['lrn'],
+                'grade_level' => $validated['grade_level'],
                 'phone' => $validated['phone'],
                 'street_address' => $validated['street_address'],
                 'barangay' => $validated['barangay'],
                 'municipality' => $validated['municipality'],
                 'province' => $validated['province'],
-                'grade_level' => $section->grade_level, // Keep the section's grade level
-                'section' => $section->name, // Keep the section name
             ]);
 
             DB::commit();
@@ -358,15 +335,6 @@ class TeacherController extends Controller
 }
 public function storeStudent(Request $request)
 {
-    // Get the teacher's assigned section first
-    $teacher = auth()->user();
-    $section = Section::where('adviser_id', $teacher->id)->first();
-
-    if (!$section) {
-        return redirect()->route('teachers.student.index')
-            ->with('error', 'You are not assigned to any section. Please contact the administrator.');
-    }
-
     // Validate the student data
     $request->validate([
         'last_name' => 'required|string|max:255',
@@ -377,6 +345,8 @@ public function storeStudent(Request $request)
         'gender' => 'required|string|in:Male,Female,Other',
         'birthdate' => 'required|date',
         'lrn' => 'required|string|unique:students,lrn',
+        'grade_level' => 'required|string',
+        'section' => 'required|string',
         'phone' => 'nullable|string|max:20',
         'street_address' => 'nullable|string|max:255',
         'barangay' => 'nullable|string|max:255',
@@ -407,7 +377,7 @@ public function storeStudent(Request $request)
             'role' => 'student',
         ]);
 
-        // Create student record with teacher's section and grade level
+        // Create student record
         Student::create([
             'user_id' => $user->id,
             'student_id' => $studentId,
@@ -419,8 +389,8 @@ public function storeStudent(Request $request)
             'phone' => $request->phone,
             'birthdate' => $request->birthdate,
             'gender' => $request->gender,
-            'grade_level' => $section->grade_level, // Use section's grade level
-            'section' => $section->name, // Use section's name
+            'grade_level' => $request->grade_level,
+            'section' => $request->section,
             'status' => 'active',
         ]);
 
@@ -554,13 +524,13 @@ public function destroy($id)
             'suffix',
             'email',
             'lrn',
+            'gender',
+            'birthdate',
+            'phone',
             'street_address',
             'barangay',
             'municipality',
-            'province',
-            'phone',
-            'birthdate',
-            'gender'
+            'province'
         ]);
 
         // Add sample data
@@ -571,18 +541,18 @@ public function destroy($id)
             'Jr',
             'john.doe@example.com',
             '123456789012',
+            'Male',
+            '2000-01-01',
+            '09123456789',
             '123 Main St',
             'Sample Barangay',
             'Sample Municipality',
-            'Sample Province',
-            '09123456789',
-            '2000-01-01',
-            'Male'
+            'Sample Province'
         ]);
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="student_update_template.csv"',
+            'Content-Disposition' => 'attachment; filename="student_import_template.csv"',
         ];
 
         return response($csv->toString(), 200, $headers);
@@ -611,7 +581,7 @@ public function destroy($id)
             }
 
             $records = $csv->getRecords();
-            $updatedCount = 0;
+            $importedCount = 0;
             $errors = [];
 
             foreach ($records as $index => $record) {
@@ -621,60 +591,67 @@ public function destroy($id)
                         throw new \Exception('Required fields missing');
                     }
 
-                    // Find existing student by LRN
-                    $existingStudent = Student::where('lrn', $record['lrn'])->first();
-                    
-                    if (!$existingStudent) {
-                        throw new \Exception('Student with LRN ' . $record['lrn'] . ' not found');
+                    // Check if email already exists
+                    if (User::where('email', $record['email'])->exists()) {
+                        throw new \Exception('Email already exists');
                     }
 
-                    // Update user record
-                    $user = $existingStudent->user;
+                    // Check if LRN already exists
+                    if (Student::where('lrn', $record['lrn'])->exists()) {
+                        throw new \Exception('LRN already exists');
+                    }
+
+                    // Get the latest student ID and generate the next one
+                    $latestStudent = Student::orderBy('student_id', 'desc')->first();
+                    $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
+                    $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+                    
+                    // Generate temporary password based on student ID
+                    $tempPassword = 'TEMP' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+                    // Create user record
+                    $user = new User();
                     $user->last_name = $record['last_name'];
                     $user->first_name = $record['first_name'];
-                    $user->middle_name = $record['middle_name'] ?? $user->middle_name;
-                    $user->suffix = $record['suffix'] ?? $user->suffix;
+                    $user->middle_name = $record['middle_name'] ?? null;
+                    $user->suffix = $record['suffix'] ?? null;
                     $user->email = $record['email'];
+                    $user->username = $studentId;
+                    $user->password = bcrypt($tempPassword);
+                    $user->role = 'student';
                     $user->save();
 
-                    // Convert birthdate from MM/DD/YYYY to YYYY-MM-DD if provided
-                    $birthdate = null;
-                    if (!empty($record['birthdate'])) {
-                        $date = \DateTime::createFromFormat('m/d/Y', $record['birthdate']);
-                        if (!$date) {
-                            throw new \Exception('Invalid birthdate format. Must be MM/DD/YYYY');
-                        }
-                        $birthdate = $date->format('Y-m-d');
-                    }
+                    // Create student record
+                    $student = new Student();
+                    $student->user_id = $user->id;
+                    $student->student_id = $studentId;
+                    $student->lrn = $record['lrn'];
+                    $student->street_address = $record['street_address'] ?? null;
+                    $student->barangay = $record['barangay'] ?? null;
+                    $student->municipality = $record['municipality'] ?? null;
+                    $student->province = $record['province'] ?? null;
+                    $student->phone = $record['phone'] ?? null;
+                    $student->birthdate = $record['birthdate'] ?? null;
+                    $student->gender = $record['gender'] ?? null;
+                    $student->section = $section->name;
+                    $student->status = 'active';
+                    $student->save();
 
-                    // Update student record using user_id
-                    Student::where('user_id', $existingStudent->user_id)->update([
-                        'street_address' => $record['street_address'] ?? $existingStudent->street_address,
-                        'barangay' => $record['barangay'] ?? $existingStudent->barangay,
-                        'municipality' => $record['municipality'] ?? $existingStudent->municipality,
-                        'province' => $record['province'] ?? $existingStudent->province,
-                        'phone' => $record['phone'] ?? $existingStudent->phone,
-                        'birthdate' => $birthdate ?? $existingStudent->birthdate,
-                        'gender' => $record['gender'] ?? $existingStudent->gender,
-                        'section' => $section->name
-                    ]);
-
-                    $updatedCount++;
+                    $importedCount++;
                 } catch (\Exception $e) {
                     $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
                 }
             }
 
-            if (count($errors) > 0) {
+            if ($importedCount > 0) {
+                DB::commit();
+                return redirect()->route('teachers.student.index')
+                    ->with('success', "Successfully imported {$importedCount} students.");
+            } else {
                 DB::rollBack();
                 return redirect()->route('teachers.student.index')
-                    ->with('error', 'Import failed with the following errors:<br>' . implode('<br>', $errors));
+                    ->with('error', 'No students were imported. Please check the CSV file format.');
             }
-
-            DB::commit();
-            return redirect()->route('teachers.student.index')
-                ->with('success', "Successfully updated {$updatedCount} students.");
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('teachers.student.index')
