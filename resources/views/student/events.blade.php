@@ -33,7 +33,10 @@
                                                 <i class="bi bi-calendar-event" style="color: #6f4ef2;"></i>
                                             </div>
                                             <div>
-                                                <div class="fw-medium">{{ $event->title }}</div>
+                                                <div class="fw-medium">
+                                                    {{ $event->title }}
+                                                    <span class="badge bg-danger ms-2">Recent</span>
+                                                </div>
                                                 <div class="small text-muted">{{ Str::limit($event->description, 50) }}</div>
                                             </div>
                                         </div>
