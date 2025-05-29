@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Subject;
 use App\Models\User;
+use App\Models\Section;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,8 +45,19 @@ class SubjectController extends Controller
     public function create()
     {
         $teachers = User::where('role', 'teacher')->get();
+        $gradeLevel = request('grade_level');
+        
+        // Filter sections based on grade level
+        $sections = Section::where('status', 'active')
+            ->when($gradeLevel, function($query) use ($gradeLevel) {
+                return $query->where('grade_level', $gradeLevel);
+            })
+            ->orderBy('grade_level')
+            ->orderBy('name')
+            ->get();
+            
         \Log::info('Teachers found:', ['count' => $teachers->count(), 'teachers' => $teachers->toArray()]);
-        return view('admin.subjects.subjectlist.create', compact('teachers'));
+        return view('admin.subjects.subjectlist.create', compact('teachers', 'sections', 'gradeLevel'));
     }
 
     public function store(Request $request)
@@ -56,9 +68,9 @@ class SubjectController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'grade_level' => 'required|string',
-                'status' => 'required|in:active,inactive',
                 'parent_id' => 'nullable|exists:subjects,id',
                 'teacher_id' => 'nullable|exists:users,id',
+                'section_id' => 'nullable|exists:sections,id',
                 'start_time' => 'nullable',
                 'end_time' => 'nullable',
             ]);
@@ -98,10 +110,11 @@ class SubjectController extends Controller
                 'name' => $validated['name'],
                 'code' => $code,
                 'grade_level' => $validated['grade_level'],
-                'status' => $validated['status'],
+                'status' => 'active',
                 'description' => '',
                 'parent_id' => $parentId,
                 'teacher_id' => $validated['teacher_id'] ?? null,
+                'section_id' => $validated['section_id'] ?? null,
             ]);
 
             // Only create schedules if start_time and end_time are provided
@@ -149,6 +162,12 @@ class SubjectController extends Controller
         $subject = Subject::with(['teacher', 'schedules'])->findOrFail($id);
         $teachers = User::where('role', 'teacher')->get();
         
+        // Filter sections based on subject's grade level
+        $sections = Section::where('status', 'active')
+            ->where('grade_level', $subject->grade_level)
+            ->orderBy('name')
+            ->get();
+        
         // Get the first schedule's time if it exists
         $firstSchedule = $subject->schedules->first();
         $startTime = $firstSchedule ? $firstSchedule->start_time : '';
@@ -161,7 +180,7 @@ class SubjectController extends Controller
             'end_time' => $endTime
         ]);
         
-        return view('admin.subjects.subjectlist.edit', compact('subject', 'teachers', 'startTime', 'endTime'));
+        return view('admin.subjects.subjectlist.edit', compact('subject', 'teachers', 'sections', 'startTime', 'endTime'));
     }
 
     public function update(Request $request, $id)
@@ -173,13 +192,16 @@ class SubjectController extends Controller
             'code' => 'required|string|max:20|unique:subjects,code,' . $id,
             'description' => 'nullable|string',
             'teacher_id' => 'nullable|exists:users,id',
-            'status' => 'required|in:active,inactive',
+            'section_id' => 'nullable|exists:sections,id',
             'start_time' => 'required',
             'end_time' => 'required',
         ]);
 
         try {
             DB::beginTransaction();
+
+            // Keep the existing status
+            $validated['status'] = $subject->status;
 
             $subject->update($validated);
 
@@ -303,7 +325,8 @@ class SubjectController extends Controller
     public function labelSubjects($id)
     {
         $subjectLabel = Subject::findOrFail($id);
-        $subjects = Subject::where('parent_id', $id)
+        $subjects = Subject::with(['teacher', 'section'])
+            ->where('parent_id', $id)
             ->orderBy('name')
             ->get();
         

@@ -8,9 +8,6 @@
             <h2 class="fw-bold mb-1 text-primary">Add New Subject</h2>
             <p class="text-muted mb-0 small">Create a new subject</p>
         </div>
-        <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Subject
-        </a>
     </div>
 
     <!-- Form Card -->
@@ -58,7 +55,6 @@
 
                         <input type="hidden" name="grade_level" value="{{ request('grade_level') }}">
                         <input type="hidden" name="parent_id" value="{{ request('parent_id') }}">
-                        <input type="hidden" name="status" value="active">
                     </div>
                     
                     <div class="col-md-6">
@@ -75,6 +71,27 @@
                                 @endforeach
                             </select>
                             @error('teacher_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="section_id" class="form-label">Assign Section</label>
+                            <select class="form-select @error('section_id') is-invalid @enderror" id="section_id" name="section_id">
+                                <option value="">Select a section</option>
+                                @foreach($sections as $section)
+                                    <option value="{{ $section->id }}" {{ old('section_id') == $section->id ? 'selected' : '' }}>
+                                        {{ $section->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if($sections->isEmpty())
+                                <div class="form-text text-warning">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    No sections available for Grade {{ $gradeLevel }}
+                                </div>
+                            @endif
+                            @error('section_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

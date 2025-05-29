@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Subject;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -24,6 +25,14 @@ class DashboardController extends Controller
         // Get total events count
         $stats['events'] = Event::count();
 
-        return view('admin.dashboard', compact('stats'));
+        // Get student status distribution
+        $studentStatuses = \App\Models\Student::select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->status => $item->count];
+            });
+
+        return view('admin.dashboard', compact('stats', 'studentStatuses'));
     }
 } 

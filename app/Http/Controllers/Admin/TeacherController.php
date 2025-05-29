@@ -74,27 +74,34 @@ class TeacherController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = User::with('teacher')->findOrFail($id);
-
-        $validated = $request->validate([
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'suffix' => 'nullable|string|max:10',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'street_address' => 'nullable|string|max:255',
-            'barangay' => 'nullable|string|max:255',
-            'municipality' => 'nullable|string|max:255',
-            'province' => 'nullable|string|max:255',
-            'birthdate' => 'nullable|date',
-            'gender' => 'required|string|in:Male,Female,Other',
-            'status' => 'required|in:active,inactive',
-            'date_joined' => 'required|date',
-        ]);
-
         try {
+            $user = User::with('teacher')->findOrFail($id);
+            
+            \Log::info('Updating teacher:', [
+                'user_id' => $id,
+                'request_data' => $request->all()
+            ]);
+
+            $validated = $request->validate([
+                'last_name' => 'required|string|max:255',
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'suffix' => 'nullable|string|max:10',
+                'email' => 'required|email|unique:users,email,' . $id,
+                'password' => 'nullable|string|min:6|confirmed',
+                'phone' => 'nullable|string|max:20',
+                'street_address' => 'nullable|string|max:255',
+                'barangay' => 'nullable|string|max:255',
+                'municipality' => 'nullable|string|max:255',
+                'province' => 'nullable|string|max:255',
+                'birthdate' => 'nullable|date',
+                'gender' => 'required|string|in:Male,Female,Other',
+                'status' => 'required|in:active,inactive,on_leave',
+                'date_joined' => 'required|date',
+            ]);
+
+            \Log::info('Validated data:', $validated);
+
             DB::beginTransaction();
 
             // Update user record
@@ -126,6 +133,8 @@ class TeacherController extends Controller
                 'status' => $validated['status'],
             ];
 
+            \Log::info('Teacher data to update:', $teacherData);
+
             if ($user->teacher) {
                 $user->teacher->update($teacherData);
             } else {
@@ -138,6 +147,10 @@ class TeacherController extends Controller
             return redirect()->route('admin.teachers.index')->with('success', 'Teacher updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Error updating teacher:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()->with('error', 'Failed to update teacher. Please try again.');
         }
     }

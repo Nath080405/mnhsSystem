@@ -9,6 +9,9 @@
             <p class="text-muted mb-0 small">Manage subjects under this label</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Subject Label
+            </a>
             <a href="{{ route('admin.subjects.create', ['parent_id' => $subjectLabel->id, 'grade_level' => $subjectLabel->grade_level]) }}" 
                class="btn btn-primary">
                 <i class="bi bi-plus-lg me-1"></i> Add Subject
@@ -34,7 +37,7 @@
                             <th class="text-primary">Name</th>
                             <th class="text-primary">Code</th>
                             <th class="text-primary">Teacher</th>
-                            <th class="text-primary">Status</th>
+                            <th class="text-primary">Section</th>
                             <th class="text-primary">Schedule</th>
                             <th class="text-primary text-end">Actions</th>
                         </tr>
@@ -71,9 +74,14 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $subject->status === 'active' ? 'success' : 'danger' }}">
-                                        {{ ucfirst($subject->status) }}
-                                    </span>
+                                    @if($subject->section)
+                                        <span class="badge bg-success bg-opacity-10 text-success">
+                                            <i class="bi bi-bookmark me-1"></i>
+                                            {{ $subject->section->name }} (Grade {{ $subject->section->grade_level }})
+                                        </span>
+                                    @else
+                                        <span class="text-muted">Not assigned</span>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($subject->schedules->isNotEmpty())

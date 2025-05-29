@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-4">
         <!-- Welcome Banner -->
         <div class="welcome-banner mb-4">
             <div class="card border-0 shadow-sm">
@@ -29,14 +29,17 @@
                 <!-- Stats Cards -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body p-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Users</h6>
                                         <h3 class="mb-0 fw-bold">{{ $stats['users'] ?? 0 }}</h3>
+                                        <p class="text-success mb-0 mt-2 small">
+                                            <i class="bi bi-arrow-up"></i> All users
+                                        </p>
                                     </div>
-                                    <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle">
+                                    <div class="stat-icon bg-primary bg-opacity-10 rounded-circle">
                                         <i class="bi bi-people-fill text-primary"></i>
                                     </div>
                                 </div>
@@ -44,14 +47,17 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body p-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Subjects</h6>
                                         <h3 class="mb-0 fw-bold">{{ $stats['subjects'] ?? 0 }}</h3>
+                                        <p class="text-success mb-0 mt-2 small">
+                                            <i class="bi bi-arrow-up"></i> Active subjects
+                                        </p>
                                     </div>
-                                    <div class="avatar-sm bg-success bg-opacity-10 rounded-circle">
+                                    <div class="stat-icon bg-success bg-opacity-10 rounded-circle">
                                         <i class="bi bi-book text-success"></i>
                                     </div>
                                 </div>
@@ -59,14 +65,17 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body p-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Active Classes</h6>
                                         <h3 class="mb-0 fw-bold">{{ $stats['classes'] ?? 0 }}</h3>
+                                        <p class="text-success mb-0 mt-2 small">
+                                            <i class="bi bi-arrow-up"></i> Current classes
+                                        </p>
                                     </div>
-                                    <div class="avatar-sm bg-info bg-opacity-10 rounded-circle">
+                                    <div class="stat-icon bg-info bg-opacity-10 rounded-circle">
                                         <i class="bi bi-mortarboard-fill text-info"></i>
                                     </div>
                                 </div>
@@ -74,14 +83,17 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body p-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Events</h6>
                                         <h3 class="mb-0 fw-bold">{{ $stats['events'] ?? 0 }}</h3>
+                                        <p class="text-success mb-0 mt-2 small">
+                                            <i class="bi bi-arrow-up"></i> Upcoming events
+                                        </p>
                                     </div>
-                                    <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle">
+                                    <div class="stat-icon bg-warning bg-opacity-10 rounded-circle">
                                         <i class="bi bi-calendar-event text-warning"></i>
                                     </div>
                                 </div>
@@ -91,56 +103,32 @@
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-3">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
                         <h5 class="fw-semibold mb-3">Quick Actions</h5>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach($quickActions ?? [] as $action)
-                                <a href="{{ $action['url'] }}" class="btn {{ $action['primary'] ? 'btn-primary' : 'btn-outline-primary' }} shadow-sm">
-                                    <i class="bi {{ $action['icon'] }} me-2"></i>{{ $action['label'] }}
-                                </a>
-                            @endforeach
-
-                            @if(empty($quickActions))
-                                <a href="{{ route('admin.students.create') }}" class="btn btn-primary shadow-sm">
-                                    <i class="bi bi-person-plus me-2"></i>Add New Student
-                                </a>
-                                <a href="#" class="btn btn-outline-primary shadow-sm">
-                                    <i class="bi bi-file-earmark-plus me-2"></i>Create New Class
-                                </a>
-                                <a href="#" class="btn btn-outline-primary shadow-sm">
-                                    <i class="bi bi-calendar-plus me-2"></i>Schedule Event
-                                </a>
-                            @endif
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="{{ route('admin.students.create') }}" class="quick-action-btn btn btn-primary">
+                                <i class="bi bi-person-plus me-2"></i>Add New Student
+                            </a>
+                            <a href="#" class="quick-action-btn btn btn-outline-primary">
+                                <i class="bi bi-file-earmark-plus me-2"></i>Create New Class
+                            </a>
+                            <a href="#" class="quick-action-btn btn btn-outline-primary">
+                                <i class="bi bi-calendar-plus me-2"></i>Schedule Event
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Recent Activity -->
+            <!-- Right Column: Student Status Chart -->
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body p-3">
-                        <h5 class="fw-semibold mb-3">Recent Activity</h5>
-                        <div class="activity-feed">
-                            @forelse($recentActivities ?? [] as $activity)
-                                <div class="activity-item d-flex align-items-start mb-3">
-                                    <div class="activity-icon me-3">
-                                        <div class="avatar-sm bg-{{ $activity['color'] ?? 'primary' }}-bg-opacity-10 rounded-circle">
-                                            <i class="bi {{ $activity['icon'] ?? 'bi-bell' }} text-{{ $activity['color'] ?? 'primary' }}"></i>
-                                        </div>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="mb-1">{{ $activity['message'] }}</p>
-                                        <small class="text-muted">{{ $activity['time'] }}</small>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="text-center text-muted py-4">
-                                    <i class="bi bi-clock-history display-4 mb-3"></i>
-                                    <p class="mb-0">No recent activities</p>
-                                </div>
-                            @endforelse
+                <!-- Student Status Chart -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-semibold mb-3">Student Status Distribution</h5>
+                        <div class="chart-container" style="position: relative; height: 400px;">
+                            <canvas id="studentStatusChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -160,106 +148,50 @@
             line-height: 1.2;
         }
 
-        .welcome-banner .text-muted {
-            font-size: 0.95rem;
-        }
-
-        .welcome-banner h3 {
-            font-size: 1.5rem;
-            color: #0d6efd;
-        }
-
-        .welcome-banner small {
-            font-size: 0.8rem;
-        }
-
-        /* Card Styles */
-        .card {
-            border-radius: 0.5rem;
+        /* Stat Card Styles */
+        .stat-card {
             transition: transform 0.2s ease-in-out;
+            border-radius: 1rem;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
-        .shadow-sm {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-        }
-
-        /* Avatar Styles */
-        .avatar-sm {
-            width: 40px;
-            height: 40px;
+        .stat-icon {
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
         }
 
-        /* Activity Feed Styles */
-        .activity-feed {
-            max-height: 400px;
-            overflow-y: auto;
+        /* Quick Action Button Styles */
+        .quick-action-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
         }
 
-        .activity-item {
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s ease-in-out;
-        }
-
-        .activity-item:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
-
-        .activity-icon {
-            flex-shrink: 0;
-        }
-
-        .activity-content {
-            flex-grow: 1;
-        }
-
-        .activity-content p {
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .activity-content small {
-            font-size: 0.75rem;
-        }
-
-        /* Custom Scrollbar */
-        .activity-feed::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .activity-feed::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-
-        .activity-feed::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-
-        .activity-feed::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         /* Clock Display Styles */
         .clock-display {
             text-align: center;
-            padding: 0.75rem;
+            padding: 1rem;
             background: rgba(13, 110, 253, 0.05);
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             display: inline-block;
-            min-width: 180px;
+            min-width: 200px;
         }
 
         .clock-display .time {
-            font-size: 1.75rem;
+            font-size: 2rem;
             font-weight: 600;
             color: #0d6efd;
             line-height: 1;
@@ -275,31 +207,89 @@
         }
     </style>
 
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
-        function updateClock() {
-            const now = new Date();
-            
-            // Update time
-            const time = now.toLocaleTimeString('en-US', { 
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            document.getElementById('current-time').textContent = time;
-            
-            // Update date
-            const date = now.toLocaleDateString('en-US', { 
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            document.getElementById('current-date').textContent = date;
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Student Status Chart
+            const studentStatusData = @json($studentStatuses);
+            const statusColors = {
+                'active': '#198754',
+                'inactive': '#ffc107',
+                'dropped': '#dc3545',
+                'graduated': '#0dcaf0',
+                'transferred': '#6c757d'
+            };
 
-        // Update clock immediately and then every second
-        updateClock();
-        setInterval(updateClock, 1000);
+            const ctx = document.getElementById('studentStatusChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(studentStatusData).map(status => status.charAt(0).toUpperCase() + status.slice(1)),
+                        datasets: [{
+                            data: Object.values(studentStatusData),
+                            backgroundColor: Object.keys(studentStatusData).map(status => statusColors[status] || '#6c757d'),
+                            borderWidth: 0,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            // Clock functionality
+            function updateClock() {
+                const now = new Date();
+                const timeElement = document.getElementById('current-time');
+                const dateElement = document.getElementById('current-date');
+                
+                timeElement.textContent = now.toLocaleTimeString('en-US', { 
+                    hour12: false, 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit' 
+                });
+                
+                dateElement.textContent = now.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
     </script>
+    @endpush
 @endsection

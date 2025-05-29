@@ -32,11 +32,14 @@
                             <p class="text-muted mb-3">Employee ID: {{ $teacher->teacher?->employee_id ?? 'Not Assigned' }}</p>
                             <div class="d-flex justify-content-center gap-2">
                                 <span class="status-badge position-badge">
-                                    <i class="bi bi-briefcase me-1"></i> {{ $teacher->teacher?->position ?? 'Teacher' }}
+                                    <i class="bi bi-book me-1"></i> {{ $teacher->teacher?->section?->name ?? 'Not Assigned' }}
                                 </span>
-                                <span class="status-badge status-{{ $teacher->teacher?->status === 'active' ? 'active' : 'inactive' }}">
-                                    <i class="bi bi-{{ $teacher->teacher?->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
-                                    {{ ucfirst($teacher->teacher?->status ?? 'inactive') }}
+                                <span class="status-badge status-{{ $teacher->teacher?->status ?? 'inactive' }}">
+                                    <i class="bi bi-{{ 
+                                        $teacher->teacher?->status === 'active' ? 'check-circle' : 
+                                        ($teacher->teacher?->status === 'inactive' ? 'x-circle' : 
+                                        ($teacher->teacher?->status === 'on_leave' ? 'pause-circle' : 'question-circle')) }} me-1"></i>
+                                    {{ ucfirst(str_replace('_', ' ', $teacher->teacher?->status ?? 'inactive')) }}
                                 </span>
                             </div>
                         </div>
@@ -102,8 +105,12 @@
                                             <p>{{ $teacher->teacher?->employee_id ?? 'Not Assigned' }}</p>
                                         </div>
                                         <div class="info-item">
-                                            <label>Date Joined</label>
-                                            <p>{{ $teacher->teacher?->date_joined ? $teacher->teacher->date_joined->format('M d, Y') : 'Not provided' }}</p>
+                                            <label>Grade Level</label>
+                                            <p>{{ $teacher->teacher?->section?->grade_level ?? 'Not Assigned' }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Assigned Section</label>
+                                            <p>{{ $teacher->teacher?->section?->name ?? 'Not Assigned' }}</p>
                                         </div>
                                         <div class="info-item">
                                             <label>Role</label>
@@ -179,13 +186,18 @@
         }
 
         .status-active {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
+            background-color: #d1e7dd;
+            color: #0f5132;
         }
 
         .status-inactive {
-            background: rgba(244, 67, 54, 0.1);
-            color: #F44336;
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .status-on_leave {
+            background-color: #fff3cd;
+            color: #856404;
         }
 
         .info-card {
