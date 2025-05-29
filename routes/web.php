@@ -87,6 +87,8 @@ Route::middleware('auth')->group(function () {
         // Students management
         Route::resource('students', TeacherDashboardController::class)->except(['show', 'index'])->names('teachers.student');
         Route::get('/students', [TeacherDashboardController::class, 'indexStudent'])->name('teachers.student.index');
+        Route::get('/students/create', [TeacherDashboardController::class, 'createStudent'])->name('teachers.student.create');
+        Route::post('/students', [TeacherDashboardController::class, 'storeStudent'])->name('teachers.student.store');
         Route::get('/students/search', [TeacherDashboardController::class, 'searchStudent'])->name('teachers.student.search');
         Route::get('/students/{id}', [TeacherDashboardController::class, 'show'])->name('teachers.student.show');
 
@@ -105,6 +107,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/events/preview', [TeacherEventController::class, 'preview'])->name('teachers.event.preview');
         Route::get('/events/{event}', [TeacherEventController::class, 'showEvent'])->name('teachers.event.show');
         Route::delete('/events/{id}', [TeacherEventController::class, 'destroy'])->name('teachers.event.destroy');
+        Route::post('/events/{id}/archive', [TeacherEventController::class, 'archive'])->name('teachers.event.archive');
 
         // Profile
         Route::get('/profile', [TeacherDashboardController::class, 'profile'])->name('teachers.profile');

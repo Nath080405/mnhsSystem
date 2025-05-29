@@ -51,4 +51,12 @@ class Subject extends Model
     {
         return $this->hasMany(Subject::class, 'parent_id');
     }
+
+    /**
+     * Get the grades for the subject.
+     */
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
 } 

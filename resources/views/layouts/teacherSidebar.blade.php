@@ -32,6 +32,9 @@
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('teachers.event.index')) active @endif" href="{{ route('teachers.event.index') }}">
                     <i class="bi bi-calendar-week me-3"></i> Events
+                    @if(isset($newEventsCount) && $newEventsCount > 0)
+                        <span class="badge bg-danger rounded-pill ms-2">{{ $newEventsCount }}</span>
+                    @endif
                 </a>
             </li>
         </ul>

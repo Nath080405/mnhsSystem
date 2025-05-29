@@ -53,6 +53,8 @@ class TeacherController extends Controller
         $students = User::where('role', 'student')
             ->join('students', 'users.id', '=', 'students.user_id')
             ->select('users.*', 'students.*')
+            ->orderBy('users.last_name')
+            ->orderBy('users.first_name')
             ->get();
         return view('teachers.student.index', compact('students'));
     }

@@ -39,5 +39,22 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('newEventsCount', $newEventsCount);
             }
         });
+
+        // Share new events count with teacher sidebar
+        View::composer('layouts.teacherSidebar', function ($view) {
+            if (Auth::check() && Auth::user()->role === 'teacher') {
+                $user = Auth::user();
+                $viewedEventIds = EventView::where('user_id', $user->id)
+                    ->pluck('event_id')
+                    ->toArray();
+                
+                $newEventsCount = Event::where(function($query) {
+                    $query->where('visibility', 'All')
+                          ->orWhere('visibility', 'Teachers');
+                })->whereNotIn('event_id', $viewedEventIds)->count();
+                
+                $view->with('newEventsCount', $newEventsCount);
+            }
+        });
     }
 }
