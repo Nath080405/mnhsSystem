@@ -234,7 +234,7 @@
 .modal-footer {
     border-top: none;
     padding: 1rem 1.5rem 1.5rem;
-    background: linear-gradient(45deg, #6f4ef2 0%, #5a3fd9 100%);
+    background: linear-gradient(45deg, #dc3545 0%, #b02a37 100%);
 }
 .modal-section {
     background: #fff;
