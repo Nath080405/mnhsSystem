@@ -54,8 +54,8 @@ class Teacher extends Model
         return implode(', ', $parts);
     }
     public function section()
-{
-    return $this->hasOne(Section::class);
-}
+    {
+        return $this->hasOne(Section::class, 'adviser_id', 'user_id');
+    }
 
 } 

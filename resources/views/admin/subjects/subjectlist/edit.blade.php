@@ -8,9 +8,6 @@
             <h2 class="fw-bold mb-1 text-primary">Edit Subject</h2>
             <p class="text-muted mb-0 small">Update subject information</p>
         </div>
-        <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Subject
-        </a>
     </div>
 
     <!-- Form Card -->
@@ -69,23 +66,24 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
-                            <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
-                                <option value="active" {{ old('status', $subject->status) == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ old('status', $subject->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            <label for="section_id" class="form-label">Assign Section</label>
+                            <select class="form-select @error('section_id') is-invalid @enderror" id="section_id" name="section_id">
+                                <option value="">Select a section</option>
+                                @foreach($sections as $section)
+                                    <option value="{{ $section->id }}" {{ old('section_id', $subject->section_id) == $section->id ? 'selected' : '' }}>
+                                        {{ $section->name }}
+                                    </option>
+                                @endforeach
                             </select>
-                            @error('status')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" 
-                                id="description" name="description" rows="4">{{ old('description', $subject->description) }}</textarea>
-                            @error('description')
+                            @if($sections->isEmpty())
+                                <div class="form-text text-warning">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    No sections available for Grade {{ $subject->grade_level }}
+                                </div>
+                            @endif
+                            @error('section_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

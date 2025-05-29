@@ -5,9 +5,6 @@
         <div class="header-section mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="fw-bold text-primary">Edit Teacher</h2>
-                <a href="{{ route('admin.teachers.index') }}" class="btn btn-light">
-                    <i class="bi bi-arrow-left me-1"></i> Back to Teachers
-                </a>
             </div>
         </div>
 
@@ -178,6 +175,7 @@
                                                 <option value="">Select status</option>
                                                 <option value="active" {{ old('status', $teacher->status) == 'active' ? 'selected' : '' }}>Active</option>
                                                 <option value="inactive" {{ old('status', $teacher->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                                <option value="on_leave" {{ old('status', $teacher->status) == 'on_leave' ? 'selected' : '' }}>On Leave</option>
                                             </select>
                                             @error('status')
                                                 <div class="invalid-feedback">{{ $message }}</div>

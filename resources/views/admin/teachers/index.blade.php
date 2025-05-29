@@ -89,9 +89,15 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $teacher->teacher?->status === 'active' ? 'success' : 'danger' }}">
-                                            <i class="bi bi-{{ $teacher->teacher?->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
-                                            {{ ucfirst($teacher->teacher?->status ?? 'inactive') }}
+                                        <span class="badge bg-{{ 
+                                            $teacher->teacher?->status === 'active' ? 'success' : 
+                                            ($teacher->teacher?->status === 'inactive' ? 'danger' : 
+                                            ($teacher->teacher?->status === 'on_leave' ? 'warning' : 'secondary')) }}">
+                                            <i class="bi bi-{{ 
+                                                $teacher->teacher?->status === 'active' ? 'check-circle' : 
+                                                ($teacher->teacher?->status === 'inactive' ? 'x-circle' : 
+                                                ($teacher->teacher?->status === 'on_leave' ? 'pause-circle' : 'question-circle')) }} me-1"></i>
+                                            {{ ucfirst(str_replace('_', ' ', $teacher->teacher?->status ?? 'inactive')) }}
                                         </span>
                                     </td>
                                     <td>

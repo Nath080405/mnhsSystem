@@ -114,8 +114,18 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $student->student?->status === 'active' ? 'success' : 'danger' }}">
-                                            <i class="bi bi-{{ $student->student?->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
+                                        <span class="badge bg-{{ 
+                                            $student->student?->status === 'active' ? 'success' : 
+                                            ($student->student?->status === 'inactive' ? 'warning' : 
+                                            ($student->student?->status === 'dropped' ? 'danger' : 
+                                            ($student->student?->status === 'graduated' ? 'info' : 
+            ($student->student?->status === 'transferred' ? 'secondary' : 'secondary')))) }}">
+                                            <i class="bi bi-{{ 
+                                                $student->student?->status === 'active' ? 'check-circle' : 
+                                                ($student->student?->status === 'inactive' ? 'pause-circle' : 
+                                                ($student->student?->status === 'dropped' ? 'x-circle' : 
+                                                ($student->student?->status === 'graduated' ? 'mortarboard' : 
+            ($student->student?->status === 'transferred' ? 'arrow-right-circle' : 'question-circle')))) }} me-1"></i>
                                             {{ ucfirst($student->student?->status ?? 'inactive') }}
                                         </span>
                                     </td>
@@ -315,6 +325,22 @@
             border-radius: 0 0.375rem 0.375rem 0;
         }
 
+        /* Search bar styles */
+        .input-group .form-control:focus {
+            box-shadow: none;
+            border-color: #dee2e6;
+        }
+
+        .input-group:hover .form-control {
+            border-color: #adb5bd;
+            transition: border-color 0.2s ease-in-out;
+        }
+
+        .input-group:hover .input-group-text {
+            border-color: #adb5bd;
+            transition: border-color 0.2s ease-in-out;
+        }
+
         .btn-xs {
             padding: 0.25rem 0.5rem;
             font-size: 0.75rem;
@@ -335,24 +361,67 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.querySelector('input[name="search"]');
-            const searchTimeout = 500; // milliseconds
+            const searchTimeout = 150; // Reduced from 300ms to 150ms for faster response
             let timeoutId;
+            let currentRequest = null;
 
             searchInput.addEventListener('input', function () {
                 clearTimeout(timeoutId);
+                
+                // Cancel any ongoing request
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                const searchValue = this.value.trim();
+                
+                // If search is empty, clear results immediately
+                if (!searchValue) {
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.delete('search');
+                    fetchResults(currentUrl.toString());
+                    return;
+                }
+
                 timeoutId = setTimeout(() => {
                     const currentUrl = new URL(window.location.href);
-                    const searchValue = this.value.trim();
-
-                    if (searchValue) {
-                        currentUrl.searchParams.set('search', searchValue);
-                    } else {
-                        currentUrl.searchParams.delete('search');
-                    }
-
-                    window.location.href = currentUrl.toString();
+                    currentUrl.searchParams.set('search', searchValue);
+                    fetchResults(currentUrl.toString());
                 }, searchTimeout);
             });
+
+            function fetchResults(url) {
+                // Create a new AbortController for this request
+                const controller = new AbortController();
+                currentRequest = controller;
+
+                // Fetch the results
+                fetch(url, {
+                    signal: controller.signal,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Update only the table body
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTableBody = doc.querySelector('tbody');
+                    const currentTableBody = document.querySelector('tbody');
+                    if (newTableBody && currentTableBody) {
+                        currentTableBody.innerHTML = newTableBody.innerHTML;
+                    }
+                })
+                .catch(error => {
+                    if (error.name !== 'AbortError') {
+                        console.error('Search error:', error);
+                    }
+                })
+                .finally(() => {
+                    currentRequest = null;
+                });
+            }
 
             // Delete Student Modal Functionality
             const deleteModal = document.getElementById('deleteStudentModal');

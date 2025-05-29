@@ -17,6 +17,7 @@ class Subject extends Model
         'status',
         'grade_level',
         'parent_id',
+        'section_id',
     ];
 
     /**
@@ -50,6 +51,12 @@ class Subject extends Model
     public function children()
     {
         return $this->hasMany(Subject::class, 'parent_id');
+    }
+
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
     }
 
     /**

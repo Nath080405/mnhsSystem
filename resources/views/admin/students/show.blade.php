@@ -34,8 +34,14 @@
                                 <span class="status-badge grade-badge">
                                     <i class="bi bi-mortarboard me-1"></i> Grade {{ $student->student?->grade_level ?? 'Not Assigned' }}
                                 </span>
-                                <span class="status-badge status-active">
-                                    <i class="bi bi-check-circle me-1"></i> Active
+                                <span class="status-badge status-{{ $student->student?->status ?? 'inactive' }}">
+                                    <i class="bi bi-{{ 
+                                        $student->student?->status === 'active' ? 'check-circle' : 
+                                        ($student->student?->status === 'inactive' ? 'pause-circle' : 
+                                        ($student->student?->status === 'dropped' ? 'x-circle' : 
+                                        ($student->student?->status === 'graduated' ? 'mortarboard' : 
+                                        ($student->student?->status === 'transferred' ? 'arrow-right-circle' : 'question-circle')))) }} me-1"></i>
+                                    {{ ucfirst($student->student?->status ?? 'inactive') }}
                                 </span>
                             </div>
                         </div>
@@ -168,13 +174,12 @@
         }
 
         .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-weight: 500;
-            font-size: 0.875rem;
             display: inline-flex;
             align-items: center;
-            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
         }
 
         .grade-badge {
@@ -183,8 +188,28 @@
         }
 
         .status-active {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-inactive {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-dropped {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .status-graduated {
+            background-color: #cff4fc;
+            color: #055160;
+        }
+
+        .status-transferred {
+            background-color: #e2e3e5;
+            color: #41464b;
         }
 
         .info-card {

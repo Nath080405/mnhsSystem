@@ -21,7 +21,7 @@
     @endif
 
     @if($subjects->isEmpty())
-      <div class="alert alert-warning">No subjects assigned yet. Please add one.</div>
+      <div class="alert alert-warning">No subjects assigned yet.</div>
     @else
       <div class="row g-4">
       @foreach($subjects as $subject)

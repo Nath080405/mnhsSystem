@@ -171,6 +171,21 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-medium">Status <span class="text-danger">*</span></label>
+                                            <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                                <option value="">Select status</option>
+                                                <option value="active" {{ old('status', $student->student?->status) == 'active' ? 'selected' : '' }}>Active</option>
+                                                <option value="inactive" {{ old('status', $student->student?->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                                <option value="dropped" {{ old('status', $student->student?->status) == 'dropped' ? 'selected' : '' }}>Dropped</option>
+                                                <option value="graduated" {{ old('status', $student->student?->status) == 'graduated' ? 'selected' : '' }}>Graduated</option>
+                                                <option value="transferred" {{ old('status', $student->student?->status) == 'transferred' ? 'selected' : '' }}>Transferred</option>
+                                            </select>
+                                            @error('status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
