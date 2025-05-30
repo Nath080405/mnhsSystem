@@ -12,7 +12,7 @@
             <div class="d-flex gap-2">
                 <!-- Status Filter Dropdown -->
                 <div class="dropdown">
-                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" style="min-width: 140px;">
                         Event Status
                     </button>
                     <ul class="dropdown-menu">
@@ -24,11 +24,11 @@
                 </div>
                 <!-- Inbox Filter Dropdown -->
                 <div class="dropdown">
-                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        Filter
+                    <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" style="min-width: 140px;">
+                        Inbox Filters
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item inbox-filter" href="#" data-inbox="all">All Events</a></li>
+                        <li><a class="dropdown-item inbox-filter" href="#" data-inbox="all">All</a></li>
                         <li><a class="dropdown-item inbox-filter" href="#" data-inbox="unread">Unread</a></li>
                         <li><a class="dropdown-item inbox-filter" href="#" data-inbox="starred">Starred</a></li>
                         <li><a class="dropdown-item inbox-filter" href="#" data-inbox="archived">Archived</a></li>
@@ -346,6 +346,45 @@ document.addEventListener('DOMContentLoaded', () => {
 .btn-outline-primary:hover,
 .btn-outline-dark:hover {
     transform: scale(1.1);
+}
+
+/* Add styles for filter buttons */
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    height: 38px;
+}
+
+.dropdown-toggle::after {
+    margin-left: 0.5rem;
+}
+
+.dropdown-menu {
+    min-width: 140px;
+    padding: 0.5rem 0;
+    margin: 0;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #5A5A89;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+.dropdown-item.active {
+    background-color: #0d6efd;
+    color: white;
 }
 </style>
 @endsection
