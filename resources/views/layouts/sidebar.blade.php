@@ -18,7 +18,7 @@
             </li>
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.students.index') || request()->routeIs('admin.teachers.index')) active @endif" data-bs-toggle="collapse" href="#usersSubmenu" role="button">
-                    <i class="bi bi-people-fill me-3"></i> Users
+                    <i class="bi bi-people-fill me-3"></i> User Management
                     <i class="bi bi-chevron-down ms-auto small"></i>
                 </a>
                 <div class="collapse ps-4" id="usersSubmenu">
@@ -28,22 +28,22 @@
             </li>
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.subjects.*')) active @endif" data-bs-toggle="collapse" href="#subjectsSubmenu" role="button">
-                    <i class="bi bi-book-fill me-3"></i> Subjects
+                    <i class="bi bi-book-fill me-3"></i> Curriculum
                     <i class="bi bi-chevron-down ms-auto small"></i>
                 </a>
                 <div class="collapse ps-4" id="subjectsSubmenu">
-                    <a href="{{ route('admin.subjects.index') }}" class="nav-link materio-sublink">Subject List</a>
-                    <a href="{{ route('admin.subjects.plan') }}" class="nav-link materio-sublink">Subject Plan</a>
+                    <a href="{{ route('admin.subjects.index') }}" class="nav-link materio-sublink">Learning Areas</a>
+                    <a href="{{ route('admin.subjects.plan') }}" class="nav-link materio-sublink">Curriculum Structure</a>
                 </div>
             </li>
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.sections.index')) active @endif" href="{{ route('admin.sections.index') }}">
-                    <i class="bi bi-building me-3"></i> Sections
+                    <i class="bi bi-building me-3"></i> Class Sections
                 </a>
             </li>
             <li class="nav-item mb-1">
                 <a class="nav-link d-flex align-items-center materio-link @if(request()->routeIs('admin.events.index')) active @endif" href="{{ route('admin.events.index') }}">
-                    <i class="bi bi-calendar-event me-3"></i> Events
+                    <i class="bi bi-calendar-event me-3"></i> School Events
                 </a>
             </li>
         </ul>

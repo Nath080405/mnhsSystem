@@ -59,7 +59,6 @@
                                 <th class="text-primary">Grade Level</th>
                                 <th class="text-primary">Adviser</th>
                                 <th class="text-primary">Students</th>
-                                <th class="text-primary">Status</th>
                                 <th class="text-primary text-end">Actions</th>
                             </tr>
                         </thead>
@@ -124,13 +123,11 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $section->status === 'active' ? 'success' : 'danger' }}">
-                                            <i class="bi bi-{{ $section->status === 'active' ? 'check-circle' : 'x-circle' }} me-1"></i>
-                                            {{ ucfirst($section->status) }}
-                                        </span>
-                                    </td>
-                                    <td>
                                         <div class="d-flex justify-content-end gap-2">
+                                            <a href="{{ route('admin.sections.students', $section) }}"
+                                                class="btn btn-xs btn-outline-info" title="View Students">
+                                                <i class="bi bi-people"></i>
+                                            </a>
                                             <a href="{{ route('admin.sections.edit', $section) }}"
                                                 class="btn btn-xs btn-outline-primary" title="Edit Section">
                                                 <i class="bi bi-pencil"></i>
@@ -160,6 +157,35 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div class="text-muted small">
+                        Showing {{ $sections->firstItem() ?? 0 }} to {{ $sections->lastItem() ?? 0 }} of {{ $sections->total() ?? 0 }} entries
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        @if($sections->hasPages())
+                            @if($sections->onFirstPage())
+                                <button class="btn btn-outline-secondary pagination-btn" disabled>
+                                    <i class="bi bi-chevron-left"></i> Previous
+                                </button>
+                            @else
+                                <a href="{{ $sections->previousPageUrl() }}" class="btn btn-outline-secondary pagination-btn">
+                                    <i class="bi bi-chevron-left"></i> Previous
+                                </a>
+                            @endif
+
+                            @if($sections->hasMorePages())
+                                <a href="{{ $sections->nextPageUrl() }}" class="btn btn-outline-primary pagination-btn">
+                                    Next <i class="bi bi-chevron-right"></i>
+                                </a>
+                            @else
+                                <button class="btn btn-outline-secondary pagination-btn" disabled>
+                                    Next <i class="bi bi-chevron-right"></i>
+                                </button>
+                            @endif
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -301,6 +327,57 @@
         .btn-outline-danger.btn-xs:hover {
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            min-width: 100px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            border-width: 1px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn i {
+            font-size: 0.875rem;
+        }
+
+        .btn-outline-primary.pagination-btn {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .btn-outline-primary.pagination-btn:hover:not(:disabled) {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+        }
+
+        .btn-outline-secondary.pagination-btn {
+            background-color: white;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        .btn-outline-secondary.pagination-btn:hover:not(:disabled) {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: #495057;
         }
     </style>
 @endsection

@@ -5,8 +5,8 @@
         <!-- Header Section -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-1 text-primary">Subject Labels</h2>
-                <p class="text-muted mb-0 small">Manage subject labels and their corresponding grade levels</p>
+                <h2 class="fw-bold mb-1 text-primary">Learning Areas</h2>
+                <p class="text-muted mb-0 small">Manage learning areas and their corresponding grade levels</p>
             </div>
             <div class="d-flex gap-2">
                 <div class="dropdown">
@@ -65,6 +65,9 @@
                                             </div>
                                             <div>
                                                 <div class="fw-medium">{{ $subject->name }}</div>
+                                                @if($subject->description)
+                                                    <div class="small text-muted">{{ $subject->description }}</div>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
@@ -77,7 +80,7 @@
                                     <td>
                                         <div class="d-flex justify-content-end gap-2">
                                             <a href="{{ route('admin.subjects.label.subjects', $subject) }}"
-                                                class="btn btn-xs btn-outline-primary" title="Manage Subjects">
+                                                class="btn btn-xs btn-outline-primary" title="Manage Learning Areas">
                                                 <i class="bi bi-gear"></i>
                                             </a>
                                         </div>
@@ -88,7 +91,7 @@
                                     <td colspan="3" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="bi bi-inbox-fill fs-2 d-block mb-2"></i>
-                                            No subject labels found
+                                            No learning areas found
                                         </div>
                                     </td>
                                 </tr>

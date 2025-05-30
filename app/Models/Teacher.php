@@ -23,13 +23,14 @@ class Teacher extends Model
         'phone',
         'birthdate',
         'gender',
-        'date_joined',
         'status'
     ];
 
     protected $casts = [
         'birthdate' => 'date',
-        'date_joined' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime'
     ];
 
     public function user()
