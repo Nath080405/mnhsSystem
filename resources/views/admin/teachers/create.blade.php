@@ -161,14 +161,6 @@
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label class="form-label fw-medium">Date Joined <span class="text-danger">*</span></label>
-                                            <input type="date" name="date_joined" class="form-control @error('date_joined') is-invalid @enderror" value="{{ old('date_joined') }}" required>
-                                            @error('date_joined')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="col-md-6">
                                             <label class="form-label fw-medium">Status <span class="text-danger">*</span></label>
                                             <select name="status" class="form-select @error('status') is-invalid @enderror" required>
                                                 <option value="">Select status</option>

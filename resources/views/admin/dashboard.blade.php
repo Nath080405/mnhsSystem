@@ -35,9 +35,14 @@
                                     <div>
                                         <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Users</h6>
                                         <h3 class="mb-0 fw-bold">{{ $stats['users'] ?? 0 }}</h3>
-                                        <p class="text-success mb-0 mt-2 small">
-                                            <i class="bi bi-arrow-up"></i> All users
-                                        </p>
+                                        <div class="d-flex gap-3 mt-2">
+                                            <p class="text-primary mb-0 small">
+                                                <i class="bi bi-person-fill"></i> {{ $stats['students'] ?? 0 }} Students
+                                            </p>
+                                            <p class="text-success mb-0 small">
+                                                <i class="bi bi-person-badge"></i> {{ $stats['teachers'] ?? 0 }} Teachers
+                                            </p>
+                                        </div>
                                     </div>
                                     <div class="stat-icon bg-primary bg-opacity-10 rounded-circle">
                                         <i class="bi bi-people-fill text-primary"></i>
@@ -51,11 +56,16 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Subjects</h6>
+                                        <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Learning Areas</h6>
                                         <h3 class="mb-0 fw-bold">{{ $stats['subjects'] ?? 0 }}</h3>
-                                        <p class="text-success mb-0 mt-2 small">
-                                            <i class="bi bi-arrow-up"></i> Active subjects
-                                        </p>
+                                        <div class="d-flex gap-3 mt-2">
+                                            <p class="text-info mb-0 small">
+                                                <i class="bi bi-bookmark"></i> {{ $stats['subject_labels'] ?? 0 }} Categories
+                                            </p>
+                                            <p class="text-success mb-0 small">
+                                                <i class="bi bi-book"></i> {{ $stats['subjects'] ?? 0 }} Subjects
+                                            </p>
+                                        </div>
                                     </div>
                                     <div class="stat-icon bg-success bg-opacity-10 rounded-circle">
                                         <i class="bi bi-book text-success"></i>
@@ -69,10 +79,10 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Active Classes</h6>
-                                        <h3 class="mb-0 fw-bold">{{ $stats['classes'] ?? 0 }}</h3>
+                                        <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Class Sections</h6>
+                                        <h3 class="mb-0 fw-bold">{{ $stats['sections'] ?? 0 }}</h3>
                                         <p class="text-success mb-0 mt-2 small">
-                                            <i class="bi bi-arrow-up"></i> Current classes
+                                            <i class="bi bi-check-circle"></i> Active sections
                                         </p>
                                     </div>
                                     <div class="stat-icon bg-info bg-opacity-10 rounded-circle">
@@ -87,10 +97,10 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="text-muted mb-1 small text-uppercase fw-semibold">Total Events</h6>
+                                        <h6 class="text-muted mb-1 small text-uppercase fw-semibold">School Events</h6>
                                         <h3 class="mb-0 fw-bold">{{ $stats['events'] ?? 0 }}</h3>
-                                        <p class="text-success mb-0 mt-2 small">
-                                            <i class="bi bi-arrow-up"></i> Upcoming events
+                                        <p class="text-warning mb-0 mt-2 small">
+                                            <i class="bi bi-calendar-event"></i> Upcoming events
                                         </p>
                                     </div>
                                     <div class="stat-icon bg-warning bg-opacity-10 rounded-circle">
@@ -106,16 +116,40 @@
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-4">
                         <h5 class="fw-semibold mb-3">Quick Actions</h5>
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="{{ route('admin.students.create') }}" class="quick-action-btn btn btn-primary">
-                                <i class="bi bi-person-plus me-2"></i>Add New Student
-                            </a>
-                            <a href="#" class="quick-action-btn btn btn-outline-primary">
-                                <i class="bi bi-file-earmark-plus me-2"></i>Create New Class
-                            </a>
-                            <a href="#" class="quick-action-btn btn btn-outline-primary">
-                                <i class="bi bi-calendar-plus me-2"></i>Schedule Event
-                            </a>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <a href="{{ route('admin.students.create') }}" class="quick-action-card">
+                                    <div class="icon-wrapper bg-primary bg-opacity-10">
+                                        <i class="bi bi-person-plus text-primary"></i>
+                                    </div>
+                                    <div class="content">
+                                        <h6 class="mb-1">Add New Student</h6>
+                                        <p class="text-muted small mb-0">Register a new student</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{{ route('admin.sections.create') }}" class="quick-action-card">
+                                    <div class="icon-wrapper bg-success bg-opacity-10">
+                                        <i class="bi bi-file-earmark-plus text-success"></i>
+                                    </div>
+                                    <div class="content">
+                                        <h6 class="mb-1">Create New Section</h6>
+                                        <p class="text-muted small mb-0">Set up a new class section</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{{ route('admin.events.create') }}" class="quick-action-card">
+                                    <div class="icon-wrapper bg-warning bg-opacity-10">
+                                        <i class="bi bi-calendar-plus text-warning"></i>
+                                    </div>
+                                    <div class="content">
+                                        <h6 class="mb-1">Schedule Event</h6>
+                                        <p class="text-muted small mb-0">Plan a new school event</p>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -152,10 +186,12 @@
         .stat-card {
             transition: transform 0.2s ease-in-out;
             border-radius: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
         }
 
         .stat-icon {
@@ -167,17 +203,39 @@
             font-size: 1.5rem;
         }
 
-        /* Quick Action Button Styles */
-        .quick-action-btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 500;
+        /* Quick Action Card Styles */
+        .quick-action-card {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: #ffffff;
+            border-radius: 1rem;
+            text-decoration: none;
+            color: inherit;
             transition: all 0.2s ease-in-out;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .quick-action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        .quick-action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            color: inherit;
+        }
+
+        .quick-action-card .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .quick-action-card .content h6 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
         }
 
         /* Clock Display Styles */
@@ -205,12 +263,35 @@
             color: #6c757d;
             font-weight: 500;
         }
+
+        /* Chart Styles */
+        .chart-container {
+            margin: 1rem 0;
+        }
     </style>
 
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Update clock
+            function updateClock() {
+                const now = new Date();
+                const timeElement = document.getElementById('current-time');
+                const dateElement = document.getElementById('current-date');
+                
+                timeElement.textContent = now.toLocaleTimeString();
+                dateElement.textContent = now.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+            
+            updateClock();
+            setInterval(updateClock, 1000);
+
             // Student Status Chart
             const studentStatusData = @json($studentStatuses);
             const statusColors = {
@@ -248,47 +329,12 @@
                                         size: 12
                                     }
                                 }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = Math.round((value / total) * 100);
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
                             }
                         },
                         cutout: '70%'
                     }
                 });
             }
-
-            // Clock functionality
-            function updateClock() {
-                const now = new Date();
-                const timeElement = document.getElementById('current-time');
-                const dateElement = document.getElementById('current-date');
-                
-                timeElement.textContent = now.toLocaleTimeString('en-US', { 
-                    hour12: false, 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    second: '2-digit' 
-                });
-                
-                dateElement.textContent = now.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
-            }
-
-            updateClock();
-            setInterval(updateClock, 1000);
         });
     </script>
     @endpush

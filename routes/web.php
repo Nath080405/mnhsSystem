@@ -41,6 +41,14 @@ Route::middleware('auth')->group(function () {
         // Sections
         Route::resource('sections', SectionController::class)->names('admin.sections');
 
+        // Section Management Routes
+        Route::get('/sections', [SectionController::class, 'index'])->name('admin.sections.index');
+        Route::get('/sections/create', [SectionController::class, 'create'])->name('admin.sections.create');
+        Route::post('/sections', [SectionController::class, 'store'])->name('admin.sections.store');
+        Route::get('/sections/{section}/edit', [SectionController::class, 'edit'])->name('admin.sections.edit');
+        Route::put('/sections/{section}', [SectionController::class, 'update'])->name('admin.sections.update');
+        Route::delete('/sections/{section}', [SectionController::class, 'destroy'])->name('admin.sections.destroy');
+        Route::get('/sections/{section}/students', [SectionController::class, 'students'])->name('admin.sections.students');
 
         // Subject Management Routes
         Route::prefix('subjects')->name('admin.subjects.')->group(function () {
@@ -74,14 +82,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/students', [StudentController::class, 'index'])->name('admin.students.index');
         Route::get('/students/create', [StudentController::class, 'create'])->name('admin.students.create');
         Route::post('/students', [StudentController::class, 'store'])->name('admin.students.store');
-        Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('admin.students.edit');
-        Route::put('/students/{id}', [StudentController::class, 'update'])->name('admin.students.update');
-        Route::delete('/students/{id}', [StudentController::class, 'destroy'])->name('admin.students.destroy');
-        Route::get('/students/{id}', [StudentController::class, 'show'])->name('admin.students.show');
 
         // CSV Import and Template Download
         Route::get('/students/template', [StudentController::class, 'downloadTemplate'])->name('admin.students.template');
         Route::post('/students/import', [StudentController::class, 'importStudents'])->name('admin.students.import');
+
+        // Specific Student Routes
+        Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('admin.students.edit');
+        Route::put('/students/{id}', [StudentController::class, 'update'])->name('admin.students.update');
+        Route::delete('/students/{id}', [StudentController::class, 'destroy'])->name('admin.students.destroy');
+        Route::get('/students/{id}', [StudentController::class, 'show'])->name('admin.students.show');
     });
 
     // Teacher routes
@@ -160,5 +170,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/assignments', [StudentDashboardController::class, 'assignments'])->name('student.assignments');
         Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('student.profile.update');
+        Route::post('/events/{id}/archive', [StudentDashboardController::class, 'archive'])->name('student.event.archive');
     });
 });

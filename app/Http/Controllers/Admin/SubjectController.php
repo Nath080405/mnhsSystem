@@ -70,7 +70,23 @@ class SubjectController extends Controller
                 'grade_level' => 'required|string',
                 'parent_id' => 'nullable|exists:subjects,id',
                 'teacher_id' => 'nullable|exists:users,id',
-                'section_id' => 'nullable|exists:sections,id',
+                'section_id' => [
+                    'nullable',
+                    'exists:sections,id',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value && $request->parent_id) {
+                            // Check if there's already a subject with the same parent in this section
+                            $existingSubject = Subject::where('parent_id', $request->parent_id)
+                                ->where('section_id', $value)
+                                ->first();
+                            
+                            if ($existingSubject) {
+                                $parentSubject = Subject::find($request->parent_id);
+                                $fail("A subject from '{$parentSubject->name}' is already assigned to this section.");
+                            }
+                        }
+                    },
+                ],
                 'start_time' => 'nullable',
                 'end_time' => 'nullable',
             ]);
@@ -189,38 +205,61 @@ class SubjectController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:20|unique:subjects,code,' . $id,
-            'description' => 'nullable|string',
             'teacher_id' => 'nullable|exists:users,id',
-            'section_id' => 'nullable|exists:sections,id',
-            'start_time' => 'required',
-            'end_time' => 'required',
+            'section_id' => [
+                'nullable',
+                'exists:sections,id',
+                function ($attribute, $value, $fail) use ($subject, $request) {
+                    if ($value && $subject->parent_id) {
+                        // Check if there's already a subject with the same parent in this section
+                        // Exclude the current subject from the check
+                        $existingSubject = Subject::where('parent_id', $subject->parent_id)
+                            ->where('section_id', $value)
+                            ->where('id', '!=', $subject->id)
+                            ->first();
+                        
+                        if ($existingSubject) {
+                            $parentSubject = Subject::find($subject->parent_id);
+                            $fail("A subject from '{$parentSubject->name}' is already assigned to this section.");
+                        }
+                    }
+                },
+            ],
+            'start_time' => 'nullable',
+            'end_time' => 'nullable',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Keep the existing status
-            $validated['status'] = $subject->status;
+            // Update the subject with all validated fields
+            $subject->update([
+                'name' => $validated['name'],
+                'teacher_id' => $validated['teacher_id'],
+                'section_id' => $validated['section_id'],
+                'status' => $subject->status,
+                'grade_level' => $subject->grade_level
+            ]);
 
-            $subject->update($validated);
-
-            // Delete all existing schedules
-            $subject->schedules()->delete();
-
-            // Create new schedules for all days
-            $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            foreach ($days as $day) {
-                $subject->schedules()->create([
-                    'day' => $day,
-                    'start_time' => $request->start_time,
-                    'end_time' => $request->end_time,
-                ]);
+            // Update schedules if time is provided
+            if ($request->filled(['start_time', 'end_time'])) {
+                // Delete existing schedules
+                $subject->schedules()->delete();
+                
+                // Create new schedules for each day
+                $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                foreach ($days as $day) {
+                    $subject->schedules()->create([
+                        'day' => $day,
+                        'start_time' => $validated['start_time'],
+                        'end_time' => $validated['end_time'],
+                    ]);
+                }
             }
 
             DB::commit();
 
-            // Determine where to redirect based on the previous URL
+            // Determine where to redirect based on the previous URL and subject type
             $previousUrl = url()->previous();
             
             if (str_contains($previousUrl, '/grade/')) {

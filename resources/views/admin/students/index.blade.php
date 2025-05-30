@@ -44,7 +44,8 @@
                 </div>
 
                 <!-- CSV Import Button -->
-                <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadCsvModal">
+                <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#uploadCsvModal">
                     <i class="bi bi-file-earmark-spreadsheet me-1"></i> Import CSV
                 </button>
 
@@ -86,67 +87,74 @@
                         </thead>
                         <tbody>
                             @forelse($students as $student)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-person-badge text-primary"></i>
-                                            </div>
-                                            <span class="fw-medium">{{ $student->student?->student_id ?? 'N/A' }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-person text-info"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-medium">{{ $student->formal_name }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-envelope text-warning"></i>
-                                            </div>
-                                            <a href="mailto:{{ $student->email }}" class="text-decoration-none">{{ $student->email }}</a>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ 
-                                            $student->student?->status === 'active' ? 'success' : 
-                                            ($student->student?->status === 'inactive' ? 'warning' : 
-                                            ($student->student?->status === 'dropped' ? 'danger' : 
-                                            ($student->student?->status === 'graduated' ? 'info' : 
-            ($student->student?->status === 'transferred' ? 'secondary' : 'secondary')))) }}">
-                                            <i class="bi bi-{{ 
-                                                $student->student?->status === 'active' ? 'check-circle' : 
-                                                ($student->student?->status === 'inactive' ? 'pause-circle' : 
-                                                ($student->student?->status === 'dropped' ? 'x-circle' : 
-                                                ($student->student?->status === 'graduated' ? 'mortarboard' : 
-            ($student->student?->status === 'transferred' ? 'arrow-right-circle' : 'question-circle')))) }} me-1"></i>
-                                            {{ ucfirst($student->student?->status ?? 'inactive') }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex justify-content-end gap-2">
-                                            <a href="{{ route('admin.students.edit', $student->id) }}" class="btn btn-xs btn-outline-primary" title="Edit Student">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <a href="{{ route('admin.students.show', $student->id) }}" class="btn btn-xs btn-outline-info" title="View Details">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST" class="d-inline delete-student-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="btn btn-xs btn-outline-danger delete-student-btn" data-bs-toggle="modal" data-bs-target="#deleteStudentModal" data-student-id="{{ $student->id }}" data-student-name="{{ $student->formal_name }}" title="Delete Student">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
+                                                                <i class="bi bi-person-badge text-primary"></i>
+                                                            </div>
+                                                            <span class="fw-medium">{{ $student->student?->student_id ?? 'N/A' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle me-2">
+                                                                <i class="bi bi-person text-info"></i>
+                                                            </div>
+                                                            <div>
+                                                                <div class="fw-medium">{{ $student->formal_name }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-2">
+                                                                <i class="bi bi-envelope text-warning"></i>
+                                                            </div>
+                                                            <a href="mailto:{{ $student->email }}"
+                                                                class="text-decoration-none">{{ $student->email }}</a>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-{{ 
+                                                                    $student->student?->status === 'active' ? 'success' :
+                                ($student->student?->status === 'inactive' ? 'warning' :
+                                    ($student->student?->status === 'dropped' ? 'danger' :
+                                        ($student->student?->status === 'graduated' ? 'info' :
+                                            ($student->student?->status === 'transferred' ? 'secondary' : 'secondary')))) }}">
+                                                            <i class="bi bi-{{ 
+                                                                        $student->student?->status === 'active' ? 'check-circle' :
+                                ($student->student?->status === 'inactive' ? 'pause-circle' :
+                                    ($student->student?->status === 'dropped' ? 'x-circle' :
+                                        ($student->student?->status === 'graduated' ? 'mortarboard' :
+                                            ($student->student?->status === 'transferred' ? 'arrow-right-circle' : 'question-circle')))) }} me-1"></i>
+                                                            {{ ucfirst($student->student?->status ?? 'inactive') }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex justify-content-end gap-2">
+                                                            <a href="{{ route('admin.students.edit', $student->id) }}"
+                                                                class="btn btn-xs btn-outline-primary" title="Edit Student">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <a href="{{ route('admin.students.show', $student->id) }}"
+                                                                class="btn btn-xs btn-outline-info" title="View Details">
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                            <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST"
+                                                                class="d-inline delete-student-form">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="button" class="btn btn-xs btn-outline-danger delete-student-btn"
+                                                                    data-bs-toggle="modal" data-bs-target="#deleteStudentModal"
+                                                                    data-student-id="{{ $student->id }}"
+                                                                    data-student-name="{{ $student->formal_name }}" title="Delete Student">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-4">
@@ -166,8 +174,28 @@
                         Showing {{ $students->firstItem() ?? 0 }} to {{ $students->lastItem() ?? 0 }} of
                         {{ $students->total() ?? 0 }} entries
                     </div>
-                    <div>
-                        {{ $students->links() }}
+                    <div class="d-flex align-items-center gap-2">
+                        @if($students->hasPages())
+                            @if($students->onFirstPage())
+                                <button class="btn btn-outline-secondary pagination-btn" disabled>
+                                    <i class="bi bi-chevron-left"></i> Previous
+                                </button>
+                            @else
+                                <a href="{{ $students->previousPageUrl() }}" class="btn btn-outline-secondary pagination-btn">
+                                    <i class="bi bi-chevron-left"></i> Previous
+                                </a>
+                            @endif
+
+                            @if($students->hasMorePages())
+                                <a href="{{ $students->nextPageUrl() }}" class="btn btn-outline-primary pagination-btn">
+                                    Next <i class="bi bi-chevron-right"></i>
+                                </a>
+                            @else
+                                <button class="btn btn-outline-secondary pagination-btn" disabled>
+                                    Next <i class="bi bi-chevron-right"></i>
+                                </button>
+                            @endif
+                        @endif
                     </div>
                 </div>
             </div>
@@ -175,7 +203,8 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-labelledby="deleteStudentModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0">
@@ -188,7 +217,8 @@
                             <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
                         </div>
                         <h5 class="mb-1">Are you sure?</h5>
-                        <p class="text-muted mb-0">You are about to delete <span class="fw-bold" id="studentName"></span>. This action cannot be undone.</p>
+                        <p class="text-muted mb-0">You are about to delete <span class="fw-bold" id="studentName"></span>.
+                            This action cannot be undone.</p>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
@@ -221,7 +251,8 @@
                                 The CSV file should have the following columns:
                                 <ul class="mb-0 mt-1">
                                     <li><strong>Required:</strong> last_name, first_name, email, lrn, gender, birthdate</li>
-                                    <li><strong>Optional:</strong> middle_name, suffix, street_address, barangay, municipality, province, phone</li>
+                                    <li><strong>Optional:</strong> middle_name, suffix, street_address, barangay,
+                                        municipality, province, phone</li>
                                 </ul>
                             </div>
                         </div>
@@ -356,6 +387,75 @@
         .btn-xs i {
             font-size: 0.75rem;
         }
+
+        .btn-group .btn-xs {
+            border-radius: 0;
+        }
+
+        .btn-group .btn-xs:first-child {
+            border-top-left-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .btn-group .btn-xs:last-child {
+            border-top-right-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .btn-group .btn-xs:not(:first-child) {
+            margin-left: -1px;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            min-width: 100px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            border-width: 1px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn i {
+            font-size: 0.875rem;
+        }
+
+        .btn-outline-primary.pagination-btn {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .btn-outline-primary.pagination-btn:hover:not(:disabled) {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+        }
+
+        .btn-outline-secondary.pagination-btn {
+            background-color: white;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        .btn-outline-secondary.pagination-btn:hover:not(:disabled) {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: #495057;
+        }
     </style>
 
     <script>
@@ -367,14 +467,14 @@
 
             searchInput.addEventListener('input', function () {
                 clearTimeout(timeoutId);
-                
+
                 // Cancel any ongoing request
                 if (currentRequest) {
                     currentRequest.abort();
                 }
 
                 const searchValue = this.value.trim();
-                
+
                 // If search is empty, clear results immediately
                 if (!searchValue) {
                     const currentUrl = new URL(window.location.href);
@@ -402,25 +502,25 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => response.text())
-                .then(html => {
-                    // Update only the table body
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newTableBody = doc.querySelector('tbody');
-                    const currentTableBody = document.querySelector('tbody');
-                    if (newTableBody && currentTableBody) {
-                        currentTableBody.innerHTML = newTableBody.innerHTML;
-                    }
-                })
-                .catch(error => {
-                    if (error.name !== 'AbortError') {
-                        console.error('Search error:', error);
-                    }
-                })
-                .finally(() => {
-                    currentRequest = null;
-                });
+                    .then(response => response.text())
+                    .then(html => {
+                        // Update only the table body
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTableBody = doc.querySelector('tbody');
+                        const currentTableBody = document.querySelector('tbody');
+                        if (newTableBody && currentTableBody) {
+                            currentTableBody.innerHTML = newTableBody.innerHTML;
+                        }
+                    })
+                    .catch(error => {
+                        if (error.name !== 'AbortError') {
+                            console.error('Search error:', error);
+                        }
+                    })
+                    .finally(() => {
+                        currentRequest = null;
+                    });
             }
 
             // Delete Student Modal Functionality
@@ -431,7 +531,7 @@
 
             // When delete button is clicked
             document.querySelectorAll('.delete-student-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const studentName = this.getAttribute('data-student-name');
                     studentNameElement.textContent = studentName;
                     currentForm = this.closest('form');
@@ -439,7 +539,7 @@
             });
 
             // When confirm delete is clicked
-            confirmDeleteBtn.addEventListener('click', function() {
+            confirmDeleteBtn.addEventListener('click', function () {
                 if (currentForm) {
                     currentForm.submit();
                 }
