@@ -66,4 +66,9 @@ class Subject extends Model
     {
         return $this->hasMany(Grade::class);
     }
+
+    public function automaticEnrollments()
+    {
+        return $this->hasMany(AutomaticEnrollment::class);
+    }
 } 
