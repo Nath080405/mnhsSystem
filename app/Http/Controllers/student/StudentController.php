@@ -98,9 +98,18 @@ class StudentController extends Controller
             ->pluck('event_id')
             ->toArray();
 
+        // Get archived event IDs for this user
+        $archivedEventIds = EventView::where('user_id', $user->id)
+            ->where('is_archived', true)
+            ->pluck('event_id')
+            ->toArray();
+
         // Categorize events
-        $recentEvents = $events->whereNotIn('event_id', $viewedEventIds);
-        $oldEvents = $events->whereIn('event_id', $viewedEventIds);
+        $recentEvents = $events->whereNotIn('event_id', $viewedEventIds)
+                             ->whereNotIn('event_id', $archivedEventIds);
+        $oldEvents = $events->whereIn('event_id', $viewedEventIds)
+                          ->whereNotIn('event_id', $archivedEventIds);
+        $archivedEvents = $events->whereIn('event_id', $archivedEventIds);
 
         // Mark all recent events as viewed
         foreach ($recentEvents as $event) {
@@ -114,9 +123,39 @@ class StudentController extends Controller
         $newEventsCount = Event::where(function($query) {
             $query->where('visibility', 'All')
                   ->orWhere('visibility', 'Students');
-        })->whereNotIn('event_id', $viewedEventIds)->count();
+        })->whereNotIn('event_id', $viewedEventIds)
+          ->whereNotIn('event_id', $archivedEventIds)
+          ->count();
         
-        return view('student.events', compact('recentEvents', 'oldEvents', 'newEventsCount'));
+        return view('student.events', compact('recentEvents', 'oldEvents', 'archivedEvents', 'newEventsCount', 'viewedEventIds', 'archivedEventIds'));
+    }
+
+    /**
+     * Archive the specified event.
+     */
+    public function archive($id)
+    {
+        $user = Auth::user();
+        $event = Event::where('event_id', $id)
+                      ->where(function($query) {
+                          $query->where('visibility', 'All')
+                                ->orWhere('visibility', 'Students');
+                      })
+                      ->firstOrFail();
+
+        // Update or create the event view record with archived status
+        EventView::updateOrCreate(
+            ['user_id' => $user->id, 'event_id' => $event->event_id],
+            ['is_archived' => true, 'viewed_at' => now()]
+        );
+
+        // If it's an AJAX request, return JSON response
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        // Otherwise redirect
+        return redirect()->route('student.events')->with('success', 'Event archived successfully.');
     }
 
     /**

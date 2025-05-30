@@ -159,5 +159,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/assignments', [StudentDashboardController::class, 'assignments'])->name('student.assignments');
         Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('student.profile.update');
+        Route::post('/events/{id}/archive', [StudentDashboardController::class, 'archive'])->name('student.event.archive');
     });
 });

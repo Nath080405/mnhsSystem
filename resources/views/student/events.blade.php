@@ -1,434 +1,351 @@
 @extends('layouts.studentApp')
 
 @section('content')
-<div class="container-fluid py-3">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1" style="color: #0d6efd;">School Events, Annoucements & Updates</h2>
-            <p class="text-muted mb-0 small">View and track school events and activities</p>
+<div class="bg-light min-vh-100">
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="color: #0d6efd;">Events</h2>
+                <p class="text-muted mb-0 small">View and track school events and activities</p>
+            </div>
+            <div class="d-flex gap-2">
+                <!-- Status Filter Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Event Status
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-filter="all">All Events</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="upcoming">Upcoming</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="completed">Completed</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="cancelled">Cancelled</a></li>
+                    </ul>
+                </div>
+                <!-- Inbox Filter Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Filter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item inbox-filter" href="#" data-inbox="all">All Events</a></li>
+                        <li><a class="dropdown-item inbox-filter" href="#" data-inbox="unread">Unread</a></li>
+                        <li><a class="dropdown-item inbox-filter" href="#" data-inbox="starred">Starred</a></li>
+                        <li><a class="dropdown-item inbox-filter" href="#" data-inbox="archived">Archived</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="card shadow-lg border-0">
-        <div class="card-body p-4">
-            @if($recentEvents->count() > 0 || $oldEvents->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="bg-light">
-                            <tr>
-                                <th style="color: #0d6efd;">Event Title</th>
-                                <th style="color: #0d6efd;">Status</th>
-                                <th style="color: #0d6efd;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentEvents as $event)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-calendar-event" style="color: #0d6efd;"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-medium">
-                                                    {{ $event->title }}
-                                                    <span class="badge bg-danger ms-2">Recent</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ $event->status === 'Upcoming' ? 'success' : ($event->status === 'Completed' ? 'info' : 'danger') }}">
-                                            <i class="bi bi-{{ $event->status === 'Upcoming' ? 'clock' : ($event->status === 'Completed' ? 'check-circle' : 'x-circle') }} me-1"></i>
+        <div class="row">
+            <!-- Events Sidebar -->
+            <div class="col-md-4">
+                <div class="bg-white rounded shadow-sm p-3 overflow-auto" style="height: calc(100vh - 200px);">
+                    <!-- Active Events -->
+                    <div class="active-events">
+                        @forelse($recentEvents->concat($oldEvents) as $event)
+                            @php $eventDate = \Carbon\Carbon::parse($event->event_date); @endphp
+                            <div class="card mb-2 event-card {{ !in_array($event->event_id, $viewedEventIds) ? 'unread' : '' }} {{ $event->is_starred ? 'starred' : '' }} {{ in_array($event->event_id, $archivedEventIds) ? 'archived' : '' }}"
+                                 data-event-id="{{ $event->event_id }}" 
+                                 data-status="{{ strtolower($event->status) }}"
+                                 data-archived="{{ in_array($event->event_id, $archivedEventIds) ? 'true' : 'false' }}"
+                                 style="cursor: pointer;">
+                                <div class="card-body d-flex position-relative">
+                                    <div class="me-3 text-center">
+                                        <div class="fw-bold text-primary">{{ $eventDate->format('M d') }}</div>
+                                        <small class="text-muted">{{ $eventDate->format('Y') }}</small>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold text-dark">{{ $event->title }}</h6>
+                                        <p class="text-muted small mb-1">Organizer: {{ $event->creator->name ?? 'N/A' }}</p>
+                                        <span class="badge {{ $event->status === 'Upcoming' ? 'bg-success' : ($event->status === 'Completed' ? 'bg-secondary' : 'bg-danger') }}">
                                             {{ $event->status }}
                                         </span>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal{{ $event->event_id }}">
-                                            <i class="bi bi-eye me-1"></i> View Details
+                                    </div>
+                                    <!-- Action Icons -->
+                                    <div class="position-absolute top-0 end-0 m-1 d-flex gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-warning rounded-circle toggle-star" data-id="{{ $event->event_id }}">
+                                            <i class="bi {{ $event->is_starred ? 'bi-star-fill' : 'bi-star' }}"></i>
                                         </button>
-                                    </td>
-                                </tr>
-
-                                <!-- Event Modal -->
-                                <div class="modal fade" id="eventModal{{ $event->event_id }}" tabindex="-1" aria-labelledby="eventModalLabel{{ $event->event_id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="modal-section">
-                                                    <div class="section-icon">
-                                                        <i class="bi bi-card-text"></i>
-                                                    </div>
-                                                    <h6 class="section-title">Description</h6>
-                                                    <p class="section-content">{{ $event->description }}</p>
-                                                </div>
-
-                                                <div class="modal-section">
-                                                    <div class="section-icon">
-                                                        <i class="bi bi-calendar2-week"></i>
-                                                    </div>
-                                                    <h6 class="section-title">Schedule</h6>
-                                                    <div class="section-content">
-                                                        <div class="info-item">
-                                                            <i class="bi bi-calendar-date"></i>
-                                                            <span>{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</span>
-                                                        </div>
-                                                        <div class="info-item">
-                                                            <i class="bi bi-clock"></i>
-                                                            <span>{{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="modal-section">
-                                                    <div class="section-icon">
-                                                        <i class="bi bi-geo-alt"></i>
-                                                    </div>
-                                                    <h6 class="section-title">Location</h6>
-                                                    <div class="info-item">
-                                                        <i class="bi bi-pin-map"></i>
-                                                        <span class="section-content">{{ $event->location }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-circle toggle-read {{ !in_array($event->event_id, $viewedEventIds) ? 'unread' : '' }}" data-id="{{ $event->event_id }}">
+                                            <i class="bi bi-circle-fill {{ !in_array($event->event_id, $viewedEventIds) ? 'text-white' : 'text-primary' }}"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-dark rounded-circle toggle-archive" data-id="{{ $event->event_id }}">
+                                            <i class="bi bi-archive{{ in_array($event->event_id, $archivedEventIds) ? '-fill' : '' }}"></i>
+                                        </button>
                                     </div>
                                 </div>
-                            @endforeach
+                            </div>
+                        @empty
+                            <div class="text-center text-muted py-5 no-events-message">
+                                <i class="bi bi-calendar-x display-4"></i>
+                                <p class="mt-2 mb-0">No active events found.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
 
-                            @foreach($oldEvents as $event)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-2">
-                                                <i class="bi bi-calendar-event" style="color: #0d6efd;"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-medium">{{ $event->title }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ $event->status === 'Upcoming' ? 'success' : ($event->status === 'Completed' ? 'info' : 'danger') }}">
-                                            <i class="bi bi-{{ $event->status === 'Upcoming' ? 'clock' : ($event->status === 'Completed' ? 'check-circle' : 'x-circle') }} me-1"></i>
-                                            {{ $event->status }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal{{ $event->event_id }}">
-                                            <i class="bi bi-eye me-1"></i> View Details
-                                        </button>
-                                    </td>
-                                </tr>
+            <!-- Event Details Panel -->
+            <div class="col-md-8">
+                <div class="bg-white rounded shadow-sm p-4 overflow-auto" style="height: calc(100vh - 200px);">
+                    <div id="eventDetailsPlaceholder" class="text-center text-muted py-5">
+                        <i class="bi bi-calendar-event display-4"></i>
+                        <p class="mt-3 mb-0 fs-5">No Event Selected</p>
+                        <p class="text-muted small">Select an event from the list to view its details</p>
+                    </div>
 
-                                <!-- Event Modal -->
-                                <div class="modal fade" id="eventModal{{ $event->event_id }}" tabindex="-1" aria-labelledby="eventModalLabel{{ $event->event_id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="modal-section">
-                                                    <div class="section-icon">
-                                                        <i class="bi bi-card-text"></i>
-                                                    </div>
-                                                    <h6 class="section-title">Description</h6>
-                                                    <p class="section-content">{{ $event->description }}</p>
-                                                </div>
-
-                                                <div class="modal-section">
-                                                    <div class="section-icon">
-                                                        <i class="bi bi-calendar2-week"></i>
-                                                    </div>
-                                                    <h6 class="section-title">Schedule</h6>
-                                                    <div class="section-content">
-                                                        <div class="info-item">
-                                                            <i class="bi bi-calendar-date"></i>
-                                                            <span>{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</span>
-                                                        </div>
-                                                        <div class="info-item">
-                                                            <i class="bi bi-clock"></i>
-                                                            <span>{{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="modal-section">
-                                                    <div class="section-icon">
-                                                        <i class="bi bi-geo-alt"></i>
-                                                    </div>
-                                                    <h6 class="section-title">Location</h6>
-                                                    <div class="info-item">
-                                                        <i class="bi bi-pin-map"></i>
-                                                        <span class="section-content">{{ $event->location }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                    @foreach($recentEvents->concat($oldEvents)->concat($archivedEvents) as $event)
+                        <div class="event-detail d-none" id="event-detail-{{ $event->event_id }}">
+                            <h3 class="mb-4">{{ $event->title }}</h3>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <p><i class="bi bi-calendar me-2"></i>Date: {{ $event->event_date }}</p>
+                                    <p><i class="bi bi-person me-2"></i>Organizer: {{ $event->creator->name ?? 'N/A' }}</p>
                                 </div>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                <div class="col-md-6">
+                                    <p><i class="bi bi-clock me-2"></i>Time: {{ $event->event_time }}</p>
+                                    <p><i class="bi bi-geo-alt me-2"></i>Location: {{ $event->location }}</p>
+                                </div>
+                            </div>
+                            <h5>Description</h5>
+                            <p class="text-muted">{{ $event->description }}</p>
+                        </div>
+                    @endforeach
                 </div>
-            @else
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
-                    <p class="mt-2 mb-0">No events found.</p>
-                </div>
-            @endif
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const eventCards = document.querySelectorAll('.event-card');
+    const eventDetailsPlaceholder = document.getElementById('eventDetailsPlaceholder');
+    const eventDetails = document.querySelectorAll('.event-detail');
+    const activeEvents = document.querySelector('.active-events');
+    const noEventsMessage = document.querySelector('.no-events-message');
+
+    const resetView = () => {
+        eventDetails.forEach(el => el.classList.add('d-none'));
+        eventDetailsPlaceholder.classList.remove('d-none');
+        eventCards.forEach(c => c.classList.remove('border-primary'));
+    };
+
+    const showDetails = card => {
+        resetView();
+        card.classList.add('border-primary');
+        const detail = document.getElementById(`event-detail-${card.dataset.eventId}`);
+        if (detail) {
+            detail.classList.remove('d-none');
+            eventDetailsPlaceholder.classList.add('d-none');
+        }
+    };
+
+    eventCards.forEach(card =>
+        card.addEventListener('click', () => showDetails(card))
+    );
+
+    // Show first event by default
+    if (eventCards.length > 0) {
+        const firstActiveCard = document.querySelector('.active-events .event-card');
+        if (firstActiveCard) showDetails(firstActiveCard);
+    }
+
+    document.querySelectorAll('[data-filter]').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const filter = link.dataset.filter;
+            resetView();
+            eventCards.forEach(card => {
+                const match = filter === 'all' || card.dataset.status === filter;
+                card.style.display = match ? 'block' : 'none';
+            });
+            const visible = [...eventCards].find(c => c.style.display !== 'none');
+            if (visible) showDetails(visible);
+        });
+    });
+
+    document.querySelectorAll('.inbox-filter').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const filter = link.dataset.inbox;
+            
+            let hasVisibleCards = false;
+            eventCards.forEach(card => {
+                let show = true;
+                if (filter === 'unread' && !card.classList.contains('unread')) show = false;
+                if (filter === 'starred' && !card.classList.contains('starred')) show = false;
+                if (filter === 'archived' && card.dataset.archived !== 'true') show = false;
+                if (filter === 'all') show = true;
+                
+                card.style.display = show ? 'block' : 'none';
+                if (show) hasVisibleCards = true;
+            });
+
+            if (!hasVisibleCards) {
+                resetView();
+                eventDetailsPlaceholder.innerHTML = `
+                    <i class="bi bi-calendar-x display-4"></i>
+                    <p class="mt-3 mb-0 fs-5">No Events Found</p>
+                    <p class="text-muted small">There are no events in this category</p>
+                `;
+            } else {
+                const firstVisible = [...eventCards].find(card => card.style.display !== 'none');
+                if (firstVisible) showDetails(firstVisible);
+            }
+        });
+    });
+
+    // Replace archive form submission with toggle button
+    document.querySelectorAll('.toggle-archive').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent card click event
+            const card = button.closest('.event-card');
+            const eventId = card.dataset.eventId;
+            const isArchived = card.dataset.archived === 'true';
+            
+            fetch(`/student/events/${eventId}/archive`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Toggle archived state
+                    card.dataset.archived = (!isArchived).toString();
+                    card.classList.toggle('archived');
+                    const icon = button.querySelector('i');
+                    icon.classList.toggle('bi-archive');
+                    icon.classList.toggle('bi-archive-fill');
+
+                    // Show success message
+                    const toast = document.createElement('div');
+                    toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+                    toast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                Event ${isArchived ? 'unarchived' : 'archived'} successfully
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    const bsToast = new bootstrap.Toast(toast);
+                    bsToast.show();
+                    setTimeout(() => toast.remove(), 3000);
+
+                    // If we're currently filtering by archived, update visibility
+                    const currentFilter = document.querySelector('.inbox-filter.active')?.dataset.inbox;
+                    if (currentFilter === 'archived') {
+                        card.style.display = !isArchived ? 'block' : 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error message
+                const toast = document.createElement('div');
+                toast.className = 'toast align-items-center text-white bg-danger border-0 position-fixed bottom-0 end-0 m-3';
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            Failed to ${isArchived ? 'unarchive' : 'archive'} event. Please try again.
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+                setTimeout(() => toast.remove(), 3000);
+            });
+        });
+    });
+
+    document.querySelectorAll('.toggle-read').forEach(button => {
+        button.addEventListener('click', () => {
+            const card = button.closest('.event-card');
+            card.classList.toggle('unread');
+            button.classList.toggle('unread');
+            const icon = button.querySelector('i');
+            icon.classList.toggle('text-white');
+            icon.classList.toggle('text-primary');
+        });
+    });
+
+    document.querySelectorAll('.toggle-star').forEach(button => {
+        button.addEventListener('click', () => {
+            const card = button.closest('.event-card');
+            card.classList.toggle('starred');
+            const icon = button.querySelector('i');
+            icon.classList.toggle('bi-star');
+            icon.classList.toggle('bi-star-fill');
+        });
+    });
+});
+</script>
+
 <style>
-.card {
-    border-radius: 1rem;
+.event-card {
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
 }
+
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.event-card.unread {
+    background-color: #f8f9fa;
+}
+
+.event-card.starred {
+    border-color: #ffc107;
+}
+
+.event-card.archived {
+    opacity: 0.6;
+}
+
+.event-card.archived:hover {
+    opacity: 0.8;
+}
+
 .badge {
-    padding: 0.5rem 1rem;
-    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
 }
-.avatar-sm {
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+.btn-outline-warning,
+.btn-outline-primary,
+.btn-outline-dark {
+    padding: 0.25rem;
+    line-height: 1;
 }
-.table > :not(caption) > * > * {
-    padding: 1rem;
-}
-.table-hover tbody tr:hover {
-    background-color: rgba(111, 78, 242, 0.05);
-}
-.modal-content {
-    border-radius: 2rem;
-    border: none;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    overflow: hidden;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-}
-.modal-header {
-    border-bottom: none;
-    padding: 1.5rem 1.5rem 0.5rem;
-    background: linear-gradient(45deg, #0d6efd 0%, #0a58ca 100%);
-    min-height: 1rem;
-}
-.modal-body {
-    padding: 1.5rem;
-    background: #fff;
-}
-.modal-footer {
-    border-top: none;
-    padding: 1rem 1.5rem 1.5rem;
-    background: linear-gradient(45deg, #dc3545 0%, #b02a37 100%);
-}
-.modal-section {
-    background: #fff;
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-.modal-section:nth-child(1) {
-    border: 3px solid #0d6efd;
-}
-.modal-section:nth-child(2) {
-    border: 3px solid #0dcaf0;
-}
-.modal-section:nth-child(3) {
-    border: 3px solid #198754;
-}
-.modal-section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transform: rotate(45deg);
-    animation: shine 3s infinite;
-}
-.modal-section:hover {
-    transform: translateY(-5px) rotate(1deg);
-}
-.modal-section:nth-child(1):hover {
-    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
-}
-.modal-section:nth-child(2):hover {
-    box-shadow: 0 10px 20px rgba(13, 202, 240, 0.2);
-}
-.modal-section:nth-child(3):hover {
-    box-shadow: 0 10px 20px rgba(25, 135, 84, 0.2);
-}
-.section-icon {
-    width: 4rem;
-    height: 4rem;
-    border-radius: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-.modal-section:nth-child(1) .section-icon {
-    background: linear-gradient(45deg, #0d6efd 0%, #0a58ca 100%);
-}
-.modal-section:nth-child(2) .section-icon {
-    background: linear-gradient(45deg, #0dcaf0 0%, #0aa2c0 100%);
-}
-.modal-section:nth-child(3) .section-icon {
-    background: linear-gradient(45deg, #198754 0%, #146c43 100%);
-}
-.section-icon i {
-    font-size: 1.8rem;
-    color: white;
-}
-.section-icon:hover {
-    transform: scale(1.1) rotate(5deg);
-}
-.section-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-.modal-section:nth-child(1) .section-title {
-    color: #0d6efd;
-}
-.modal-section:nth-child(2) .section-title {
-    color: #0dcaf0;
-}
-.modal-section:nth-child(3) .section-title {
-    color: #198754;
-}
-.section-content {
-    color: #666;
-    font-size: 1rem;
-    line-height: 1.6;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-}
-.info-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-    background: #fff;
-}
-.modal-section:nth-child(1) .info-item {
-    border: 2px dashed #0d6efd;
-}
-.modal-section:nth-child(2) .info-item {
-    border: 2px dashed #0dcaf0;
-}
-.modal-section:nth-child(3) .info-item {
-    border: 2px dashed #198754;
-}
-.info-item:hover {
-    transform: scale(1.02);
-    border-style: solid;
-}
-.modal-section:nth-child(1) .info-item:hover {
-    background: #f0f7ff;
-}
-.modal-section:nth-child(2) .info-item:hover {
-    background: #f0faff;
-}
-.modal-section:nth-child(3) .info-item:hover {
-    background: #f0fff4;
-}
-.info-item i {
-    width: 3rem;
-    height: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 1rem;
-    margin-right: 1rem;
-    font-size: 1.3rem;
-    color: white;
-}
-.modal-section:nth-child(1) .info-item i {
-    background: linear-gradient(45deg, #0d6efd 0%, #0a58ca 100%);
-}
-.modal-section:nth-child(2) .info-item i {
-    background: linear-gradient(45deg, #0dcaf0 0%, #0aa2c0 100%);
-}
-.modal-section:nth-child(3) .info-item i {
-    background: linear-gradient(45deg, #198754 0%, #146c43 100%);
-}
-.btn-close {
-    padding: 0.8rem;
-    margin: -0.5rem -0.5rem -0.5rem auto;
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-    background: white;
-    opacity: 1;
-    filter: none;
-    width: 1.5rem;
-    height: 1.5rem;
-    position: relative;
-}
-.btn-close::before {
-    content: '×';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.5rem;
-    color: #0d6efd;
-    font-weight: bold;
-}
-.btn-close:hover {
-    transform: rotate(90deg);
-    background: #0d6efd;
-}
-.btn-close:hover::before {
-    color: white;
-}
-.btn-light {
-    padding: 0.8rem 2rem;
-    border-radius: 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    background: white;
-    color: #6f4ef2;
-    border: 3px solid #6f4ef2;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    font-size: 1.1rem;
-}
-.btn-light:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 15px rgba(111, 78, 242, 0.3);
-    background: #6f4ef2;
-    color: white;
-}
-@keyframes shine {
-    0% {
-        transform: translateX(-100%) rotate(45deg);
-    }
-    100% {
-        transform: translateX(100%) rotate(45deg);
-    }
+
+.btn-outline-warning:hover,
+.btn-outline-primary:hover,
+.btn-outline-dark:hover {
+    transform: scale(1.1);
 }
 </style>
 @endsection
