@@ -22,7 +22,7 @@ class SectionController extends Controller
             ->orderBy('grade_level')
             ->orderBy('created_at', 'desc')
             ->orderBy('name')
-            ->paginate(10);
+            ->get();
 
         return view('admin.sections.index', compact('sections', 'gradeLevels', 'selectedGrade'));
     }
@@ -40,6 +40,7 @@ class SectionController extends Controller
             'name' => 'required|string|max:255',
             'grade_level' => 'required|string|in:Grade 7,Grade 8,Grade 9,Grade 10,Grade 11,Grade 12',
             'description' => 'nullable|string',
+            'status' => 'required|in:active,inactive',
             'adviser_id' => 'required|exists:users,id',
         ]);
 
@@ -88,11 +89,5 @@ class SectionController extends Controller
 
         return redirect()->route('admin.sections.index')
             ->with('success', 'Section deleted successfully.');
-    }
-
-    public function students(Section $section)
-    {
-        $students = $section->students()->with('user')->get();
-        return view('admin.sections.students', compact('section', 'students'));
     }
 }

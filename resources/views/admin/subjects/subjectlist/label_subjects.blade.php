@@ -6,15 +6,15 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-primary">{{ $subjectLabel->name }}</h2>
-            <p class="text-muted mb-0 small">Manage learning areas under this category</p>
+            <p class="text-muted mb-0 small">Manage subjects under this label</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back to Learning Areas
+            <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Subject Label
             </a>
             <a href="{{ route('admin.subjects.create', ['parent_id' => $subjectLabel->id, 'grade_level' => $subjectLabel->grade_level]) }}" 
                class="btn btn-primary">
-                <i class="bi bi-plus-lg me-1"></i> Add Learning Area
+                <i class="bi bi-plus-lg me-1"></i> Add Subject
             </a>
         </div>
     </div>
@@ -37,7 +37,7 @@
                             <th class="text-primary">Name</th>
                             <th class="text-primary">Code</th>
                             <th class="text-primary">Teacher</th>
-                            <th class="text-primary">Class Section</th>
+                            <th class="text-primary">Section</th>
                             <th class="text-primary">Schedule</th>
                             <th class="text-primary text-end">Actions</th>
                         </tr>
@@ -112,10 +112,10 @@
                                         <form action="{{ route('admin.subjects.destroy', $subject) }}" 
                                               method="POST" 
                                               class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to remove this learning area?');">
+                                              onsubmit="return confirm('Are you sure you want to delete this subject?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-xs btn-outline-danger" title="Remove">
+                                            <button type="submit" class="btn btn-xs btn-outline-danger" title="Delete">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -127,7 +127,7 @@
                                 <td colspan="6" class="text-center py-4">
                                     <div class="text-muted">
                                         <i class="bi bi-inbox-fill fs-2 d-block mb-2"></i>
-                                        No learning areas found
+                                        No subjects found
                                     </div>
                                 </td>
                             </tr>

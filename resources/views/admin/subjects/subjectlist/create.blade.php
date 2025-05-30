@@ -5,8 +5,8 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1 text-primary">Add New Learning Area</h2>
-            <p class="text-muted mb-0 small">Create a new learning area</p>
+            <h2 class="fw-bold mb-1 text-primary">Add New Subject</h2>
+            <p class="text-muted mb-0 small">Create a new subject</p>
         </div>
     </div>
 
@@ -32,7 +32,7 @@
                         <h5 class="mb-3">Basic Information</h5>
                         
                         <div class="mb-3">
-                            <label for="name" class="form-label">Learning Area Name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label">Subject Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" 
                                 id="name" name="name" value="{{ old('name') }}" required>
                             @error('name')
@@ -41,14 +41,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="code" class="form-label">Learning Area Code</label>
+                            <label for="code" class="form-label">Subject Code</label>
                             <input type="text" class="form-control bg-light" 
                                 id="code" value="Will be auto-generated" readonly>
                             <div class="form-text">
                                 @if(request('parent_id'))
-                                    Format: [Category Prefix][Grade Level][Sequence Number] (e.g., ENG0700001)
+                                    Format: [Label Prefix][Grade Level][Sequence Number] (e.g., ENG0700001)
                                 @else
-                                    Format: [Area Prefix][Grade Level][Sequence Number] (e.g., ENG700001)
+                                    Format: [Subject Prefix][Grade Level][Sequence Number] (e.g., ENG700001)
                                 @endif
                             </div>
                         </div>
@@ -76,9 +76,9 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="section_id" class="form-label">Assign Class Section</label>
+                            <label for="section_id" class="form-label">Assign Section</label>
                             <select class="form-select @error('section_id') is-invalid @enderror" id="section_id" name="section_id">
-                                <option value="">Select a class section</option>
+                                <option value="">Select a section</option>
                                 @foreach($sections as $section)
                                     <option value="{{ $section->id }}" {{ old('section_id') == $section->id ? 'selected' : '' }}>
                                         {{ $section->name }}
@@ -88,7 +88,7 @@
                             @if($sections->isEmpty())
                                 <div class="form-text text-warning">
                                     <i class="bi bi-exclamation-triangle me-1"></i>
-                                    No class sections available for Grade {{ $gradeLevel }}
+                                    No sections available for Grade {{ $gradeLevel }}
                                 </div>
                             @endif
                             @error('section_id')
@@ -104,7 +104,7 @@
                         <h5 class="mb-3">Schedule Information</h5>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            Set the daily schedule for this learning area.
+                            Set the daily schedule for this subject.
                         </div>
                         
                         <div class="card">
@@ -137,15 +137,9 @@
                 </div>
                 
                 <div class="d-flex justify-content-end gap-2 mt-4">
-                    @if(request('parent_id'))
-                        <a href="{{ route('admin.subjects.label.subjects', request('parent_id')) }}" class="btn btn-outline-secondary">Cancel</a>
-                    @elseif(request('grade_level'))
-                        <a href="{{ route('admin.subjects.grade', request('grade_level')) }}" class="btn btn-outline-secondary">Cancel</a>
-                    @else
-                        <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                    @endif
+                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle me-1"></i> Add Learning Area
+                        <i class="bi bi-check-circle me-1"></i> Add Subject
                     </button>
                 </div>
             </form>

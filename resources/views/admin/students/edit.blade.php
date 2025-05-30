@@ -5,6 +5,9 @@
         <div class="header-section mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="fw-bold text-primary">Edit Student</h2>
+                <a href="{{ route('admin.students.index') }}" class="btn btn-light">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Students
+                </a>
             </div>
         </div>
 

@@ -26,13 +26,6 @@ class TeacherController extends Controller
 
     public function store(Request $request)
     {
-        // Check if email already exists
-        if (User::where('email', $request->email)->exists()) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'A user with this email address already exists.');
-        }
-
         // Get the latest teacher ID and generate the next one
         $latestTeacher = Teacher::orderBy('user_id', 'desc')->first();
         $nextId = $latestTeacher ? intval(substr($latestTeacher->employee_id, 3)) + 1 : 1;
@@ -65,6 +58,7 @@ class TeacherController extends Controller
         $teacher->phone = $request->phone;
         $teacher->birthdate = $request->birthdate;
         $teacher->gender = $request->gender;
+        $teacher->date_joined = $request->date_joined;
         $teacher->status = 'active';
         $teacher->save();
 
@@ -86,104 +80,79 @@ class TeacherController extends Controller
             
             \Log::info('Updating teacher:', [
                 'user_id' => $id,
-                'request_data' => $request->all(),
-                'address_fields' => [
-                    'street_address' => $request->street_address,
-                    'barangay' => $request->barangay,
-                    'municipality' => $request->municipality,
-                    'province' => $request->province
-                ]
+                'request_data' => $request->all()
             ]);
 
-            try {
-                $validated = $request->validate([
-                    'last_name' => 'required|string|max:255',
-                    'first_name' => 'required|string|max:255',
-                    'middle_name' => 'nullable|string|max:255',
-                    'suffix' => 'nullable|string|max:10',
-                    'email' => 'required|email|unique:users,email,' . $id,
-                    'password' => 'nullable|string|min:6|confirmed',
-                    'phone' => 'nullable|string|max:20',
-                    'street_address' => 'nullable|string|max:255',
-                    'barangay' => 'nullable|string|max:255',
-                    'municipality' => 'nullable|string|max:255',
-                    'province' => 'nullable|string|max:255',
-                    'birthdate' => 'required|date',
-                    'gender' => 'required|string|in:Male,Female,Other',
-                    'status' => 'required|in:active,inactive,on_leave'
-                ]);
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                \Log::error('Validation failed:', [
-                    'errors' => $e->errors(),
-                    'request_data' => $request->all()
-                ]);
-                throw $e;
-            }
+            $validated = $request->validate([
+                'last_name' => 'required|string|max:255',
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'suffix' => 'nullable|string|max:10',
+                'email' => 'required|email|unique:users,email,' . $id,
+                'password' => 'nullable|string|min:6|confirmed',
+                'phone' => 'nullable|string|max:20',
+                'street_address' => 'nullable|string|max:255',
+                'barangay' => 'nullable|string|max:255',
+                'municipality' => 'nullable|string|max:255',
+                'province' => 'nullable|string|max:255',
+                'birthdate' => 'nullable|date',
+                'gender' => 'required|string|in:Male,Female,Other',
+                'status' => 'required|in:active,inactive,on_leave',
+                'date_joined' => 'required|date',
+            ]);
 
             \Log::info('Validated data:', $validated);
 
             DB::beginTransaction();
 
-            try {
-                // Update user record
-                $userData = [
-                    'last_name' => $validated['last_name'],
-                    'first_name' => $validated['first_name'],
-                    'middle_name' => $validated['middle_name'],
-                    'suffix' => $validated['suffix'],
-                    'email' => $validated['email'],
-                ];
+            // Update user record
+            $userData = [
+                'last_name' => $validated['last_name'],
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'suffix' => $validated['suffix'],
+                'email' => $validated['email'],
+            ];
 
-                // Only update password if provided
-                if (!empty($validated['password'])) {
-                    $userData['password'] = bcrypt($validated['password']);
-                }
-
-                $user->update($userData);
-
-                // Update or create teacher record
-                $teacherData = [
-                    'street_address' => $validated['street_address'] ?? null,
-                    'barangay' => $validated['barangay'] ?? null,
-                    'municipality' => $validated['municipality'] ?? null,
-                    'province' => $validated['province'] ?? null,
-                    'phone' => $validated['phone'],
-                    'birthdate' => $validated['birthdate'],
-                    'gender' => $validated['gender'],
-                    'status' => $validated['status'],
-                ];
-
-                \Log::info('Teacher data to update:', $teacherData);
-
-                if ($user->teacher) {
-                    Teacher::where('user_id', $user->id)->update($teacherData);
-                } else {
-                    $teacherData['user_id'] = $user->id;
-                    $teacherData['employee_id'] = $user->username;
-                    Teacher::create($teacherData);
-                }
-
-                DB::commit();
-                return redirect()->route('admin.teachers.index')->with('success', 'Teacher updated successfully!');
-            } catch (\Exception $e) {
-                DB::rollBack();
-                \Log::error('Database update failed:', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                    'user_data' => $userData ?? null,
-                    'teacher_data' => $teacherData ?? null
-                ]);
-                throw $e;
+            // Only update password if provided
+            if (!empty($validated['password'])) {
+                $userData['password'] = bcrypt($validated['password']);
             }
+
+            $user->update($userData);
+
+            // Update or create teacher record
+            $teacherData = [
+                'street_address' => $validated['street_address'],
+                'barangay' => $validated['barangay'],
+                'municipality' => $validated['municipality'],
+                'province' => $validated['province'],
+                'phone' => $validated['phone'],
+                'birthdate' => $validated['birthdate'],
+                'gender' => $validated['gender'],
+                'date_joined' => $validated['date_joined'],
+                'status' => $validated['status'],
+            ];
+
+            \Log::info('Teacher data to update:', $teacherData);
+
+            if ($user->teacher) {
+                $user->teacher->update($teacherData);
+            } else {
+                $teacherData['user_id'] = $user->id;
+                $teacherData['employee_id'] = $user->username;
+                Teacher::create($teacherData);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.teachers.index')->with('success', 'Teacher updated successfully!');
         } catch (\Exception $e) {
+            DB::rollBack();
             \Log::error('Error updating teacher:', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all()
+                'trace' => $e->getTraceAsString()
             ]);
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to update teacher: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update teacher. Please try again.');
         }
     }
 
@@ -254,7 +223,25 @@ class TeacherController extends Controller
             'province',
             'phone',
             'birthdate',
-            'gender'
+            'gender',
+            'date_joined'
+        ]);
+
+        // Add sample data
+        $csv->insertOne([
+            'Doe',
+            'John',
+            'Smith',
+            'Jr',
+            'john.doe@example.com',
+            '123 Main St',
+            'Sample Barangay',
+            'Sample Municipality',
+            'Sample Province',
+            '09123456789',
+            '01/01/1980',
+            'Male',
+            '05/27/2024'
         ]);
 
         $headers = [
@@ -285,7 +272,8 @@ class TeacherController extends Controller
                 'last_name',
                 'first_name',
                 'email',
-                'gender'
+                'gender',
+                'date_joined'
             ];
 
             $headers = $csv->getHeader();
@@ -306,7 +294,7 @@ class TeacherController extends Controller
                 try {
                     // Validate required fields
                     if (empty($record['last_name']) || empty($record['first_name']) || empty($record['email']) || 
-                        empty($record['gender'])) {
+                        empty($record['gender']) || empty($record['date_joined'])) {
                         throw new \Exception('Required fields missing');
                     }
 
@@ -320,11 +308,14 @@ class TeacherController extends Controller
                         throw new \Exception('Invalid gender value. Must be Male, Female, or Other');
                     }
 
-                    // Validate date format for birthdate if provided
-                    if (!empty($record['birthdate'])) {
-                        $date = \DateTime::createFromFormat('m/d/Y', $record['birthdate']);
-                        if (!$date || $date->format('m/d/Y') !== $record['birthdate']) {
-                            throw new \Exception("Invalid birthdate format. Must be MM/DD/YYYY");
+                    // Validate date formats
+                    $dateFields = ['birthdate', 'date_joined'];
+                    foreach ($dateFields as $field) {
+                        if (!empty($record[$field])) {
+                            $date = \DateTime::createFromFormat('m/d/Y', $record[$field]);
+                            if (!$date || $date->format('m/d/Y') !== $record[$field]) {
+                                throw new \Exception("Invalid {$field} format. Must be MM/DD/YYYY");
+                            }
                         }
                     }
 
@@ -350,6 +341,13 @@ class TeacherController extends Controller
                             $birthdate = $date->format('Y-m-d');
                         }
 
+                        // Convert date_joined format
+                        $dateJoined = null;
+                        if (!empty($record['date_joined'])) {
+                            $date = \DateTime::createFromFormat('m/d/Y', $record['date_joined']);
+                            $dateJoined = $date->format('Y-m-d');
+                        }
+
                         // Update teacher record
                         if ($user->teacher) {
                             $user->teacher->update([
@@ -360,6 +358,7 @@ class TeacherController extends Controller
                                 'birthdate' => $birthdate ?? $user->teacher->birthdate,
                                 'phone' => $record['phone'] ?? $user->teacher->phone,
                                 'gender' => $record['gender'],
+                                'date_joined' => $dateJoined,
                                 'status' => 'active'
                             ]);
                         } else {
@@ -374,6 +373,7 @@ class TeacherController extends Controller
                             $teacher->birthdate = $birthdate;
                             $teacher->phone = $record['phone'] ?? null;
                             $teacher->gender = $record['gender'];
+                            $teacher->date_joined = $dateJoined;
                             $teacher->status = 'active';
                             $teacher->save();
                         }
@@ -407,6 +407,13 @@ class TeacherController extends Controller
                             $birthdate = $date->format('Y-m-d');
                         }
 
+                        // Convert date_joined format
+                        $dateJoined = null;
+                        if (!empty($record['date_joined'])) {
+                            $date = \DateTime::createFromFormat('m/d/Y', $record['date_joined']);
+                            $dateJoined = $date->format('Y-m-d');
+                        }
+
                         // Create teacher record
                         $teacher = new Teacher();
                         $teacher->user_id = $user->id;
@@ -418,6 +425,7 @@ class TeacherController extends Controller
                         $teacher->birthdate = $birthdate;
                         $teacher->phone = $record['phone'] ?? null;
                         $teacher->gender = $record['gender'];
+                        $teacher->date_joined = $dateJoined;
                         $teacher->status = 'active';
                         $teacher->save();
 

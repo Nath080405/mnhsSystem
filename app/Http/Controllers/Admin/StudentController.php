@@ -238,7 +238,28 @@ class StudentController extends Controller
             'province',
             'phone',
             'birthdate',
-            'gender'
+            'gender',
+            'grade_level',
+            'section'
+        ]);
+
+        // Add sample data
+        $csv->insertOne([
+            'Doe',
+            'John',
+            'Smith',
+            'Jr',
+            'john.doe@example.com',
+            '123456789012',
+            '123 Main St',
+            'Sample Barangay',
+            'Sample City',
+            'Sample Province',
+            '09123456789',
+            '2000-01-01',
+            'Male',
+            'Grade 7',
+            'Section A'
         ]);
 
         $headers = [

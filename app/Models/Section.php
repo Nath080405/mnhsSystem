@@ -14,6 +14,7 @@ class Section extends Model
         'name',
         'grade_level',
         'description',
+        'status',
         'adviser_id',
     ];
 

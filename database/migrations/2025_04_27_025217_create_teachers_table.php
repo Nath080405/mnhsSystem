@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->date('birthdate')->nullable();
             $table->string('gender')->nullable();
+            $table->date('date_joined');
             $table->string('status')->default('active');
             $table->timestamps();
             $table->softDeletes();

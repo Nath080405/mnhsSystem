@@ -62,6 +62,18 @@
                             @enderror
                         </div>
 
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
+                                <option value="active" {{ old('status', $section->status) == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ old('status', $section->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            <div class="form-text">Set the section's current status</div>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('admin.sections.index') }}" class="btn btn-light">Cancel</a>
                             <button type="submit" class="btn btn-primary">

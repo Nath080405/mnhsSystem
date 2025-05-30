@@ -6,11 +6,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-primary">{{ $grade }} Subject Labels</h2>
-            <p class="text-muted mb-0 small">Manage subject labels for {{ $grade }} level</p>
+            <p class="text-muted mb-0 small">Manage subject labels for {{ $grade }}</p>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('admin.subjects.plan') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back to Academic Program
+                <i class="bi bi-arrow-left me-1"></i> Back to Subject Plan
             </a>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
                 <i class="bi bi-plus-circle me-1"></i> Add Subject Label
@@ -42,7 +42,7 @@
                     <div class="col-md-4 col-lg-3">
                         <div class="card h-100 border-0 shadow-sm hover-card">
                             <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
                                     <h5 class="card-title mb-0">{{ $subject->name }}</h5>
                                     <div class="dropdown">
                                         <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
@@ -50,26 +50,27 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <button type="button" class="dropdown-item" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#editSubjectModal"
-                                                        data-subject-id="{{ $subject->id }}"
-                                                        data-subject-name="{{ $subject->name }}">
+                                                <a class="dropdown-item" href="{{ route('admin.subjects.edit', $subject->id) }}">
                                                     <i class="bi bi-pencil me-2"></i> Edit
-                                                </button>
+                                                </a>
                                             </li>
                                             <li>
                                                 <form action="{{ route('admin.subjects.destroy', $subject->id) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="dropdown-item text-danger" 
-                                                            onclick="return confirm('Are you sure you want to remove this subject label?')">
-                                                        <i class="bi bi-trash me-2"></i> Remove
+                                                            onclick="return confirm('Are you sure you want to delete this subject?')">
+                                                        <i class="bi bi-trash me-2"></i> Delete
                                                     </button>
                                                 </form>
                                             </li>
                                         </ul>
                                     </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                                        {{ $subject->code }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -79,7 +80,7 @@
                         <div class="text-center py-5">
                             <div class="text-muted">
                                 <i class="bi bi-inbox-fill fs-1 d-block mb-3"></i>
-                                No subject labels assigned to this level
+                                No subject labels found for this grade level
                             </div>
                             <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
                                 <i class="bi bi-plus-circle me-1"></i> Add Subject Label
@@ -107,49 +108,17 @@
                     <input type="hidden" name="status" value="active">
                     
                     <div class="mb-3">
-                        <label for="name" class="form-label">Subject Label Name</label>
+                        <label for="name" class="form-label">Subject Name</label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                               id="name" name="name" value="{{ old('name') }}" 
-                               placeholder="Enter subject label name" required>
+                               id="name" name="name" value="{{ old('name') }}" required>
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Subject Label</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Subject Modal -->
-<div class="modal fade" id="editSubjectModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Subject Label</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="editSubjectForm" action="" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="edit_name" class="form-label">Subject Label Name</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                               id="edit_name" name="name" 
-                               placeholder="Enter subject label name" required>
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Subject Label</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Subject</button>
                 </div>
             </form>
         </div>
@@ -171,6 +140,10 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: #2c3e50;
+}
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
 }
 .alert {
     border: none;
@@ -213,27 +186,4 @@
     border-top: 1px solid rgba(0,0,0,0.05);
 }
 </style>
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle edit modal
-    const editModal = document.getElementById('editSubjectModal');
-    if (editModal) {
-        editModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const subjectId = button.getAttribute('data-subject-id');
-            const subjectName = button.getAttribute('data-subject-name');
-            
-            const form = this.querySelector('#editSubjectForm');
-            const nameInput = this.querySelector('#edit_name');
-            
-            // Update form action with the correct route
-            form.action = "{{ url('admin/subjects') }}/" + subjectId;
-            nameInput.value = subjectName;
-        });
-    }
-});
-</script>
-@endpush
 @endsection 

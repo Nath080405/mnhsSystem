@@ -5,8 +5,8 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1 text-primary">Academic Program Structure</h2>
-            <p class="text-muted mb-0 small">Manage learning areas and their distribution across academic levels</p>
+            <h2 class="fw-bold mb-1 text-primary">Subject Plan</h2>
+            <p class="text-muted mb-0 small">Manage subject labels and their corresponding grade levels</p>
         </div>
     </div>
 
@@ -17,7 +17,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
                     <h5 class="mb-0 text-primary">
-                        <i class="bi bi-mortarboard me-2"></i>Junior High School Program
+                        <i class="bi bi-mortarboard me-2"></i>Junior High School
                     </h5>
                 </div>
                 <div class="card-body p-4">
@@ -29,7 +29,7 @@
                                         <h6 class="mb-0 fw-semibold">{{ $grade }}</h6>
                                         <a href="{{ route('admin.subjects.grade', ['grade' => $grade]) }}" 
                                            class="btn btn-primary btn-sm">
-                                            <i class="bi bi-gear-fill me-1"></i> Manage Program
+                                            <i class="bi bi-gear-fill me-1"></i> Manage
                                         </a>
                                     </div>
                                     <div class="card-body p-3">
@@ -41,9 +41,6 @@
                                                 @foreach($gradeSubjects->take(5) as $subject)
                                                     <li class="list-group-item px-0">
                                                         <div class="fw-medium">{{ $subject->name }}</div>
-                                                        @if($subject->description)
-                                                            <div class="small text-muted">{{ Str::limit($subject->description, 50) }}</div>
-                                                        @endif
                                                     </li>
                                                 @endforeach
                                             </ul>
@@ -51,7 +48,7 @@
                                             <div class="text-center py-3">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox-fill fs-4 d-block mb-2"></i>
-                                                    No learning areas assigned to this level
+                                                    No subject labels assigned
                                                 </div>
                                             </div>
                                         @endif
@@ -69,7 +66,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
                     <h5 class="mb-0 text-primary">
-                        <i class="bi bi-mortarboard me-2"></i>Senior High School Program
+                        <i class="bi bi-mortarboard me-2"></i>Senior High School
                     </h5>
                 </div>
                 <div class="card-body p-4">
@@ -81,7 +78,7 @@
                                         <h6 class="mb-0 fw-semibold">{{ $grade }}</h6>
                                         <a href="{{ route('admin.subjects.grade', ['grade' => $grade]) }}" 
                                            class="btn btn-primary btn-sm">
-                                            <i class="bi bi-gear-fill me-1"></i> Manage Program
+                                            <i class="bi bi-gear-fill me-1"></i> Manage
                                         </a>
                                     </div>
                                     <div class="card-body p-3">
@@ -93,9 +90,6 @@
                                                 @foreach($gradeSubjects->take(5) as $subject)
                                                     <li class="list-group-item px-0">
                                                         <div class="fw-medium">{{ $subject->name }}</div>
-                                                        @if($subject->description)
-                                                            <div class="small text-muted">{{ Str::limit($subject->description, 50) }}</div>
-                                                        @endif
                                                     </li>
                                                 @endforeach
                                             </ul>
@@ -103,7 +97,7 @@
                                             <div class="text-center py-3">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox-fill fs-4 d-block mb-2"></i>
-                                                    No learning areas assigned to this level
+                                                    No subject labels assigned
                                                 </div>
                                             </div>
                                         @endif
