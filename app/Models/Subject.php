@@ -37,6 +37,7 @@ class Subject extends Model
     }
 
     /**
+
      * Get the parent subject label.
      */
     public function parent()
@@ -52,8 +53,17 @@ class Subject extends Model
         return $this->hasMany(Subject::class, 'parent_id');
     }
 
+
     public function section()
     {
         return $this->belongsTo(Section::class);
+    }
+
+    /**
+     * Get the grades for the subject.
+     */
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
     }
 } 

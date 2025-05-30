@@ -8,6 +8,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
 use App\Models\EventView;
+use App\Models\Subject;
+use App\Models\Grade;
 
 class StudentController extends Controller
 {
@@ -28,7 +30,50 @@ class StudentController extends Controller
      */
     public function gradebook()
     {
-        return view('student.gradebook');
+        $user = Auth::user();
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')
+                ->with('error', 'Student record not found.');
+        }
+
+        // Get all subjects for the student's grade level
+        $subjects = Subject::where('grade_level', $student->grade_level)
+            ->whereNull('parent_id')  // Only get parent subjects (subject labels)
+            ->orderBy('name')
+            ->get();
+
+        // Get all grades for the student
+        $grades = Grade::where('student_id', $student->user_id)
+            ->whereIn('subject_id', $subjects->pluck('id'))
+            ->get()
+            ->groupBy('subject_id');
+
+        // Calculate semester averages
+        $firstSemAverage = 0;
+        $secondSemAverage = 0;
+        $firstSemCount = 0;
+        $secondSemCount = 0;
+
+        foreach ($grades as $subjectGrades) {
+            $subjectFirstSem = $subjectGrades->whereIn('grading_period', ['1st', '2nd'])->avg('grade');
+            $subjectSecondSem = $subjectGrades->whereIn('grading_period', ['3rd', '4th'])->avg('grade');
+
+            if ($subjectFirstSem) {
+                $firstSemAverage += $subjectFirstSem;
+                $firstSemCount++;
+            }
+            if ($subjectSecondSem) {
+                $secondSemAverage += $subjectSecondSem;
+                $secondSemCount++;
+            }
+        }
+
+        $firstSemAverage = $firstSemCount > 0 ? round($firstSemAverage / $firstSemCount, 2) : null;
+        $secondSemAverage = $secondSemCount > 0 ? round($secondSemAverage / $secondSemCount, 2) : null;
+
+        return view('student.gradebook', compact('subjects', 'grades', 'firstSemAverage', 'secondSemAverage'));
     }
 
     /**
@@ -53,9 +98,18 @@ class StudentController extends Controller
             ->pluck('event_id')
             ->toArray();
 
+        // Get archived event IDs for this user
+        $archivedEventIds = EventView::where('user_id', $user->id)
+            ->where('is_archived', true)
+            ->pluck('event_id')
+            ->toArray();
+
         // Categorize events
-        $recentEvents = $events->whereNotIn('event_id', $viewedEventIds);
-        $oldEvents = $events->whereIn('event_id', $viewedEventIds);
+        $recentEvents = $events->whereNotIn('event_id', $viewedEventIds)
+                             ->whereNotIn('event_id', $archivedEventIds);
+        $oldEvents = $events->whereIn('event_id', $viewedEventIds)
+                          ->whereNotIn('event_id', $archivedEventIds);
+        $archivedEvents = $events->whereIn('event_id', $archivedEventIds);
 
         // Mark all recent events as viewed
         foreach ($recentEvents as $event) {
@@ -69,9 +123,39 @@ class StudentController extends Controller
         $newEventsCount = Event::where(function($query) {
             $query->where('visibility', 'All')
                   ->orWhere('visibility', 'Students');
-        })->whereNotIn('event_id', $viewedEventIds)->count();
+        })->whereNotIn('event_id', $viewedEventIds)
+          ->whereNotIn('event_id', $archivedEventIds)
+          ->count();
         
-        return view('student.events', compact('recentEvents', 'oldEvents', 'newEventsCount'));
+        return view('student.events', compact('recentEvents', 'oldEvents', 'archivedEvents', 'newEventsCount', 'viewedEventIds', 'archivedEventIds'));
+    }
+
+    /**
+     * Archive the specified event.
+     */
+    public function archive($id)
+    {
+        $user = Auth::user();
+        $event = Event::where('event_id', $id)
+                      ->where(function($query) {
+                          $query->where('visibility', 'All')
+                                ->orWhere('visibility', 'Students');
+                      })
+                      ->firstOrFail();
+
+        // Update or create the event view record with archived status
+        EventView::updateOrCreate(
+            ['user_id' => $user->id, 'event_id' => $event->event_id],
+            ['is_archived' => true, 'viewed_at' => now()]
+        );
+
+        // If it's an AJAX request, return JSON response
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        // Otherwise redirect
+        return redirect()->route('student.events')->with('success', 'Event archived successfully.');
     }
 
     /**
@@ -101,43 +185,88 @@ class StudentController extends Controller
      */
     public function downloadGradebookPDF()
     {
-        // Get the current school year
-        $schoolYear = '2023-2024'; // You might want to get this dynamically
+        $user = Auth::user();
+        $student = $user->student;
 
-        // Get the grades data
-        // This is a sample data structure - replace with your actual data retrieval logic
-        $grades = [
-            'First Semester' => [
-                'Mathematics' => [
-                    'first_quarter' => 85,
-                    'second_quarter' => 88,
-                    'final_grade' => 87
-                ],
-                'Science' => [
-                    'first_quarter' => 90,
-                    'second_quarter' => 92,
-                    'final_grade' => 91
-                ],
-                // Add more subjects as needed
-            ],
-            'Second Semester' => [
-                'Mathematics' => [
-                    'first_quarter' => 87,
-                    'second_quarter' => 89,
-                    'final_grade' => 88
-                ],
-                'Science' => [
-                    'first_quarter' => 91,
-                    'second_quarter' => 93,
-                    'final_grade' => 92
-                ],
-                // Add more subjects as needed
-            ]
+        if (!$student) {
+            return redirect()->route('student.gradebook')
+                ->with('error', 'Student record not found.');
+        }
+
+        // Get all subjects for the student's grade level
+        $subjects = Subject::where('grade_level', $student->grade_level)
+            ->whereNull('parent_id')  // Only get parent subjects (subject labels)
+            ->orderBy('name')
+            ->get();
+
+        // Get all grades for the student
+        $grades = Grade::where('student_id', $student->user_id)
+            ->whereIn('subject_id', $subjects->pluck('id'))
+            ->get()
+            ->groupBy('subject_id');
+
+        // Organize grades by semester
+        $semesterGrades = [
+            'First Semester' => [],
+            'Second Semester' => []
         ];
+
+        foreach ($subjects as $subject) {
+            $subjectGrades = $grades[$subject->id] ?? collect();
+            
+            // First Semester
+            $firstQuarter = $subjectGrades->where('grading_period', '1st')->first();
+            $secondQuarter = $subjectGrades->where('grading_period', '2nd')->first();
+            $firstSemFinal = null;
+            if ($firstQuarter && $secondQuarter) {
+                $firstSemFinal = round(($firstQuarter->grade + $secondQuarter->grade) / 2, 2);
+            }
+
+            $semesterGrades['First Semester'][$subject->name] = [
+                'first_quarter' => $firstQuarter ? $firstQuarter->grade : null,
+                'second_quarter' => $secondQuarter ? $secondQuarter->grade : null,
+                'final_grade' => $firstSemFinal
+            ];
+
+            // Second Semester
+            $thirdQuarter = $subjectGrades->where('grading_period', '3rd')->first();
+            $fourthQuarter = $subjectGrades->where('grading_period', '4th')->first();
+            $secondSemFinal = null;
+            if ($thirdQuarter && $fourthQuarter) {
+                $secondSemFinal = round(($thirdQuarter->grade + $fourthQuarter->grade) / 2, 2);
+            }
+
+            $semesterGrades['Second Semester'][$subject->name] = [
+                'first_quarter' => $thirdQuarter ? $thirdQuarter->grade : null,
+                'second_quarter' => $fourthQuarter ? $fourthQuarter->grade : null,
+                'final_grade' => $secondSemFinal
+            ];
+        }
+
+        // Calculate semester averages
+        foreach ($semesterGrades as $semester => $subjects) {
+            $total = 0;
+            $count = 0;
+            foreach ($subjects as $subject) {
+                if ($subject['final_grade'] !== null) {
+                    $total += $subject['final_grade'];
+                    $count++;
+                }
+            }
+            $semesterGrades[$semester]['general_average'] = $count > 0 ? round($total / $count, 2) : null;
+        }
+
+        // Get current school year
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $schoolYear = $currentMonth >= 6 ? 
+            $currentYear . '-' . ($currentYear + 1) : 
+            ($currentYear - 1) . '-' . $currentYear;
 
         $pdf = PDF::loadView('student.gradebook-pdf', [
             'schoolYear' => $schoolYear,
-            'grades' => $grades
+            'grades' => $semesterGrades,
+            'student' => $student
         ]);
 
         return $pdf->download('gradebook.pdf');

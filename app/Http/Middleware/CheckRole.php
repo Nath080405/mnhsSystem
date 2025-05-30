@@ -21,6 +21,11 @@ class CheckRole
 
         $userRole = $request->user()->role;
         
+        // Allow principal to access admin routes
+        if ($userRole === 'principal' && in_array('admin', $roles)) {
+            return $next($request);
+        }
+        
         if (!in_array($userRole, $roles)) {
             abort(403, 'Unauthorized action.');
         }

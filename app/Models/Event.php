@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,7 +9,9 @@ class Event extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'event_id';
+    protected $primaryKey = 'event_id'; // Custom primary key
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'title',
@@ -19,15 +22,18 @@ class Event extends Model
         'location',
         'visibility',
         'created_by',
-        'status'
+        'status',
     ];
 
     protected $casts = [
         'event_date' => 'date',
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        'start_time' => 'datetime:H:i',
+        'end_time'   => 'datetime:H:i',
     ];
 
+    /**
+     * Get the user who created the event.
+     */
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

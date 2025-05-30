@@ -42,6 +42,7 @@ class TeacherController extends Controller
         $tempPassword = 'TEMP' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         // Create user record
+
         $user = new User();
         $user->last_name = $request->last_name;
         $user->first_name = $request->first_name;

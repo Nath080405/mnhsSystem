@@ -53,6 +53,8 @@ class TeacherController extends Controller
         $students = User::where('role', 'student')
             ->join('students', 'users.id', '=', 'students.user_id')
             ->select('users.*', 'students.*')
+            ->orderBy('users.last_name')
+            ->orderBy('users.first_name')
             ->get();
         return view('teachers.student.index', compact('students'));
     }
@@ -70,7 +72,7 @@ class TeacherController extends Controller
      */
     public function subjectIndex()
     {
-        $subjects = Subject::with('schedules')
+        $subjects = Subject::with(['schedules', 'grades.user'])
             ->where('teacher_id', Auth::id())
             ->get();
         return view('teachers.subject.index', compact('subjects'));
@@ -102,7 +104,15 @@ class TeacherController extends Controller
             ->orderBy('users.first_name')
             ->paginate(10);
 
-        return view('teachers.student.index', compact('students'));
+        // Get all subjects for the students
+        $studentIds = $students->pluck('user_id');
+        $subjects = Subject::whereHas('grades', function($query) use ($studentIds) {
+            $query->whereIn('student_id', $studentIds);
+        })->with(['grades' => function($query) use ($studentIds) {
+            $query->whereIn('student_id', $studentIds);
+        }])->get();
+
+        return view('teachers.student.index', compact('students', 'subjects'));
     }
 
     public function indexStudentGrade()
