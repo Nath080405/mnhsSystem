@@ -114,17 +114,6 @@
                             Active
                         </span>
                     </div>
-
-                    <div class="border-top pt-3">
-                        <div class="mb-3">
-                            <p class="text-muted mb-1 small">Member Since</p>
-                            <p class="mb-0 fw-medium">{{ $user->created_at->format('M d, Y') }}</p>
-                        </div>
-                        <div class="mb-3">
-                            <p class="text-muted mb-1 small">Last Updated</p>
-                            <p class="mb-0 fw-medium">{{ $user->updated_at->format('M d, Y H:i') }}</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
