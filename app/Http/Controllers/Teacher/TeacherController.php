@@ -18,9 +18,17 @@ use App\Models\EventView;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use Illuminate\Support\Facades\Storage;
+use App\Services\AutomaticEnrollmentService;
 
 class TeacherController extends Controller
 {
+    protected $enrollmentService;
+
+    public function __construct(AutomaticEnrollmentService $enrollmentService)
+    {
+        $this->enrollmentService = $enrollmentService;
+    }
+
     /**
      * Show the teacher dashboard.
      */
@@ -72,10 +80,17 @@ class TeacherController extends Controller
      */
     public function subjectIndex()
     {
+        $teacher = auth()->user();
+        
+        // Get the teacher's assigned section
+        $section = Section::where('adviser_id', $teacher->id)->first();
+        
+        // Get subjects assigned to this teacher
         $subjects = Subject::with(['schedules', 'grades.user'])
             ->where('teacher_id', Auth::id())
             ->get();
-        return view('teachers.subject.index', compact('subjects'));
+
+        return view('teachers.subject.index', compact('subjects', 'section'));
     }
 
     /**
@@ -91,28 +106,23 @@ class TeacherController extends Controller
         if (!$section) {
             return view('teachers.student.index', [
                 'students' => collect(),
+                'section' => null,
                 'error' => 'You are not assigned to any section. Please contact the administrator.'
             ]);
         }
 
-        // Get students from the teacher's assigned section
-        $students = User::where('role', 'student')
-            ->join('students', 'users.id', '=', 'students.user_id')
+        // Get active students from the teacher's assigned section with user relationship
+        $students = Student::with('user')
+            ->join('users', 'students.user_id', '=', 'users.id')
             ->where('students.section', $section->name)
-            ->select('users.*', 'students.*')
+            ->where('students.status', 'active')
+            ->whereNull('students.deleted_at')
             ->orderBy('users.last_name')
             ->orderBy('users.first_name')
+            ->select('students.*')
             ->paginate(10);
 
-        // Get all subjects for the students
-        $studentIds = $students->pluck('user_id');
-        $subjects = Subject::whereHas('grades', function($query) use ($studentIds) {
-            $query->whereIn('student_id', $studentIds);
-        })->with(['grades' => function($query) use ($studentIds) {
-            $query->whereIn('student_id', $studentIds);
-        }])->get();
-
-        return view('teachers.student.index', compact('students', 'subjects'));
+        return view('teachers.student.index', compact('students', 'section'));
     }
 
     public function indexStudentGrade()
@@ -138,19 +148,31 @@ class TeacherController extends Controller
             ->select('users.*', 'students.*')
             ->orderBy('users.last_name')
             ->orderBy('users.first_name')
-            ->get();
+            ->paginate(10);
 
-        // Get subjects assigned to this teacher
-        $subjects = Subject::where('teacher_id', $teacher->id)
+        return view('teachers.student.grade.index', compact('students'));
+    }
+
+    public function showStudentGrade($id)
+    {
+        $teacher = auth()->user();
+        
+        // Get the student with their user information
+        $student = Student::with('user')
+            ->where('user_id', $id)
+            ->firstOrFail();
+            
+        // Get all subjects for the student's grade level (not just those assigned to this teacher)
+        $subjects = Subject::where('grade_level', $student->grade_level)
             ->orderBy('name')
             ->get();
-
-        // Get existing grades for the selected subject and grading period
-        $grades = Grade::whereIn('student_id', $students->pluck('user_id'))
+            
+        // Get all grades for this student
+        $grades = Grade::where('student_id', $id)
             ->whereIn('subject_id', $subjects->pluck('id'))
             ->get();
-
-        return view('teachers.student.grade.index', compact('students', 'subjects', 'grades'));
+            
+        return view('teachers.student.grade.show', compact('student', 'subjects', 'grades'));
     }
 
     /**
@@ -359,111 +381,124 @@ class TeacherController extends Controller
      */
   
     public function subjects()
-{
-    // Fetch subjects for the logged-in teacher (optional)
-    $subjects = Subject::where('teacher_id', auth()->id())->get();
+    {
+        $teacher = Auth::user();
+        $subjects = Subject::where('teacher_id', $teacher->id)
+            ->whereNull('parent_id')  // Only get parent subjects (subject labels)
+            ->with(['automaticEnrollments.student'])
+            ->get();
 
-    // Return the view
-    return view('teachers.subject', compact('subjects'));
-}
-public function storeStudent(Request $request)
-{
-    // Get the teacher's assigned section first
-    $teacher = auth()->user();
-    $section = Section::where('adviser_id', $teacher->id)->first();
-
-    if (!$section) {
-        return redirect()->route('teachers.student.index')
-            ->with('error', 'You are not assigned to any section. Please contact the administrator.');
+        return view('teachers.subjects.index', compact('subjects'));
     }
 
-    // Validate the student data
-    $request->validate([
-        'last_name' => 'required|string|max:255',
-        'first_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
-        'suffix' => 'nullable|string|max:10',
-        'email' => 'required|email|unique:users,email',
-        'gender' => 'required|string|in:Male,Female,Other',
-        'birthdate' => 'required|date',
-        'lrn' => 'required|string|unique:students,lrn',
-        'phone' => 'nullable|string|max:20',
-        'street_address' => 'nullable|string|max:255',
-        'barangay' => 'nullable|string|max:255',
-        'municipality' => 'nullable|string|max:255',
-        'province' => 'nullable|string|max:255',
-    ]);
+    public function showSubject($id)
+    {
+        $subject = Subject::findOrFail($id);
+        $enrolledStudents = $this->enrollmentService->getEnrolledStudents($subject);
 
-    try {
-        DB::beginTransaction();
+        return view('teachers.subjects.show', compact('subject', 'enrolledStudents'));
+    }
 
-        // Get the latest student ID and generate the next one
-        $latestStudent = Student::orderBy('student_id', 'desc')->first();
-        $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
-        $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
-        
-        // Generate temporary password based on student ID
-        $tempPassword = 'TEMP' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+    public function storeStudent(Request $request)
+    {
+        // Get the teacher's assigned section first
+        $teacher = auth()->user();
+        $section = Section::where('adviser_id', $teacher->id)->first();
 
-        // Create user record
-        $user = User::create([
-            'last_name' => $request->last_name,
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'suffix' => $request->suffix,
-            'email' => $request->email,
-            'username' => $studentId,
-            'password' => bcrypt($tempPassword),
-            'role' => 'student',
+        if (!$section) {
+            return redirect()->route('teachers.student.index')
+                ->with('error', 'You are not assigned to any section. Please contact the administrator.');
+        }
+
+        // Validate the student data
+        $request->validate([
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'suffix' => 'nullable|string|max:10',
+            'email' => 'required|email|unique:users,email',
+            'gender' => 'required|string|in:Male,Female,Other',
+            'birthdate' => 'required|date',
+            'lrn' => 'required|string|unique:students,lrn',
+            'phone' => 'nullable|string|max:20',
+            'street_address' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
         ]);
 
-        // Create student record with teacher's section and grade level
-        Student::create([
-            'user_id' => $user->id,
-            'student_id' => $studentId,
-            'lrn' => $request->lrn,
-            'street_address' => $request->street_address,
-            'barangay' => $request->barangay,
-            'municipality' => $request->municipality,
-            'province' => $request->province,
-            'phone' => $request->phone,
-            'birthdate' => $request->birthdate,
-            'gender' => $request->gender,
-            'grade_level' => $section->grade_level, // Use section's grade level
-            'section' => $section->name, // Use section's name
-            'status' => 'active',
-        ]);
+        try {
+            DB::beginTransaction();
 
-        DB::commit();
-        return redirect()->route('teachers.student.index')
-            ->with('success', 'Student added successfully! Temporary password: ' . $tempPassword);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()
-            ->withInput()
-            ->with('error', 'Failed to add student: ' . $e->getMessage());
+            // Get the latest student ID and generate the next one
+            $latestStudent = Student::orderBy('student_id', 'desc')->first();
+            $nextId = $latestStudent ? intval(substr($latestStudent->student_id, 3)) + 1 : 1;
+            $studentId = 'STU' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+            
+            // Generate temporary password based on student ID
+            $tempPassword = 'TEMP' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+            // Create user record
+            $user = User::create([
+                'last_name' => $request->last_name,
+                'first_name' => $request->first_name,
+                'middle_name' => $request->middle_name,
+                'suffix' => $request->suffix,
+                'email' => $request->email,
+                'username' => $studentId,
+                'password' => bcrypt($tempPassword),
+                'role' => 'student',
+            ]);
+
+            // Create student record with teacher's section and grade level
+            Student::create([
+                'user_id' => $user->id,
+                'student_id' => $studentId,
+                'lrn' => $request->lrn,
+                'street_address' => $request->street_address,
+                'barangay' => $request->barangay,
+                'municipality' => $request->municipality,
+                'province' => $request->province,
+                'phone' => $request->phone,
+                'birthdate' => $request->birthdate,
+                'gender' => $request->gender,
+                'grade_level' => $section->grade_level, // Use section's grade level
+                'section' => $section->name, // Use section's name
+                'status' => 'active',
+            ]);
+
+            DB::commit();
+            return redirect()->route('teachers.student.index')
+                ->with('success', 'Student added successfully! Temporary password: ' . $tempPassword);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to add student: ' . $e->getMessage());
+        }
     }
-}
-public function destroy($id)
-{
-    try {
-        DB::beginTransaction();
-        
-        // Find and delete the student record using user_id
-        $student = Student::where('user_id', $id)->firstOrFail();
-        Student::where('user_id', $id)->delete();
-        
-        // Delete the associated user record
-        $user = User::findOrFail($id);
-        $user->delete();
-        
-        DB::commit();
-        return redirect()->route('teachers.student.index')->with('success', 'Student deleted successfully.');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->route('teachers.student.index')->with('error', 'Failed to delete student: ' . $e->getMessage());
+
+    public function destroy($id)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Find the student record using user_id
+            $student = Student::where('user_id', $id)->firstOrFail();
+            
+            // Soft delete the student record
+            $student->delete();
+            
+            // Update the student's status to 'dropped'
+            $student->update(['status' => 'dropped']);
+            
+            DB::commit();
+            return redirect()->route('teachers.student.index')->with('success', 'Student removed from section successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('teachers.student.index')->with('error', 'Failed to remove student: ' . $e->getMessage());
+        }
     }
-}
 
     /**
      * Show the teacher's profile page.

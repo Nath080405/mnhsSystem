@@ -38,7 +38,7 @@
               <small class="text-muted">{{ $subject->code }}</small>
               <span class="badge bg-primary bg-opacity-10 text-primary">
                 <i class="bi bi-people-fill me-1"></i>
-                {{ $subject->grades->count() }} Students
+                {{ $subject->automaticEnrollments->count() }} Students
               </span>
             </div>
           </div>
@@ -71,7 +71,7 @@
               {{ $subject->name }} - {{ $subject->code }}
               <span class="badge bg-primary bg-opacity-10 text-primary ms-2">
                 <i class="bi bi-people-fill me-1"></i>
-                {{ $subject->grades->count() }} Students
+                {{ $subject->automaticEnrollments->count() }} Students
               </span>
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -96,7 +96,7 @@
 
             <div class="mt-4">
               <h6 class="text-primary mb-3">Enrolled Students</h6>
-              @if($subject->grades->count() > 0)
+              @if($subject->automaticEnrollments->count() > 0)
                 <div class="table-responsive">
                   <table class="table table-hover">
                     <thead>
@@ -108,11 +108,11 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @foreach($subject->grades as $grade)
+                      @foreach($subject->automaticEnrollments as $enrollment)
                         <tr>
-                          <td>{{ $grade->user->student_id }}</td>
-                          <td>{{ $grade->user->first_name }} {{ $grade->user->last_name }}</td>
-                          <td>{{ $grade->grade ?? 'Not graded' }}</td>
+                          <td>{{ $enrollment->student->student_id }}</td>
+                          <td>{{ $enrollment->student->user->first_name }} {{ $enrollment->student->user->last_name }}</td>
+                          <td>{{ $enrollment->student->grades->where('subject_id', $subject->id)->first()->grade ?? 'Not graded' }}</td>
                           <td>
                             <a href="{{ route('teachers.student.grade.index') }}" class="btn btn-sm btn-primary">
                               <i class="bi bi-pencil-square"></i> Grade

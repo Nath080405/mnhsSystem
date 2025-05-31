@@ -113,6 +113,7 @@ Route::middleware('auth')->group(function () {
 
         // Grade Management Routes
         Route::get('/student/grades', [\App\Http\Controllers\Teacher\TeacherController::class, 'indexStudentGrade'])->name('teachers.student.grade.index');
+        Route::get('/student/grades/{id}', [\App\Http\Controllers\Teacher\TeacherController::class, 'showStudentGrade'])->name('teachers.student.grade.show');
         Route::post('/student/grades', [\App\Http\Controllers\Teacher\TeacherController::class, 'storeGrades'])->name('teachers.student.grade.store');
         Route::get('/student/grades/search', [\App\Http\Controllers\Teacher\TeacherController::class, 'search'])->name('teachers.student.grade.search');
 

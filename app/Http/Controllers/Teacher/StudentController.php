@@ -145,4 +145,42 @@ class StudentController extends Controller
 
         return redirect()->route('teachers.student.index')->with('success', 'Student added successfully!');
     }
+
+    public function indexStudentGrade()
+    {
+        $teacher = auth()->user();
+
+        // Get the section where the teacher is assigned as adviser
+        $section = \App\Models\Section::where('adviser_id', $teacher->id)->first();
+
+        if (!$section) {
+            return view('teachers.student.grade.index', [
+                'students' => collect(),
+                'subjects' => collect(),
+                'grades' => collect(),
+                'error' => 'You are not assigned to any section. Please contact the administrator.'
+            ]);
+        }
+
+        // Get students from the teacher's assigned section
+        $students = \App\Models\User::where('role', 'student')
+            ->join('students', 'users.id', '=', 'students.user_id')
+            ->where('students.section', $section->name)
+            ->select('users.*', 'students.*')
+            ->orderBy('users.last_name')
+            ->orderBy('users.first_name')
+            ->get();
+
+        // Get all subjects for this grade level
+        $subjects = \App\Models\Subject::where('grade_level', $section->grade_level)
+            ->orderBy('name')
+            ->get();
+
+        // Get all grades for these students and subjects
+        $grades = \App\Models\Grade::whereIn('student_id', $students->pluck('user_id'))
+            ->whereIn('subject_id', $subjects->pluck('id'))
+            ->get();
+
+        return view('teachers.student.grade.index', compact('students', 'subjects', 'grades'));
+    }
 }

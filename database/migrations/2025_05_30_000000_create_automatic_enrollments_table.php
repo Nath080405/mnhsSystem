@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grades', function (Blueprint $table) {
+        Schema::create('automatic_enrollments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('students', 'user_id')->onDelete('cascade');
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
-            $table->decimal('grade', 5, 2)->nullable();
-            $table->string('remarks')->nullable();
-            $table->string('grading_period');
+            $table->string('grade_level');
             $table->timestamps();
+
+            // Ensure a student can only be automatically enrolled once per subject
+            $table->unique(['student_id', 'subject_id']);
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grades');
+        Schema::dropIfExists('automatic_enrollments');
     }
-};
+}; 

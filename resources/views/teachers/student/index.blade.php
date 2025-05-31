@@ -24,6 +24,26 @@
                 </a>
             </div>
         </div>
+        
+    <!-- Section Overview -->
+    @if($section)
+      <div class="mb-5">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h4 class="fw-bold text-primary mb-1">Your Assigned Section</h4>
+                <p class="text-muted mb-0">{{ $section->name }} - {{ $section->grade_level }}</p>
+              </div>
+              <span class="badge bg-primary bg-opacity-10 text-primary">
+                <i class="bi bi-people-fill me-1"></i>
+                {{ $students->count() }} Students
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    @endif
 
         <!-- Main Content -->
         <div class="card shadow-lg border-0">
@@ -186,25 +206,57 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title" id="deleteStudentModalLabel">Confirm Removal</h5>
+                    <h5 class="modal-title" id="deleteStudentModalLabel">Remove Student from Section</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <div class="avatar-sm bg-danger bg-opacity-10 rounded-circle mx-auto mb-3">
-                            <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+                    <!-- Step 1: Reasons Form -->
+                    <div id="reasonsStep" class="text-center mb-4">
+                        <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle mx-auto mb-3">
+                            <i class="bi bi-clipboard-text text-warning fs-4"></i>
                         </div>
-                        <h5 class="mb-1">Are you sure?</h5>
-                        <p class="text-muted mb-0">You are about to remove <span class="fw-bold" id="studentName"></span>
-                            from your class. This action cannot be undone.</p>
+                        <h5 class="mb-3">Reason for Removal</h5>
+                        <p class="text-muted mb-3">Please select the reason for removing <span class="fw-bold" id="studentName"></span> from your section:</p>
+                        
+                        <div class="form-group text-start">
+                            <select class="form-select mb-3" id="removalReason">
+                                <option value="">Select a reason...</option>
+                                <option value="transferred">Transferred to another school</option>
+                                <option value="dropped">Dropped</option>
+                                <option value="disciplinary">Disciplinary action</option>
+                                <option value="academic">Academic performance</option>
+                                <option value="attendance">Poor attendance</option>
+                                <option value="other">Other reason</option>
+                            </select>
+                            
+                            <div id="otherReasonDiv" class="mb-3" style="display: none;">
+                                <label for="otherReason" class="form-label">Please specify:</label>
+                                <textarea class="form-control" id="otherReason" rows="2" placeholder="Enter the specific reason..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Final Confirmation -->
+                    <div id="confirmationStep" class="text-center mb-4" style="display: none;">
+                        <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle mx-auto mb-3">
+                            <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                        </div>
+                        <h5 class="mb-1">Confirm Removal</h5>
+                        <p class="text-muted mb-0">Are you sure you want to mark <span class="fw-bold" id="studentNameConfirm"></span> as <span id="statusText"></span>? This action will update the student's status but preserve their records in the system.</p>
+                        <div class="alert alert-info mt-3 text-start">
+                            <strong>Reason:</strong> <span id="selectedReason"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle me-1"></i> Cancel
                     </button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-                        <i class="bi bi-trash me-1"></i> Remove Student
+                    <button type="button" class="btn btn-primary" id="nextStepBtn">
+                        <i class="bi bi-arrow-right me-1"></i> Next
+                    </button>
+                    <button type="button" class="btn btn-warning" id="confirmDeleteBtn" style="display: none;">
+                        <i class="bi bi-person-x me-1"></i> Remove Student
                     </button>
                 </div>
             </div>
@@ -368,27 +420,112 @@
             // Delete Student Modal Functionality
             const deleteModal = document.getElementById('deleteStudentModal');
             const studentNameElement = document.getElementById('studentName');
+            const studentNameConfirmElement = document.getElementById('studentNameConfirm');
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const nextStepBtn = document.getElementById('nextStepBtn');
+            const reasonsStep = document.getElementById('reasonsStep');
+            const confirmationStep = document.getElementById('confirmationStep');
+            const removalReason = document.getElementById('removalReason');
+            const otherReasonDiv = document.getElementById('otherReasonDiv');
+            const otherReason = document.getElementById('otherReason');
+            const selectedReason = document.getElementById('selectedReason');
+            const statusText = document.getElementById('statusText');
             let currentForm = null;
+
+            // Show/hide other reason textarea
+            removalReason.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    otherReasonDiv.style.display = 'block';
+                } else {
+                    otherReasonDiv.style.display = 'none';
+                }
+            });
 
             // When delete button is clicked
             document.querySelectorAll('.delete-student-btn').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     const studentName = this.getAttribute('data-student-name');
                     studentNameElement.textContent = studentName;
+                    studentNameConfirmElement.textContent = studentName;
                     currentForm = this.closest('form');
+                    
+                    // Reset the form
+                    removalReason.value = '';
+                    otherReason.value = '';
+                    otherReasonDiv.style.display = 'none';
+                    reasonsStep.style.display = 'block';
+                    confirmationStep.style.display = 'none';
+                    nextStepBtn.style.display = 'block';
+                    confirmDeleteBtn.style.display = 'none';
                 });
             });
 
+            // When next button is clicked
+            nextStepBtn.addEventListener('click', function() {
+                const reason = removalReason.value;
+                if (!reason) {
+                    alert('Please select a reason for removal');
+                    return;
+                }
+                if (reason === 'other' && !otherReason.value.trim()) {
+                    alert('Please specify the other reason');
+                    return;
+                }
+
+                // Display the selected reason
+                let reasonText = removalReason.options[removalReason.selectedIndex].text;
+                if (reason === 'other') {
+                    reasonText = otherReason.value;
+                }
+                selectedReason.textContent = reasonText;
+
+                // Update status text based on reason
+                switch(reason) {
+                    case 'transferred':
+                        statusText.textContent = 'transferred';
+                        break;
+                    case 'dropped':
+                        statusText.textContent = 'dropped';
+                        break;
+                    case 'disciplinary':
+                        statusText.textContent = 'removed due to disciplinary action';
+                        break;
+                    case 'academic':
+                        statusText.textContent = 'removed due to academic performance';
+                        break;
+                    case 'attendance':
+                        statusText.textContent = 'removed due to poor attendance';
+                        break;
+                    case 'other':
+                        statusText.textContent = 'removed';
+                        break;
+                    default:
+                        statusText.textContent = 'removed';
+                }
+
+                // Show confirmation step
+                reasonsStep.style.display = 'none';
+                confirmationStep.style.display = 'block';
+                nextStepBtn.style.display = 'none';
+                confirmDeleteBtn.style.display = 'block';
+            });
+
             // When confirm delete is clicked
-            confirmDeleteBtn.addEventListener('click', function () {
+            confirmDeleteBtn.addEventListener('click', function() {
                 if (currentForm) {
+                    // Add the reason to the form
+                    const reasonInput = document.createElement('input');
+                    reasonInput.type = 'hidden';
+                    reasonInput.name = 'removal_reason';
+                    reasonInput.value = removalReason.value === 'other' ? otherReason.value : removalReason.options[removalReason.selectedIndex].text;
+                    currentForm.appendChild(reasonInput);
+                    
                     currentForm.submit();
                 }
             });
 
             // Reset form reference when modal is closed
-            deleteModal.addEventListener('hidden.bs.modal', function () {
+            deleteModal.addEventListener('hidden.bs.modal', function() {
                 currentForm = null;
             });
         });

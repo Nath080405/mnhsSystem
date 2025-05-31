@@ -10,9 +10,20 @@ use App\Models\Event;
 use App\Models\EventView;
 use App\Models\Subject;
 use App\Models\Grade;
+use App\Services\AutomaticEnrollmentService;
+use Illuminate\Support\Facades\DB;
+use App\Models\Student;
+use League\Csv\Reader;
 
 class StudentController extends Controller
 {
+    protected $enrollmentService;
+
+    public function __construct(AutomaticEnrollmentService $enrollmentService)
+    {
+        $this->enrollmentService = $enrollmentService;
+    }
+
     /**
      * Display the student dashboard.
      *
@@ -279,5 +290,83 @@ class StudentController extends Controller
     {
         $user = Auth::user();
         return view('student.profile', compact('user'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            // ... existing validation rules ...
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $student = Student::create($validated);
+            
+            // Automatically enroll the student in subjects matching their grade level
+            $this->enrollmentService->enrollStudent($student);
+            
+            DB::commit();
+            return redirect()->route('students.index')->with('success', 'Student created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to create student: ' . $e->getMessage());
+        }
+    }
+
+    public function importCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt'
+        ]);
+
+        try {
+            $csv = Reader::createFromPath($request->file('csv_file')->getPathname());
+            $csv->setHeaderOffset(0);
+            $records = $csv->getRecords();
+
+            $students = collect();
+            foreach ($records as $record) {
+                // Create student record
+                $student = Student::create([
+                    // ... map CSV fields to student fields ...
+                ]);
+                $students->push($student);
+            }
+
+            // Enroll all imported students in their respective subjects
+            $this->enrollmentService->enrollStudents($students);
+
+            return redirect()->route('students.index')
+                ->with('success', 'Students imported and enrolled successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to import students: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+        $oldGradeLevel = $student->grade_level;
+        $oldSection = $student->section;
+
+        $validated = $request->validate([
+            // ... existing validation rules ...
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $student->update($validated);
+            
+            // Update enrollments if grade level or section changed
+            if ($oldGradeLevel !== $student->grade_level || $oldSection !== $student->section) {
+                $this->enrollmentService->updateStudentEnrollments($student, $oldGradeLevel, $oldSection);
+            }
+            
+            DB::commit();
+            return redirect()->route('students.index')->with('success', 'Student updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to update student: ' . $e->getMessage());
+        }
     }
 }
